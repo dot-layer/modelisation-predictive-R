@@ -1,0 +1,21 @@
+---
+title: "Modélisation prédictive en R"
+author: ".Layer"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
+bibliography: [packages.bib]
+biblio-style: apalike
+link-citations: yes
+github-repo: dot-layer/modelisation-predictive-R
+---
+
+# Prérequis
+
+```{r include=FALSE}
+# génère un bib pour les packages utilisés
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown'
+), 'packages.bib')
+```
