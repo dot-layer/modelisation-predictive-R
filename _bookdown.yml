@@ -1,4 +1,8 @@
-book_filename: "modelisation-predictive-r-livre"
 language:
+  label:
+    fig: 'Figure '
+    tab: 'Table '
+    eq: 'Equation '
   ui:
     chapter_name: "Chapitre "
+delete_merged_file: true

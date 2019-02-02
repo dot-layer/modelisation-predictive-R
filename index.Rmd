@@ -11,7 +11,7 @@ link-citations: yes
 github-repo: dot-layer/modelisation-predictive-R
 ---
 
-# Prérequis
+# Préface
 
 ```{r include=FALSE}
 # génère un bib pour les packages utilisés
