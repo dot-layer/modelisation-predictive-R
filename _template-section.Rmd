@@ -1,0 +1,32 @@
+# TITRE DU CHAPITRE
+
+## Mise en contexte
+
+Le but de cette sous-section est de donner au lecteur un aperçu de ce qui sera présenté dans la section. On devrait préciser quels sont les inputs attendus et les outputs qui seront produits.
+
+
+## Théorie
+
+Le but de cette sous-section est de présenter la théorie sous-jacente à la section courante. La théorie doit être la plus générale possible. Par exemple, dans la section "Méthodologie de construction de modèles", on ne veut pas nécessairement présenter des familles de modèle en particulier. Le but est plutôt d'expliquer en quoi consiste la modélisation at large. Parler des variables explicatives, de la variable réponse, de la fonction qui les unis, des termes d'erreurs, des résidus, des diagnostics du modèle, etc.
+
+Cette sous-section sera assez différente d'un chapitre à l'autre. C'est normal qu'il y aille plus de juice à présenter dans la section sur la méthodologie de modèles que sur la section du déploiement.
+
+
+## Intégration
+
+Le but de cette sous-section est de présenter un schéma d'intégration de la théorie de cette section dans un contexte de mise en production. Cette partie est axée sur l'architecture, les guidelines de programmation, la nomenclature, la consistance et la reproductibilité. Par exemple :
+
+- structure des dossiers/fichiers
+- qu'est-ce qui doit être versionné sur git
+- comment attacher le code de cette section au code des autres sections
+
+
+## Packages suggérés
+
+Le but de cette sous-section est de présenter les packages les plus populaire dans la communauté pour appliquer la théorie en respectant l'intégration présenté dans la section. Le but n'est pas de réécrire une vignette de ces packages, mais de montrer les différences entre les alternatives proposées. Bref, on veut présenter plus d'une alternative, mais on veut justifier notre préférence dans notre contexte de déploiement d'un modèle prédictif. Exemple classique, pourquoi choisir data.table ou dplyr?
+
+
+## Exemples
+
+Présenter différents exemples utilisant les packages suggérés par rapport à la théorie en respectant l'intégration proposé. Pour assurer une certaine uniformité entre les sections du livre, bien vouloir utiliser le package `nycflights13` si vous avez besoin de données.
+
