@@ -4,3 +4,4 @@
 packrat/lib*/
 _book
 _bookdown_files
+*.DS_Store
