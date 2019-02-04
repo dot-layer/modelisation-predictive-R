@@ -1,1 +1,56 @@
 # Méthodologie de construction de modèles
+
+
+## Mise en contexte
+
+Peut-être que je fusionnerais cette section avec la suivante (en gardant le sous-titre Mise en contexte). Présentation de librairies servant à la modélisation en général (caret?).
+
+## Un modèle
+
+- définition vraiment basique y = f(x).
+- Régression vs classification
+
+### Exemples de modèles
+
+(littéralement sous forme d'exemple avec des dataset bébé)
+
+  - régression linéaire (mention : bien comprendre les modèles linéaires est essentiel pour comprendre les modèles non-linéaire)
+  - modèles lineaires généralisé
+  - modèles additifs
+  - arbres de décisions (boosted trees)
+  - SVM (note : plus populaire en info)
+  
+Pour simplifier le tout, on continue avec la régression, mais tout s'applique à la classification.
+
+
+## Estimation d'un modèle
+
+- fonction de perte (loss function/objective function)
+- ajustement du modèle: minimization de l'erreur de prédiction moyenne.
+
+- explication avec un modèle simple : régression linéaire (ajuster les betas)
+
+### Régularization
+- Un mot très rapide sur la régularisation
+- exemple: reg linéaire (l2 (ridge), l1 (lasso), l1+l2 (elastic net))
+
+
+### Librairies utiles
+  - modèles lineaires généralisé (glmnet)
+  - modèles additifs (xgBoost)
+  - arbres de décisions (boosted trees - xgBoost)
+  - SVM (?)
+
+
+
+## Sélection d'un modèle
+
+- *erreur de généralization*
+- estimation via la division du jeu de données (train/test/val) -- note sur caret qui permet la séparation
+- estimation via CV (Jackknife et son évolution)
+- estimation via bootstrap (en tant que l'évolution de la CV?)
+
+
+### Exemples
+
+Un exemple pour chacune des trois méthodes.
