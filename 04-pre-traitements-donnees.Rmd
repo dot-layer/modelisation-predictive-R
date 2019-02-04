@@ -1,1 +1,23 @@
 # Prétraitements des données
+
+## Mise en contexte
+
+## Théorie
+
+- Parler d'imputation de données manques (biais, variance des estimateurs, techniques)
+- Feature engineering (binnings, one-hot encode, combinaisons de variables)
+
+## Intégration
+
+- Outputer un json (ou des objets .rds) permettant de faire l'imputation en prod
+- Avoir une fonction par feature et parler du naming pour les variables raw versus features
+
+## Packages suggérés
+
+- `Hmisc` 
+- `missForest`
+- `MICE` (pas mon pref, difficile à reconduire en prod)
+
+Je dois faire des tests et investiguer plus les deux premiers. 
+
+## Exemple
