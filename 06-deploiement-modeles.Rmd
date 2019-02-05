@@ -1,1 +1,39 @@
 # Déploiement de modèles
+
+L'ultime étape pour donner vie à un modèle est de le mettre en production. 
+Il existe différentes manières d'y arriver, dépendemment du cas d'utilisation du modèle. 
+
+Ce qu'on chercher à accomplir: 
+
+usager => requête => server
+
+server => résultat => usager
+
+Nous verrons ici deux outils permettant de servir les résultats d'un modèle: 
+
+ - [OpenCPU](https://www.opencpu.org/)
+ - [Plumber](https://www.rplumber.io/)
+
+Chacun de ces outils permet de servir un modèle via un REST API, ce qui signifie que les échanges sont réalisés au travers du protocole http. Comme il s'agit d'un protocole omniprésent, il existe de nombreux outils disponibles pour en faciliter l'intégration dans différentes applications. 
+
+## OpenCPU
+
+L'unité de travail de OpenCPU repose sur la librairie. Pour pouvoir servir un modèle, on doit donc le structurer de manière à ce qu'il puisse être mis dans une librairie. Si l'approche peut paraître contraignante, elle force d'autre part à adopter une discipline dans la structure du code et de ses dépendances qui peuvent être salutaires à sa maintenance. 
+
+ - Bâtir un squelette de librairie
+
+ - Ajouter des foncitons et dépendances
+ 
+ - Déploiement sur server
+
+ - Intégration avec webhook
+ 
+ - Déploiement sur Docker
+
+
+## Plumber
+
+L'approche prise par Plumber repose sur l'ajout d'annotations au code. 
+
+ - OpenAPI/Swagger doc
+ - Déploiement docker
