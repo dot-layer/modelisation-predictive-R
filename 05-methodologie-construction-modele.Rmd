@@ -3,6 +3,13 @@
 
 ## Mise en contexte
 
+- Les jeux de données sont bien structurés
+- On a une question
+- On identifie nos entrants X et nos sortants Y
+- On veut connecter les entrants aux sortants à l'aide d'une fonction
+- Dans un monde idéal
+- ...
+
 Peut-être que je fusionnerais cette section avec la suivante (en gardant le sous-titre Mise en contexte). Présentation de librairies servant à la modélisation en général (caret?).
 
 ## Un modèle
