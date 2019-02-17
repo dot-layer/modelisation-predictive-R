@@ -3,46 +3,63 @@
 
 ## Mise en contexte
 
-- Les jeux de données sont bien structurés
-- On a une question
-- On identifie nos entrants X et nos sortants Y
-- On veut connecter les entrants aux sortants à l'aide d'une fonction
-- Dans un monde idéal
-- ...
 
-Peut-être que je fusionnerais cette section avec la suivante (en gardant le sous-titre Mise en contexte). Présentation de librairies servant à la modélisation en général (caret?).
+(...) Ce qu'on a fait à date:
 
-## Un modèle
+- Retour sur 1-2-3-4
+- Donc: les jeux de données sont bien structurés (propres)
 
-- définition vraiment basique y = f(x).
+
+(...) Ce qu'on veut faire maintenant:
+
+- On a une question (de nature prédictive).
+- On identifie nos entrants X et nos sortants Y.
+- On veut connecter les entrants aux sortants. Plus particulièrement, nous sommes intéressés par la distribution de $Y$ conditionnelle à $X$.
+
+(...) Librairies:
+
+- modélisation (général): caret?
+- modèles: glmnet, xgBoost
+
+*Selon le modèle choisi.
+
+
+(...) Dans ce chapitre
+
+- Définition d'un modèle
+- Estimation de ses paramètres (concepts importants: fonction de perte, compromis biais-variance)
+- Évaluation de notre ou nos modèles (concept important: erreur de généralisation)
+- Avant tout, un mot sur cette dernière. Gestion des données: train/test/validation. Souvent confus.
+
+
+## Identification d'un modèle
+
+- définition basique y = f(x).
 - Régression vs classification
 
-### Exemples de modèles
+
+**Exemples**
 
 (littéralement sous forme d'exemple avec des dataset bébé)
 
   - régression linéaire (mention : bien comprendre les modèles linéaires est essentiel pour comprendre les modèles non-linéaire)
-  - modèles lineaires généralisé
+  - modèles lineaires généralisé (reg. logistique)
   - modèles additifs
   - arbres de décisions (boosted trees)
   - SVM (note : plus populaire en info)
-  
-Pour simplifier le tout, on continue avec la régression, mais tout s'applique à la classification.
 
 
 ## Estimation d'un modèle
 
 - fonction de perte (loss function/objective function)
-- ajustement du modèle: minimization de l'erreur de prédiction moyenne.
-
+- ajustement du modèle: minimisation de l'erreur de prédiction moyenne.
 - explication avec un modèle simple : régression linéaire (ajuster les betas)
-
-### Régularization
-- Un mot très rapide sur la régularisation
-- exemple: reg linéaire (l2 (ridge), l1 (lasso), l1+l2 (elastic net))
+- Un mot très rapide sur la régularisation (l2 (ridge), l1 (lasso), l1+l2 (elastic net))
 
 
-### Librairies utiles
+
+**Exemples (suite)**
+
   - modèles lineaires généralisé (glmnet)
   - modèles additifs (xgBoost)
   - arbres de décisions (boosted trees - xgBoost)
@@ -51,13 +68,12 @@ Pour simplifier le tout, on continue avec la régression, mais tout s'applique �
 
 
 ## Sélection d'un modèle
-
 - *erreur de généralization*
 - estimation via la division du jeu de données (train/test/val) -- note sur caret qui permet la séparation
 - estimation via CV (Jackknife et son évolution)
-- estimation via bootstrap (en tant que l'évolution de la CV?)
+- estimation via bootstrap
 
 
-### Exemples
+**Exemples**
 
 Un exemple pour chacune des trois méthodes.
