@@ -5,24 +5,56 @@ Il existe différentes manières d'y arriver, dépendemment du cas d'utilisation
 
 Ce qu'on chercher à accomplir: 
 
-usager => requête => server
+usager => requête => serveur
 
-server => résultat => usager
+serveur => résultat => usager
 
 Nous verrons ici deux outils permettant de servir les résultats d'un modèle: 
 
  - [OpenCPU](https://www.opencpu.org/)
  - [Plumber](https://www.rplumber.io/)
 
-Chacun de ces outils permet de servir un modèle via un REST API, ce qui signifie que les échanges sont réalisés au travers du protocole http. Comme il s'agit d'un protocole omniprésent, il existe de nombreux outils disponibles pour en faciliter l'intégration dans différentes applications. 
+Chacun de ces outils permet de servir un modèle via un REST API, ce qui signifie que les échanges sont réalisés au travers du protocole http. Comme il s'agit d'un protocole omniprésent, il existe de nombreux outils disponibles pour en faciliter l'intégration dans différentes applications. Ça signifie que ces applications peuvent exploiter les capacités de modélisation de R sans qu'elles aient à intégrer R d'aucune façon. L'utilisation d'un modèle via un REST API devient donc agnostic du ou des langages utilisé à l'intérieur de cet API. 
 
 ## OpenCPU
 
-L'unité de travail de OpenCPU repose sur la librairie. Pour pouvoir servir un modèle, on doit donc le structurer de manière à ce qu'il puisse être mis dans une librairie. Si l'approche peut paraître contraignante, elle force d'autre part à adopter une discipline dans la structure du code et de ses dépendances qui peuvent être salutaires à sa maintenance. 
+L'unité de travail de OpenCPU repose sur la librairie. Pour pouvoir servir un modèle, on doit donc le structurer de manière à ce qu'il puisse être servi par une librairie. Si l'approche peut paraître contraignante, elle incite à l'adoption d'une discipline dans la structure du code et de ses dépendances qui peut être salutaires à sa maintenance. 
 
- - Bâtir un squelette de librairie
+### Débuter avec OpenCPU
 
- - Ajouter des foncitons et dépendances
+Le déploiement d'un modèle se fait normalement à partir d'un serveur. Afin de se familiariser avec l'outil ainsi que faciliter le développement, il est possible de rouler le serveur OpenCPU localement.
+
+- Installer la librairie: `install.packages("opencpu")`  
+- La charger: `library(opencpu)`
+- Démarrer le serveur: `opencpu::ocpu_start_server()`
+
+Une fois le serveur démarré, il est désormais possible d'interagir avec celui-ci via le port local: `http://localhost:5656/ocpu/test/` (localhost est ici équivalent à 127.0.0.1). 
+
+Une requête http peut alors être faite à ce serveur. La programme `curl` est communément utilisé pour ces requêtes et peut être utilisé à partir du Terminal dans RStudio (ou à partir de tout autre terminal) ou même à l'intérieur de R grâce à des librairies comme `curl` our `httr`: 
+
+`curl http://localhost:5656/ocpu/library/stats/R/rnorm/json -d n=2`
+
+La commande précédente devrait retourner un résultat similaire au suivant:
+![](./deploiement/ocpu_rnorm_demo.PNG)
+
+Que s'est-il passé? Le serveur a reçu une requête pour la fonction `rnorm` situé dans `stats/R/` avec `n=2` comme paramètre. La segment `/json` a servi à demander à ce que le résultat soit retourné dans le format json. De fait, l'appel à la fonction a retourné un json contenant deux observations simulées d'une Normale(0,1). 
+
+### Bâtir un squelette de librairie
+
+Avant d'illustruer le déploiement d'un modèle, nous allons présenter comment utiliser OpenCPU à partir d'un exemple le plus minimal possible.
+
+La première étape est d'avoir le code structuré en une librairie. Une librairie peut être initialisée à l'aide de la commande: 
+
+```
+usethis::create_package("~/nom_de_la_librairie/")
+```
+
+Alternativement, Rstudio offre la fonctionnalité à partir du menu: `File -> New Project -> New Directory -> R Package`. 
+
+Une librarie en R n'est qu'un projet qui contient un fichier `DESCRIPTION`, un fichier `NAMESPACE` ainsi qu'un dossier `R/` à l'intérieur duquel se trouve le code R. Les fonctions d'initialisation ci-haut ne sont que des aides facilitant la tâche de création de cette structure. 
+
+
+ - Ajouter des fonctions et dépendances
  
  - Déploiement sur server
 
@@ -37,3 +69,8 @@ L'approche prise par Plumber repose sur l'ajout d'annotations au code.
 
  - OpenAPI/Swagger doc
  - Déploiement docker
+ 
+ Débuter:
+ 
+ `install.packages("plumber")`
+ 
