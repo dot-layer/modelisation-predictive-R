@@ -13,7 +13,7 @@
 (...) Ce qu'on veut faire maintenant:
 
 - On a une question (de nature prédictive).
-- On identifie nos entrants X et nos sortants Y.
+- On identifie nos entrants X et nos sortants Y. **stecaron**: Auras-tu (ou Aura-t-on) déjà expliqué prédicteurs (x) VS réponses (y)? Variables catégoriques, ordonnées, discrètes, continues? (Ça sort de *The Elements*. Je vais les citer en début de chapitre)
 - On veut connecter les entrants aux sortants. Plus particulièrement, nous sommes intéressés par la distribution de $Y$ conditionnelle à $X$.
 
 (...) Librairies:
@@ -33,6 +33,8 @@
 
 
 ## Identification d'un modèle
+
+
 
 - définition basique y = f(x).
 - Régression vs classification
