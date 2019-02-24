@@ -1,7 +1,6 @@
 #' Salut
 #' Une fonction qui salue.
 #' @export
-
 salut <- function() {
-  print("Salut tout le monde!")
+  print("Salut tout le monde! V1!")
 }

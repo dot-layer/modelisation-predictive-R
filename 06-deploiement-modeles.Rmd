@@ -22,7 +22,7 @@ L'unité de travail de OpenCPU repose sur la librairie. Pour pouvoir servir un m
 
 ### Débuter avec OpenCPU
 
-Le déploiement d'un modèle se fait normalement à partir d'un serveur. Afin de se familiariser avec l'outil ainsi que faciliter le développement, il est possible de rouler le serveur OpenCPU localement.
+Le déploiement d'un modèle se fait normalement à partir d'un serveur. Pour se familiariser avec l'outil ainsi que faciliter le développement, il est possible de rouler le serveur OpenCPU localement.
 
 - Installer la librairie: `install.packages("opencpu")`  
 - La charger: `library(opencpu)`
@@ -39,6 +39,8 @@ La commande précédente devrait retourner un résultat similaire au suivant:
 
 Que s'est-il passé? Le serveur a reçu une requête pour la fonction `rnorm` situé dans `stats/R/` avec `n=2` comme paramètre. La segment `/json` a servi à demander à ce que le résultat soit retourné dans le format json. De fait, l'appel à la fonction a retourné un json contenant deux observations simulées d'une Normale(0,1). 
 
+Il a été possible de faire la précédente requête puisque par défaut, la librairie `stats` est accessible par OpenCPU, à l'instar de l'ensemble des librairies accessibles au niveau système. Pour servir un modèle prédictif, une librairie permettant de retourner les prédictions de ce modèle devra donc être développée. 
+
 ### Bâtir un squelette de librairie
 
 Avant d'illustruer le déploiement d'un modèle, nous allons présenter comment utiliser OpenCPU à partir d'un exemple le plus minimal possible.
@@ -47,11 +49,70 @@ La première étape est d'avoir le code structuré en une librairie. Une librair
 
 ```
 usethis::create_package("~/nom_de_la_librairie/")
+usethis::create_package("~/model.ocpu/")
 ```
 
 Alternativement, Rstudio offre la fonctionnalité à partir du menu: `File -> New Project -> New Directory -> R Package`. 
 
-Une librarie en R n'est qu'un projet qui contient un fichier `DESCRIPTION`, un fichier `NAMESPACE` ainsi qu'un dossier `R/` à l'intérieur duquel se trouve le code R. Les fonctions d'initialisation ci-haut ne sont que des aides facilitant la tâche de création de cette structure. 
+Une librarie en R n'est qu'un projet qui contient un fichier `DESCRIPTION`, un fichier `NAMESPACE` ainsi qu'un dossier `R/` à l'intérieur duquel se trouve les codes R. Les fonctions d'initialisation ci-haut ne sont que des aides facilitant la création de cette structure. 
+
+Une fois la création du squelette complétée, une fonction test peut être créée. Par exemple, avec le code suivant dans le fichier `./R/salut.R`:
+
+```
+#' Salut
+#' Une fonction qui salue.
+#' @export
+salut <- function() {
+  print("Salut tout le monde!")
+}
+```
+
+La librairie mode.ocpu peut maintenant être bâtie. 
+La documentation sera d'abord générée:
+
+```
+devtools::document()
+```
+
+Et l'installtion peut se faire avec le raccourci: `ctrl-shift-B`.
+
+En démarrant à une nouvelle session du serveur OpenCPU, il sera désormais possible d'intéragir avec la librairie model.ocpu nouvellement installée. 
+
+`curl http://localhost:5656/ocpu/library/model.ocpu/R/salut/json -d ""`
+
+
+### Intégrer un modèle prédictif dans une librairie
+
+Une librairie permettant de retourner des prédictions devra supporter les fonctionnalité suivante: 
+ - Lire les informations relativement aux observations pour lesquelles une prédiction doit être retournée
+ - Appliquer les possibles transformations utilisées dans la préparation des données sur lesquelle le modèle a été construit. 
+ - Effectuer la prédiction sur ces donnée à partir du modèle sélectionné pour la déploiement. 
+
+Comment rendre accessible le modèle entraîné à l'intérieur de la librairie? Un modèle peut être représenté comme la combinaison entre des paramètres et un algorithme décrivant comment de transformer les informations d'une observations en une prédiction. Lorsqu'un modèle est entraîné, l'objet résultant contient ces informations, de sorte que la fonction `predict` appliquée sur ce modèle permet d'obtenir les prédictions désirée. 
+
+L'approche la plus naturelle sera donc de sauvegarder le modèle désiré à l'intérieur de la librairie et de le rendre accessible aux fonctions de la librairie d'inférence. 
+
+La méthode recommandée consiste en la création d'un script générant un fichier `.Rda` qui contient les modèles et autres objets R nécessaires à l'inférence. Ce script sera localisé dans le dossier `data-raw`. 
+
+Par exemple, ce script sera le suivant pour rendre disponible le modèle développé à la section précédente: 
+
+```
+model_iris <- xgboost::xgb.train(params = param, data = dtrain, nrounds = 400)
+usethis::use_data(model_iris, internal = T, overwrite = T)
+```
+
+Une fonction d'inférence peut maintenant être construite. 
+
+```
+#' Classification from vector of features
+#' @export
+pred_xgboost_vector <- function(input = c(0,0,0,0)) {
+  data_pred <- matrix(input, nrow = 1)
+  prob <- predict(object = model_iris, newdata = data_pred)
+  label = iris_levels[which.max(prob)]
+  return(list(label = label, prob = prob))
+}
+```
 
 
  - Ajouter des fonctions et dépendances

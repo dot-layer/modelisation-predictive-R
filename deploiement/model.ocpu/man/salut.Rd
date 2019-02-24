@@ -2,10 +2,12 @@
 % Please edit documentation in R/salut.R
 \name{salut}
 \alias{salut}
-\title{Salut}
+\title{Salut
+Une fonction qui salue.}
 \usage{
 salut()
 }
 \description{
+Salut
 Une fonction qui salue.
 }
