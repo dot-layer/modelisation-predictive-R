@@ -10,11 +10,16 @@
 - Donc: les jeux de données sont bien structurés (propres)
 
 
+
+
 (...) Ce qu'on veut faire maintenant:
 
-- On a une question (de nature prédictive).
-- On identifie nos entrants X et nos sortants Y. **stecaron**: Auras-tu (ou Aura-t-on) déjà expliqué prédicteurs (x) VS réponses (y)? Variables catégoriques, ordonnées, discrètes, continues? (Ça sort de *The Elements*. Je vais les citer en début de chapitre)
-- On veut connecter les entrants aux sortants. Plus particulièrement, nous sommes intéressés par la distribution de $Y$ conditionnelle à $X$.
+Supposons pour l'instant que notre variable réponse $Y$ est quantitative. En introduction du monographe, nous avons fait l'hypothèse de l'existence d'une relation $f$ connectant nos variables explicative $X$ à cette dernière de telle sorte que
+$$
+  Y \approx f(X).
+$$
+L'objectif principal, dans ce chapitre, est d'apprendre (ou plutôt d'approximer) la fonction $f$ à l'aide de la théorie de l'apprentissage statistique. C'EST QUOI CA? **CITE ESL et ISL** Nous supposons que le lecteur possède des connaissances de base en statistique (*e.g.* une vague idée du sens des termes distribution, espérance, variance, etc).
+
 
 (...) Librairies:
 
@@ -32,13 +37,25 @@
 - Avant tout, un mot sur cette dernière. Gestion des données: train/test/validation. Souvent confus.
 
 
+
+
 ## Identification d'un modèle
 
+Commençons d'abord en reformulant REF en tant qu'égalité stricte. Pour ce faire, on introduit une quantité aléatoire $\varepsilon$ qui représente la variabilité non captée par notre modèle. Cela donne ainsi l'équation
+$$
+  Y = f(X) + \varepsilon.
+$$
+Dans la grande majorité des cas, il est naturel de faire les deux hypothèses suivantes à propos de $\varepsilon$.
+Tout d'abord, on suppose que sa valeur moyenne est nulle, c'est-à-dire $\mathbf{E}(\varepsilon) = 0$.
+Ceci nous permet entre autre d'oublier $\varepsilon$ lorsque vient le temps de faire une prédiction.
+Étant donné $X$, on s'attend à ce qu'en moyenne $Y$ soit égale à $f(X)$, *i.e.* $\mathbf{E}(Y) = f(X)$.
+On stipule aussi souvent, à des fins de simplification, que $\varepsilon$ et $X$ sont indépendants.
 
+Notons qu'en introduisant $\varepsilon$, on admet l'existence d'une erreur *irréductible* : même si nous réussissions à estimer $f$ parfaitement, il faudrait s'attendre à ce que nos prédictions ne soient pas nécéssairement parfaite.
+Ceci s'explique par la présence de facteurs influençant $Y$ auxquels nous n'avons pas accès (qui ne sont pas mesurés) ou qui ne sont simplement pas mesurables; mais aussi par un choix de modèle $f$ qui ne permet pas de capturer l'essentiel de la relation entre $X$ et $Y$.
+Ainsi, pour minimiser l'erreur dite *réductible* autant que possible, il est nécessaire d'accéder à un maximum d'information (pertinente! et si possible non-redondante) et de choisir une famille de modèles appropriée pour le problème qui nous intéresse.
 
-- définition basique y = f(x).
-- Régression vs classification
-
+On divise généralement les tâches en deux grandes catégories : la régression et la classification. **EXPLICATIONS**
 
 **Exemples**
 
@@ -50,9 +67,15 @@
   - arbres de décisions (boosted trees)
   - SVM (note : plus populaire en info)
 
+**NOTE :** a-t-il été mention de...
+
+- $g(Y) = f(X) + \epsilon$ -- modèle additif versus modèle multiplicatif?
+- interprétabilité vs performance (souvent lié à inférence vs prédiction)
+
 
 ## Estimation d'un modèle
 
+- Un mot rapide sur le split (train/test/val) et les différentes erreurs (de prédiction et de généralisation)
 - fonction de perte (loss function/objective function)
 - ajustement du modèle: minimisation de l'erreur de prédiction moyenne.
 - explication avec un modèle simple : régression linéaire (ajuster les betas)
