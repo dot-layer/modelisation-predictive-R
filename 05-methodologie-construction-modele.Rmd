@@ -14,29 +14,39 @@
 
 (...) Ce qu'on veut faire maintenant:
 
-Supposons pour l'instant que notre variable réponse $Y$ est quantitative. En introduction du monographe, nous avons fait l'hypothèse de l'existence d'une relation $f$ connectant nos variables explicative $X$ à cette dernière de telle sorte que
+Supposons pour l'instant que notre variable réponse $Y$ est quantitative. En introduction du monographe, nous avons fait l'hypothèse qu'une $f$ connecte nos variables explicative $X$ à $Y$ de telle sorte que
 $$
   Y \approx f(X).
 $$
-L'objectif principal, dans ce chapitre, est d'apprendre (ou plutôt d'approximer) la fonction $f$ à l'aide de la théorie de l'apprentissage statistique. C'EST QUOI CA? **CITE ESL et ISL** Nous supposons que le lecteur possède des connaissances de base en statistique (*e.g.* une vague idée du sens des termes distribution, espérance, variance, etc).
+L'objectif principal, dans ce chapitre, est d'apprendre (ou plutôt d'approximer) la fonction $f$ à l'aide de la théorie de l'apprentissage statistique. C'EST QUOI CA? **CITE ESL et ISL** Nous supposons que le lecteur possède des connaissances de base en statistique (distribution, espérance, variance, etc).
 
 
-(...) Librairies:
+(...) Librairies et références:
 
 - modélisation (général): caret?
 - modèles: glmnet, xgBoost
 
+- ISL et ESL.
+
 *Selon le modèle choisi.
 
 
-(...) Dans ce chapitre
+(...) Division du chapitre:
 
-- Définition d'un modèle
-- Estimation de ses paramètres (concepts importants: fonction de perte, compromis biais-variance)
-- Évaluation de notre ou nos modèles (concept important: erreur de généralisation)
-- Avant tout, un mot sur cette dernière. Gestion des données: train/test/validation. Souvent confus.
+Dans ce chapitre, nous abordons la gestion des données; l'identification de modèles adéquats; l'estimation de modèles (fonction de perte, compromis biais-variance); la sélection d'un modèle (AIC,BIC,validation croisée); et l'évaluation de ce modèle (erreur de généralisation). 
 
 
+## Gestion des données
+
+Pour plusieurs raisons, il est conseillé de séparer aléatoirement son jeu de données en trois partie distinctes : les jeux de données d'entraînement, de validation et de test. Chacune des trois parties est associées à une étape de la construction du modèle. Les données d'entrainement serviront à estimer nos modèles; les données de validation à sélectionner un modèle; les données de test à évaluer le modèle final. Lorsque le nombre d'observation le permet, la règle du pouce généralement employée est d'utiliser la moitié(e?) des observations pour l'entrainement et le quart pour chacune des deux autres étapes.
+
+IMAGE
+
+Il est important de garder en tête que ce n'est qu'une règle du pouce. Si le jeu de données contient peu de signal (d'information) pour prédire $\bf{y}$, il se peut qu'en laissant de côté certaines observations, l'estimation des modèles soit trop déficiente pour être utile. Les étapes des Chapitre **REF** permettent généralement aux scientifique des données de faire une idée de la situation.
+
+On associe aux jeux de données d'entraînement l'*erreur d'entrainement*, qui est l'erreur qu'on minimise lors de l'estimation du modèle. En contrepartie, les jeux de données de validation et de test servent tous deux à estimer l'*erreur de généralisation*, c'est-à-dire l'erreur faite sur de **nouvelles** données. Cela explique d'ailleurs qu'il existe beaucoup de confusion concernant ces derniers et leur utilité. Les données de validation servent à choisir un modèle parmi plusieurs, ce qui peut vouloir dire choisir le nombre d'interactions croisées dans un modèle linéaire généralisé ou le nombre de couches cachées dans un réseau de neurones. Malgré que ce ne soit pas particulièrement conseillé, il peut arriver que l'on veuille re-mélangé les jeux d'entrainement et de validation lors du processus. Il est absolument impératif toutefois de garder les données de test dans un coffre-fort bien cellé. Sinon, notre estimation finale de l'*erreur de généralisation* pourrait être induement optimiste. Il faut toujours garder en tête que la mission du modèle est de prédire de **nouvelles** valeurs $\mathbf{y}$ à l'aide de **nouvelles** valeurs $\mathbf{X}$; l'erreur de généralisation est donc au coeur de nos préoccupations.
+
+Lorsque trop peu de données sont disponible, l'étape de test doit souvent être abandonnée et des techniques plus sophistiquées peuvent nous permettre d'estimer l'erreur de généralisation à partir des données d'entrainement. On verra toutefois que ces méthodes estiment l'*erreur de généralisation* moyenne conditionelle aux données $X$. Ces dernières sont d'ailleurs expliquées en fin de chapitre. D'ici là, nous utilisons $\mathbf{X}$ en référence aux données d'entrainement.
 
 
 ## Identification d'un modèle
