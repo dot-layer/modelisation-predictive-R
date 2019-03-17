@@ -18,4 +18,4 @@ param <- list(max_depth = 3, num_class = 3, eta = 0.05,
               objective = "multi:softprob", eval_metric = "merror")
 model_iris <- xgboost::xgb.train(params = param, data = dtrain, nrounds = 400, watchlist = watchlist, print_every_n = 25)
 
-usethis::use_data(model_iris, internal = T, overwrite = T)
+usethis::use_data(model_iris, iris_levels, internal = T, overwrite = T)

@@ -126,12 +126,47 @@ pred_xgboost_vector <- function(input = c(0,0,0,0)) {
 
 ## Plumber
 
-L'approche prise par Plumber repose sur l'ajout d'annotations au code. 
+L'approche prise par Plumber repose sur l'ajout d'annotations au code. La technologie sous-jacente est similaire à OpenCPU, l'idée étant de convertir un code R en des services accessibles via le protocole HTTP.
 
- - OpenAPI/Swagger doc
- - Déploiement docker
+
+### Débuter avec Plumber
  
- Débuter:
- 
- `install.packages("plumber")`
+- Installer la librairie: `install.packages("plumber")`  
+- La charger: `library(plumber)`
+
+Une exemple minimaliste est founi dans le dossier `deploiement/model.plumber/plumber_ini.R`. 
+Ce code peut être servi en un service plumber de la manière suivante: 
+
+```
+pr <- plumber::plumb("deploiement/model.plumber/plumber_ini.R")
+pr$run()
+```
+
+Il est alors possible d'accéder au service: 
+
+```
+curl -X GET "http://127.0.0.1:5099/message?msg=Salut!" -H "accept: application/json"
+```
+
+```
+curl -d "msg=Salut!" -G "http://127.0.0.1:5099/message"
+```
+
+### Inférence de modèle prédictif
+
+
+```
+pr <- plumber::plumb("deploiement/model.plumber/pred_xgboost.R")
+pr$run()
+```
+
+```
+curl -X GET --data '{"Sepal.Length":0,"Sepal.Width":0,"Petal.Length":0,"Petal.Width":0}' "http://localhost:5099/xgbkwargs"
+curl -X GET --data '{"input":[1.1,2.2,3.3,4]}' "http://localhost:5099/xgbvector"
+```
+
+### OpenAPI/Swagger doc
+
+### Déploiement docker
+
  
