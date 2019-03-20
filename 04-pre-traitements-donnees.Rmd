@@ -44,14 +44,22 @@ Conserver uniquement les observations pour lesquelles toutes les variables sont 
 <br>
 
 *Imputation par une mesure de centralité* <br>
-Utiliser la moyenne ou la médianne pour remplacer les données manquantes. Cette méthode est relativement simple, mais peu recommandée pour des variables ayant un pourcentage élevé de données manquantes (même pour MCAR). Cela diminue la variabilité et la corrélation entre les variables. 
+Utiliser la moyenne, la médianne ou le mode pour remplacer les données manquantes. Cette méthode est relativement simple, mais peu recommandée pour des variables ayant un pourcentage élevé de données manquantes (même pour MCAR). Cela diminue la variabilité et la corrélation entre les variables. 
 
 *Imputation par régression* <br>
+Remplacer les données manquantes par la prévision de modèle de régression entraîné sur les observations pour lesquelles cette variable est présente. On doit traiter chaque variable séparémment. On sur-estimera la corrélation entre les variables et diminuera la variance des variables (moins que par l'imputation par mesure de centralité). <br>
+
 *Imputation par régression stochastique* <br>
+Même chose que la méthode par régression, mais on utilise un résidu aléatoire à la prévision. Cela permet d'augmenter la variance.
 
 En bref, il est important d'avoir une bonne compréhension des données manquantes dans le jeu de donnée. Cela nous permet de prendre des décisions éclairées sur les techniques utilisées pour imputer ces valeurs manquantes. 
 
 #### Traitement des données aberrantes
+
+Une autre étape classique du nettoyage de données consiste à faire le traitement des données aberrantes. Ces données peuvent parfois avoir des effets importants sur l'estimation des paramètres du modèle. La première est d'abord d'identifier ces données et d'ensuite les traiters. Voici quelques méthodes traditionnelles pour faire la detection de celles-ci à l'intérieur d'une distribution quelconque:
+
+1. Plus ou moins 3 écarts-types
+
 #### Encodage des données catégoriques
 
 ### Réduction de données

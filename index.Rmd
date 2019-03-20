@@ -20,13 +20,3 @@ knitr::write_bib(c(
 ), 'packages.bib')
 ```
 
-```{r load_data, include=FALSE}
-# years_to_import <- c(2015:2018)
-# temp <- tempfile()
-# download.file("https://www.bixi.com/c/bixi/file_db/data_all.file/BixiMontrealRentals2018.zip",temp)
-# list.files <- unzip(temp,list=TRUE)
-# data <- read.csv(file.path(unz(temp, list.files$Name[1])))
-# unlink(temp)
-# fread("unzip -cq https://www.bixi.com/c/bixi/file_db/data_all.file/BixiMontrealRentals2018.zip")
-```
-
