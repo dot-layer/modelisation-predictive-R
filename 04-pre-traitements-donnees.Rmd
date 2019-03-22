@@ -2,10 +2,10 @@
 
 Pour faire de la modélisation prédictive, il est généralement inévitable de faire des prétraitements aux données pour exploiter autant que possible les différents algorithmes d'apprentissage. Ces prétraitements permettront de réaliser 2 choses:
 
-1. Transformer les données dans un format compatible pour l'algorithme.
-2. Transformer les données de manière à faciliter l'apprentissage.
+1. Transformer les données dans un format compatible pour l'algorithme
+2. Transformer les données de manière à faciliter l'apprentissage
 
-À ce stade-ci, nous n'avons pas seulement des données sous la main, mais également une certaine connaissance de ces données acquise grâce à l'analyse de données \@ref(exploration). Dans cette section, nous serons donc en mesure de produire des données propices à l'apprentissage qui sera faite dans la section \@ref(metho). Pour se faire, nous allons couvrir la théorie derrière le nettoyage, la réduction et la transformation de données. Ensuite, nous allons voir comment intégrer cette théorie dans le processus de modélisation. Finalement, nous allons présenter des packages en R qui permettent de faciliter ce pré-traitement de données.
+À ce stade-ci, nous avons une certaine connaissance de ces données acquise grâce à l'analyse de données \@ref(exploration). Dans cette section, nous serons donc en mesure de produire des données propices à l'apprentissage qui sera faite dans la section \@ref(metho). Pour se faire, nous allons couvrir la théorie derrière le nettoyage, la réduction et la transformation de données. Ensuite, nous allons voir comment intégrer cette théorie dans le processus de modélisation. Finalement, nous allons présenter des packages en R qui permettent de faciliter ce pré-traitement de données.
 
 ## Théorie
 
@@ -13,7 +13,7 @@ Cette section a comme objectif de couvrir les concepts théoriques à la base du
 
 ### Nettoyage de données
 
-La première étape du prétraitement de données consite à nettoyer les données. Après cette étape, l'algorithme devrait au minimum être en mesure de fonctionner. Le nettoyage de données comprends plusieurs traitements propres à chaque jeu de données, voici les ceux que nous avons identifiés et qui sont assez générales : 
+La première étape du prétraitement de données consite à nettoyer les données. Après cette étape, l'algorithme devrait au minimum être en mesure de fonctionner. Le nettoyage de données comprend plusieurs traitements propres à chaque jeu de données, voici ceux que nous avons identifiés et qui sont assez générales en pratique : 
 
 1. Imputation de données manquantes
 2. Traitement des données aberrantes
@@ -56,19 +56,62 @@ En bref, il est important d'avoir une bonne compréhension des données manquant
 
 #### Traitement des données aberrantes
 
-Une autre étape classique du nettoyage de données consiste à faire le traitement des données aberrantes. Ces données peuvent parfois avoir des effets importants sur l'estimation des paramètres du modèle. La première est d'abord d'identifier ces données et d'ensuite les traiters. Voici quelques méthodes traditionnelles pour faire la detection de celles-ci à l'intérieur d'une distribution quelconque:
+Une autre étape classique du nettoyage de données consiste à faire le traitement des données aberrantes. Ces données peuvent parfois avoir des effets importants sur l'estimation des paramètres du modèle. La première étape est d'abord d'identifier ces données et d'ensuite les traiter. Voici quelques méthodes traditionnelles pour faire la detection de celles-ci à l'intérieur d'une distribution quelconque:
 
-1. Plus ou moins 3 écarts-types
+1. $\pm$ 3 écarts-types de la moyenne
+2. $\pm$ 1.5 EI (écarts inerquartile)
+3. Partitionnement (*clustering*)
 
-#### Encodage des données catégoriques
+Une fois que les observations aberrantes ont été identifiées, il faut par la suite les traiter. Un expert du domaine peut être utile dans ce cas-ci pour analyser ces observations et confirmer leur validité. Si la validité d'une donnée est remise en question, il est coutume de retirer ces observations du jeu de données, car cela peut avoir un impact notoire sur le modèle. Il est important de bien documenter le retrait de ces observations.
+
+#### Encodage des données catégoriques {#encodage}
+
+Plusieurs algorithmes d'apprentissage ne peuvent pas traiter des données catégoriques directement. Il faut donc généralement encoder ces attributs en variables numériques pour pouvoir les utiliser dans le modèle. Pour se faire, il faut d'abord faire la distinction entre une donnée de nominale et une donnée ordinale. Dans le premier cas, il n'y a pas vraiment de notion d'ordre entre les différentes catégories. Dans le deuxième cas, on peut ordonner les catégories d'une certaine manière.
+
+Voici un exemple de donnée ordinale (`condition_generale`) où il est possible d'ordonner les observations:
+
+```{r, echo = FALSE}
+data.table(Id = seq(1, 4), condition_generale = c('moyen', 'mauvais', 'excellent', 'bon'))
+```
+
+À l'inverse, voici un exemple où il est moins adéquat d'ordonner les observations selon la variable `quartier`:
+
+```{r, echo = FALSE}
+data.table(Id = seq(1, 4), quartier = c('centre-ville', 'plateau mont-royal', 'verdun', 'rosemont'))
+```
+
+Dans le cas d'une variable ordinale, une méthode d'encodage possible et adéquate (selon le contexte) serait d'assigner une valeur numérique pour chaque catégorie:
+
+```{r, echo = FALSE}
+data.table(Id = seq(1, 4), condition_generale = c(1, 0, 3, 2))
+```
+
+Dans l'exemple ci-dessus, il faut être **prudent**, car en encodant la variable de cette manière, on spécifie au modèle que la distance entre `'mauvais'` et `'moyen'` est la même qu'entre `'bon'` et `'excellent'`. Cette hypothèse n'est pas toujours valide selon le contexte. Les avantages avec cette méthode sont qu'elle est relativement simple, intuitive et qu'elle n'augmente pas le nombre de variables.
+
+Dans le cas d'une variable nominale, il faut généralement opter pour une autre stratégie. Une méthode classique d'encodage dans ce cas-ci est d'utiliser la méthode *un-chaud*[^onehot] (*one-hot encoding*). Cette méthode consiste à traiter chaque catégorie comme une variable indicatrice qui indique la présence de la catégorie:
+
+[^onehot]: Traduction libre, crédit à [Jean-Thomas Baillargeon](https://github.com/jtbai).
+
+```{r, echo = FALSE}
+data.table(Id = seq(1, 4), quartier_centre.ville = c(1, 0, 0, 0), quartier_plateau.mont.royal = c(0, 1, 0, 0), quartier_verdun = c(0, 0, 1, 0), quartier_rosemont = c(0, 0, 0, 1))
+```
+
+Le principal inconvéniant avec la méthode d'encodage *un-chaud* est qu'elle augmente le nombre de variables. Cela peut être significatif pour une variable ayant plusieurs catégories différentes. C'est d'ailleurs dans ce genre de situations qu'il peut devenir intéressant de regrouper certaines classes entres elles, ce que nous allons voir à la section \@ref(transformations).
+
+Il existe d'autres méthode comme l'encodage binaire ou le *hasing*, mais les deux méthodes présentés plus en détails sont généralement les méthodes les plus utilisées en pratique.
+
 
 ### Réduction de données
 
-Plus parler du fléeau de la dimensionnalité. Proposer des méthodes comme PCA pour réduire la dimensionnalité.
+À la section \@ref(encodage), nous avons vu que certaines méthodes d'encodages peuvent augmenter le nombres de variables. Dans le même ordre d'idées, certains domaines sont propices à récolter beaucoup d'attributs et ainsi complexifier l'espace de données. Lorsque cela survient, les algorithmes d'apprentissage peuvent souffrir d'un phénomène appelé le fléau de la dimensionnalité. Cela survient lorsque le nombre de dimensions est trop grand, ce qui crée une "distance" plus importante entre les certaines données et rend plus difficile la tâche d'apprentissage.
 
-### Transformation de données
+#### Analyse en composantes principales
 
-- Smoothing, binnings, features enginnering
+#### Calcul de score
+
+### Transformation de données {#transformations}
+
+- Smoothing, binnings, normalisation features enginnering
 
 ## Intégration
 
