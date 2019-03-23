@@ -111,13 +111,65 @@ Il existe d'autres méthode comme l'encodage binaire ou le *hasing*, mais les de
 
 ### Transformation de données {#transformations}
 
-- Smoothing, binnings, normalisation features enginnering
+Avant de passer à l'entraînement d'un modèle, il est préférable pour la majorité des algorithmes d'utiliser les connaissances acquises lors de l'exporation de données (section \@ref(exploration)) pour transformer les données dans un format plus propice à l'apprentissage. Cette étape de transformation est souvent ce qu'on appelle le *features engineering*. Cette étape demande d'ailleurs beaucoup de va et vient avec la prochaine section \@ref(metho).
+
+#### Normalisation
+
+La normalisation des données permet de ramener les données autour d'une distribution plus "standard". Pour certains types de modèles, en particulier ceux qui sont fondés sur des calculs de distance comme les $k$-PPV ou le *clustering*, il est primordial de normaliser les données avant d'en faire l'apprentissage. En effet, cela permet de standardiser les distributions des différents attributs du jeu de données. Par exemple, si j'ai deux variables étant distribuées sur des domaines ayant des échelles complètement différents comme à la figure XX (la température (°C) et une indicatrice indiquant la présence de précipitations), il est préférable de plutôt comparer celles-ci sur un échelle commune comme à la figure YY. Voilà l'objectif fondamental de la normalisation.
+
+Il existe différentes méthodes de normalisation. Il n'y a pas de "bonne méthode", mais certaines sont mieux adaptées à des contextes en particulier. Voici quelques exemples de méthodes traditionnelles où $x_{A}^{\prime(i)}$ représente la donnée $i$ normalisée pour l'attribut $A$ et $x_{A}^{(i)}$ représente la donnée originale.
+
+1. Normalisation centrée-réduite
+
+$$
+x_{A}^{\prime(i)}=\frac{x_{A}^{(i)}-\bar{A}}{\sigma_A}
+$$
+
+où $\bar{A}$ est la moyenne et $\sigma_A$ la variance de l'attribut $A$.
+
+2. Normalisation *min-max*
+
+$$
+x_{A}^{\prime(i)}=\frac{x_{A}^{(i)}-min_A}{max_A-min_A}\big(new\_max_A-new\_min_A\big)+new\_min_A
+$$
+où le $min_A$ et le $max_A$ sont calculés sur la distribution de l'attribut $A$ alors que $new\_max_A$ et $new\_min_A$ correspondent au nouvel interval désiré. 
+
+3. Normalisation pas décimation
+
+$$
+x_{A}^{\prime(i)}=\frac{x_{A}^{(i)}}{10^j}
+$$
+où $j$ est la plus petite valeur entière où $max(|x_{A}^{(i)}|)<1$.
+
+#### Discrétisation
+
+La discrétisation consiste à prendre une donnée numérique $A$ et de la transformer en un ensemble de valeurs discrètes qu'on appelle souvent *buckets* ou *bins*. L'idée derrière ce genre de transformation est de simplifier la vie du modèle en lui "pré-mâchant" une donnée continue en certains groupes de valeurs plus faciles à apprendre.
+
+Prenons l'exemple où on utilise la variable température directement pour prédire la durée du trajet. La figure XX montre les distributions de cette variable pour les membres et les non-membres.
+
+À la figure YY, nous analysons encore une fois la variable température, mais cette fois en regroupant les données dans différents groupes basés sur la valeur de la température.
+
+Dans la figure YY, on remarque qu'il semble est intuitivement plus facile de réaliser que ...
+
+Il existe encore une fois plusieurs méthodes pour construire ces regroupements de valeurs. L'étape de l'exploration des données permet entres autres de bien comprendre celles-ci et de créer des groupes qui ajoutent une valeur au modèle. La présence d'un expert du domaine peut également être utile dans ce cas-ci.
+
+
+#### Création de nouveaux attributs
+
+Un autre type de transformation classique en modélisation consiste à créer de nouveaux attributs en utilisant les attributs originaux. Ces nouveaux attributs peuvent prendre la forme de scores ou tout simplement être une redéfinition d'un attribut en particulier.
+
+C'est d'ailleurs le genre de transformation qui demande une certaine compréhension des données et de l'algorithme utilisé pour faire l'apprentissage. Par exemple, si on prend la date de départ d'un trajet, il est difficile d'intégrer directement cette variable dans un modèle prédictif. Toutefois, on peut utiliser cette variable pour créer un attribut qui indique si le moment de départ du trajet est un jour de semaine ou un jour de week-end. On pourrait également créer un attribut qui indique s'il y a eu des précipitations de pluie pendant la journée au lieu d'utiliser la quantité de pluie (mm) directement.
+
+Ce type de transformation permet d'intégrer de l'ingénierie dans le jeu de données. Cela peut également permettre de réduire la dimensionnalité lorsqu'un nouvel attribut contient plusieurs autres attributs et que ceux-ci peuvent être retirés du jeu de données. Ultimement, toutes ces transformations de données ont pour objectif de faciliter l'apprentissage et ainsi obtenir un modèle ayant un plus grand pouvoir prédictif.
+
+Les méthodes de transformation de données présentées dans cette section ont comme objectif de faciliter l'apprentissage. Cependant, étant donné que les données sont désormais transformées, il faut faire attention à l'interprétation des résultats. En effet, certaines transformations comme la normalisation ou le lissage font en sorte que les données ne sont plus dans leur format original.
 
 ## Intégration
 
 - Outputer un json (ou des objets .rds) permettant de faire l'imputation en prod
 - Méthode pour faire le one-hot encoding
 - Avoir une fonction par feature et parler du naming pour les variables raw versus features
+- Garder en mémoire les valeurs de normalisation du train 
 
 ## Packages suggérés
 
