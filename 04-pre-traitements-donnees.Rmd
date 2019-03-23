@@ -21,7 +21,7 @@ La première étape du prétraitement de données consite à nettoyer les donné
 
 #### Imputation de données manquantes
 
-La majorité des jeux de données réels sont témoins de données manquantes. Certains algorithmes ne sont pas en mesure de gérer les données manquantes par eux-mêmes. Cela nous oblige donc à traiter celles-ci et imputer le jeu de données. Les causes d'absence de données peuvent être relativement variées: bris de système, abstention, perte de données, etc. Il est généralement difficile de connaître la raison exacte, ce qui rend le traitement de données manquantes une étape importante. Avant même de trouver une méthode pour imputer ces données manquantes, il faut d'abord évaluer la quantité de données manquantes (% par variable) et tenter de comprendre le mécanisme expliquant la non-réponse d'une donnée. Il existe essentiellement 3 types de mécanismes de non-réponse:
+La majorité des jeux de données réels sont témoins de données manquantes. Certains algorithmes ne sont pas en mesure de gérer les données manquantes par eux-mêmes. Cela nous oblige donc à traiter celles-ci et imputer le jeu de données. Les causes d'absence de données peuvent être relativement variées: bris de système, abstention, perte de données, etc. Il est généralement difficile de connaître la raison exacte, ce qui rend le traitement de données manquantes une étape importante. Avant même de trouver une méthode pour imputer ces données manquantes, il faut d'abord évaluer la quantité de données manquantes (% par variable) et tenter de comprendre le mécanisme expliquant la non-réponse d'une donnée. Il existe essentiellement 3 types de mécanismes de non-réponse [@charest:imputation:2018]:
 
 1. Données manquantes complètement au hasard (MCAR)
 2. Données manquantes au hasard (MAR)
@@ -33,24 +33,14 @@ Dans le deuxième cas (MAR), l'absence de donnée dépend uniquement de la valeu
 
 Dans le troisième cas (NMAR), l'absence de donnée dépend également des données manquantes. La probabilité de non-réponse peut dépendre de la variable elle-même ou d'une autre variable. Par exemple, c'est le cas si les personnes ayant un salaire faible ont une probabilité plus faible de répondre à la question d'un sondage en lien avec le salaire gagné.
 
-[citer le cours d'anne-sophie]
-
 Il existe différentes manières d'émettre une hypothèse quant au mécanisme de non-réponse. Certains tests [^tests] statistiques existent pour identifier un cas de MCAR. Cependant, il est difficile de différencier statistiquement MAR et NMAR. Pour se faire, on peut entres autres analyser le comportement des autres variables en fonction de l'absence ou la présence d'une donnée. Une connaissance du domaine d'affaire peut également être utile pour évaluer le mécanisme de non-réponse. Par la suite, il est possible de faire l'imputation selon différentes méthodes:
 
 [^tests]: Voir le test de Welch et le test de Little. Les deux tests ne peuvent garantir l'hypothèse de MCAR. 
 
-*Analyse des cas complets* <br>
-Conserver uniquement les observations pour lesquelles toutes les variables sont présentes. Cette méthode est très simple, mais nécessite MCAR, sinon peut introduire un biais notable dans les estimateurs.
-<br>
-
-*Imputation par une mesure de centralité* <br>
-Utiliser la moyenne, la médianne ou le mode pour remplacer les données manquantes. Cette méthode est relativement simple, mais peu recommandée pour des variables ayant un pourcentage élevé de données manquantes (même pour MCAR). Cela diminue la variabilité et la corrélation entre les variables. 
-
-*Imputation par régression* <br>
-Remplacer les données manquantes par la prévision de modèle de régression entraîné sur les observations pour lesquelles cette variable est présente. On doit traiter chaque variable séparémment. On sur-estimera la corrélation entre les variables et diminuera la variance des variables (moins que par l'imputation par mesure de centralité). <br>
-
-*Imputation par régression stochastique* <br>
-Même chose que la méthode par régression, mais on utilise un résidu aléatoire à la prévision. Cela permet d'augmenter la variance.
+1. **Analyse des cas complets**: Conserver uniquement les observations pour lesquelles toutes les variables sont présentes. Cette méthode est très simple, mais nécessite MCAR, sinon peut introduire un biais notable dans les estimateurs.
+2. **Imputation par une mesure de centralité**: Utiliser la moyenne, la médianne ou le mode pour remplacer les données manquantes. Cette méthode est relativement simple, mais peu recommandée pour des variables ayant un pourcentage élevé de données manquantes (même pour MCAR). Cela diminue la variabilité et la corrélation entre les variables.
+3. **Imputation par régression**: Remplacer les données manquantes par la prévision de modèle de régression entraîné sur les observations pour lesquelles cette variable est présente. On sur-estimera la corrélation entre les variables et diminuera la variance des variables (moins que par l'imputation par mesure de centralité).
+4. **Imputation par régression stochastique**: Même chose que la méthode par régression, mais on ajoute un résidu aléatoire à la prévision. Cela permet d'augmenter la variance.
 
 En bref, il est important d'avoir une bonne compréhension des données manquantes dans le jeu de donnée. Cela nous permet de prendre des décisions éclairées sur les techniques utilisées pour imputer ces valeurs manquantes. 
 
@@ -103,17 +93,48 @@ Il existe d'autres méthode comme l'encodage binaire ou le *hasing*, mais les de
 
 ### Réduction de données
 
-À la section \@ref(encodage), nous avons vu que certaines méthodes d'encodages peuvent augmenter le nombres de variables. Dans le même ordre d'idées, certains domaines sont propices à récolter beaucoup d'attributs et ainsi complexifier l'espace de données. Lorsque cela survient, les algorithmes d'apprentissage peuvent souffrir d'un phénomène appelé le fléau de la dimensionnalité. Cela survient lorsque le nombre de dimensions est trop grand, ce qui crée une "distance" plus importante entre les certaines données et rend plus difficile la tâche d'apprentissage.
+À la section \@ref(encodage), nous avons vu que certaines méthodes d'encodages peuvent augmenter le nombres de variables. Dans le même ordre d'idées, certains domaines (par exemple la génétique) sont propices à avoir beaucoup d'attributs et ainsi complexifier l'espace de données. Lorsque cela survient, les algorithmes d'apprentissage peuvent souffrir d'un phénomène appelé le fléau de la dimensionnalité. Cela survient lorsque le nombre de dimensions est trop grand, ce qui crée une "distance" plus importante entre les certaines données et rend plus difficile la tâche d'apprentissage. Pour illustrer ce concept, considérons l'exemple suivant:
+
+On suppose qu'on a un jeu de données avec $p=1$ attribut de $n$ observations où $x_1,...,x_n \stackrel{iid}{\sim} U(0,1)$. Combien d'observations en moyenne se trouveront dans l'intervalle $[0;0.1]$? 
+
+La réponse : $\frac{n}{10}$ observations.
+
+Maitenant, supposons que notre jeu de données est plus complexe et possède $p=10$ attributs au lieu d'un seul attribut. Les observations suivent toujours une loi uniforme où $x_1,...,x_n \stackrel{iid}{\sim} U([0,1]^{10})$. Combien d'observations en moyenne se trouveront dans l'intervalle $[0;0.1]^{10}$?
+
+La réponse : $n(\frac{1}{10})^{10}$ observations. 
+
+En d'autres mots, cet exemple [@charest:acp:2018] permet d'illustrer le fait que plus la complexité de l'espace des données est importante, plus on doit couvrir un étendu important pour capturer la même proportion d'observations.
 
 #### Analyse en composantes principales
 
-#### Calcul de score
+Une méthode traditionnelle et utilisée en pratique pour réduire la dimensionnalité est l'analyse en composantes principales [@hotelling:1933]. C'est une méthode non-supervisée (n'utilise pas la variable réponse) qui permet d'obtenir une représentation à plus petites dimensions d'un jeu de données tout en conservant le maximum d'information possible.
+
+En termes plus simple, on cherche à trouver une combinaison linéaire des $p$ attributs qui permettra de maximiser la variance (information). Cette combinaison linéaire constituera notre première composante principale. Par la suite, on cherche une deuxième combinaison linéaire, qui aura comme contrainte d'être orthogonale à la première, qui maximise encore une fois la variance. On procède de cette manière jusqu'à temps qu'on juge avoir un nombre de composantes principales qui contiennent suffisament d'information et réduisent la dimensinnalité du jeu de données. À la figure \@ref(fig:acp) [@10.1371/journal.pone.0058552], on peut voir un exemple où avec seulement les 2 premières composantes principales, il est possible de reconstruire les données de manière intéressante avec 166 000 attributs génétiques différents. 
+
+```{r acp, echo=FALSE, fig.align='center', fig.cap="Exemple où l'analyse en composantes principales permet de passer d'une dimension de 166 000  attributs vers une dimension de 2 attributs. On peut également voir que ce genre de méthode permet de rendre possible la visualisation de données à haute dimension."}
+knitr::include_graphics("static-files/pca-populations.png")
+```
+
+Voici quelques notes importantes à considérer lorsqu'on utilise cette méthode:
+
+1. Il est important de normaliser (voir section \@ref(normalisation)) les données au préalable. Dans le cas contraire, certaines variables ayant des échelles importantes pourraient avoir l'impresssion d'apporter beaucoup de variance.
+2. L'analyse en composantes principales permet de représenter les données dans une toute autre dimension (on l'espère plus petite), ce qui vient rendre difficile l'interprétation des données dans cette nouvelle dimension. Il peut donc être important de re-transformer les données dans leur format original à la fin.
+3. Il n'y a pas de méthode statistique pour choisir le bon nombre de composantes principales. On peut se baser sur le pourcentage de variance expliquée ou tout simplement considérer la transformation comme un hyperparamètre du modèle est conserver le nombre de composantes qui donne les meilleures performances.
+4. Pour plus d'informations sur le développement mathématique de la méthode, vous pouvez vous réferer au chapitre 10.2 du livre [@James:2014:ISL:2517747].
+
+#### Autres méthodes de réduction
+
+Il existe d'autres méthodes pour réduire la dimensionnalité d'un jeu de données lorsque celle-ci cause un problème lors de l'apprentissage. Voici quelques exemples fréquemment utilisées en pratique:
+
+1. Positionnement multidimensionel: Trouver une représentation (avec une dimension inférieure à la dimension initiale) qui représente le mieux possible les distances entre les observations du jeu de données initial. Voir cette [page web](http://www.statsoft.com/textbook/multidimensional-scaling) pour plus de détails.
+2. Analyse factorielle: Réduire la dimensionnalité en modélisant la structure expliquant la relation entre les variables du jeu de données. Voir cette [page web](http://www.statsoft.com/Textbook/Principal-Components-Factor-Analysis) pour plus de détails.
+3. Calcul de scores: On peut également réduire la dimensionnalité d'un jeu de données en combinant plusieurs attributs de base pour calculer un nouvel attribut (voir section \@ref(scores)) comme un score par exemple. Cela peut également permettre d'augmenter le pouvoir prédictif d'attributs éparses qui sont difficiles à tirer de l'information lorsque prit individuellement.
 
 ### Transformation de données {#transformations}
 
 Avant de passer à l'entraînement d'un modèle, il est préférable pour la majorité des algorithmes d'utiliser les connaissances acquises lors de l'exporation de données (section \@ref(exploration)) pour transformer les données dans un format plus propice à l'apprentissage. Cette étape de transformation est souvent ce qu'on appelle le *features engineering*. Cette étape demande d'ailleurs beaucoup de va et vient avec la prochaine section \@ref(metho).
 
-#### Normalisation
+#### Normalisation {#normalisation}
 
 La normalisation des données permet de ramener les données autour d'une distribution plus "standard". Pour certains types de modèles, en particulier ceux qui sont fondés sur des calculs de distance comme les $k$-PPV ou le *clustering*, il est primordial de normaliser les données avant d'en faire l'apprentissage. En effet, cela permet de standardiser les distributions des différents attributs du jeu de données. Par exemple, si j'ai deux variables étant distribuées sur des domaines ayant des échelles complètement différents comme à la figure XX (la température (°C) et une indicatrice indiquant la présence de précipitations), il est préférable de plutôt comparer celles-ci sur un échelle commune comme à la figure YY. Voilà l'objectif fondamental de la normalisation.
 
@@ -154,7 +175,7 @@ Dans la figure YY, on remarque qu'il semble est intuitivement plus facile de ré
 Il existe encore une fois plusieurs méthodes pour construire ces regroupements de valeurs. L'étape de l'exploration des données permet entres autres de bien comprendre celles-ci et de créer des groupes qui ajoutent une valeur au modèle. La présence d'un expert du domaine peut également être utile dans ce cas-ci.
 
 
-#### Création de nouveaux attributs
+#### Création de nouveaux attributs {#scores}
 
 Un autre type de transformation classique en modélisation consiste à créer de nouveaux attributs en utilisant les attributs originaux. Ces nouveaux attributs peuvent prendre la forme de scores ou tout simplement être une redéfinition d'un attribut en particulier.
 
@@ -166,10 +187,15 @@ Les méthodes de transformation de données présentées dans cette section ont 
 
 ## Intégration
 
-- Outputer un json (ou des objets .rds) permettant de faire l'imputation en prod
-- Méthode pour faire le one-hot encoding
+Intro: diviser le train et le test (section suivante).
+
+### Valeurs d'imputation
+
+### Encodage
+
+### Valeurs de normalisation
+
 - Avoir une fonction par feature et parler du naming pour les variables raw versus features
-- Garder en mémoire les valeurs de normalisation du train 
 
 ## Packages suggérés
 
@@ -180,3 +206,5 @@ Les méthodes de transformation de données présentées dans cette section ont 
 Je dois faire des tests et investiguer plus les deux premiers. 
 
 ## Exemple
+
+## Références
