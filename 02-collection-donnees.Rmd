@@ -1,7 +1,13 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 # Collecte de données
 
 ```{r import}
 library(data.table)
+library(fst)
 
 if (!file.exists("data/data_bixi.csv")){
   data <- list()
@@ -16,12 +22,52 @@ if (!file.exists("data/data_bixi.csv")){
   
   data_bixi <- rbindlist(data, use.names = TRUE, fill = FALSE)
   fwrite(data_bixi, "data/data_bixi.csv")
+} else {
+  data_bixi <- fread("data/data_bixi.csv")
 }
 
 if (!file.exists("data/data_stations.csv")){
   data_stations <- fread("https://s3.ca-central-1.amazonaws.com/jeremiedb/share/dot-layer/R-Quebec/BixiMontrealRentals2017/Stations_2017.csv")
   fwrite(data_stations, "data/data_stations.csv")
+} else {
+  data_stations <- fread("data/data_stations.csv")
 }
 
 ```
+
+# Traitement initial des variables
+
+```{r}
+library(lubridate)
+# data_bixi[, date_time := as.POSIXct(start_date)]
+
+data_bixi[, `:=`(start_date_time = as.POSIXct(fast_strptime(start_date, format = "%Y-%m-%d %H:%M")),
+                 end_date_time = as.POSIXct(fast_strptime(end_date, format = "%Y-%m-%d %H:%M")))]
+
+data_bixi[, `:=`(start_date = as.Date(start_date_time),
+                 end_date = as.Date(end_date_time))]
+
+# week_start: 1=Lundi 7=Dimanche
+data_bixi[, `:=`(start_wday = wday(start_date, week_start = 1),
+                 start_hour = hour(start_date_time))]
+data_bixi[, weekend_flag := start_wday >= 6]
+```
+
+
+# Crétation de la variable réponse
+
+```{r}
+data_bixi[, target_duree := duration_sec]
+data_bixi[, target_meme_station := start_station_code == end_station_code]
+```
+
+
+# Conserver les variables pertinentes à la modélisation
+
+```{r}
+vars <- c("target_duree", "target_meme_station", "is_member", "weekend_flag", "start_hour")
+data_preprocess <- data_bixi[, ..vars]
+write_fst(data_preprocess, path = "data/data_preprocess.fst")
+```
+
 
