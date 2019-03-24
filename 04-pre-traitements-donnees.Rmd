@@ -187,7 +187,7 @@ Les méthodes de transformation de données présentées dans cette section ont 
 
 ## Intégration
 
-Intro: diviser le train et le test (section suivante).
+Dans cette section, nous verrons comment appliquer les concepts théoriques décrits dans la section précédente dans un contexte où nous voulons pas seulement entraîner un modèle, mais aussi l'uitiliser pour prédire de nouvelles observations dans un contexte de production. Comme nous l'avons vu, les prétraitements de données permettent de rendre les données d'entraînement compatibles et propices à l'apprentissage. Un fois que le modèle est entraîné, nous devons répliquer ces prétraitements sur les nouvelles observations de la même manière que nous l'avons fait sur le jeu de données d'entraînement. Dans cette optique, il faudra garder une trace de ces prétraitements 
 
 ### Valeurs d'imputation
 
@@ -199,8 +199,7 @@ Intro: diviser le train et le test (section suivante).
 
 ## Packages suggérés
 
-- `Hmisc` 
-- `missForest`
+- `caret` 
 - `MICE` (pas mon pref, difficile à reconduire en prod)
 
 Je dois faire des tests et investiguer plus les deux premiers. 
