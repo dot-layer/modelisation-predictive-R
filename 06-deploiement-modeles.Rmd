@@ -1,6 +1,7 @@
 # Déploiement de modèles
 
-L'ultime étape pour donner vie à un modèle est de le mettre en production. 
+L'ultime étape pour donner vie à un modèle est de le mettre en production. Le cas d'utilisation générique considéré dans ce chapitre assume que l'usager veut 
+
 Il existe différentes manières d'y arriver, dépendemment du cas d'utilisation du modèle. 
 
 Ce qu'on chercher à accomplir: 
