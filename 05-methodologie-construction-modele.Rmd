@@ -12,13 +12,13 @@
 
 (...) Ce qu'on veut faire maintenant:
 
-Supposons pour l'instant que notre variable réponse $Y$ est quantitative. En introduction du monographe, nous avons fait l'hypothèse qu'une $f$ connecte nos variables explicative $X$ à $Y$ de telle sorte que
+Supposons pour l'instant que notre variable réponse $Y$ est quantitative. En introduction du monographe, nous avons fait l'hypothèse qu'une fonction $f$ connecte nos variables explicatives $X$ à $Y$ de telle sorte que
 $$
   \mathbf{y} \approx f(\mathbf{X}).
 $$
 L'objectif principal, dans ce chapitre, est d'apprendre (ou plutôt d'approximer) la fonction $f$ à l'aide de la théorie de l'apprentissage statistique. Plusieurs éléments sont tirés des livres *An Introduction to Statistical Learning: with Application in R* de Gareth James, Daniela Witten, Trevor Hastie et Robert Tibshirani; *The Elements of Statistical Learning* de Trevor Hastie, Robert Tibshirani et Jerome H. Friedman; et finalement *R for Data Science* de Hadley Wickham et Garrett Grolemund. Le terme *apprentissage statstique* a été grandement popularisé par les auteurs des deux premières références, qui donne la définition (traduction libre)
 
->> L'apprentissage statistique fair référence à un ensemble d'outils pour modéliser et comprendre des jeux de données complexes. C'est une sous-discipline récente de la statistique qui se développe en parallèle avec les avancées en informatique et, plus particulièrement, en apprentissage automatique.
+>> L'apprentissage statistique fait référence à un ensemble d'outils pour modéliser et comprendre des jeux de données complexes. C'est une sous-discipline récente de la statistique qui se développe en parallèle avec les avancées en informatique et, plus particulièrement, en apprentissage automatique.
 
 
 Nous supposons que le lecteur possède des connaissances de base en statistique (distribution, espérance, variance, etc).
@@ -28,11 +28,8 @@ Nous supposons que le lecteur possède des connaissances de base en statistique 
 
 - modélisation (général): caret?
 - modèles: glmnet, xgBoost
-
 *Selon le modèle choisi.
 
-
-(...) Division du chapitre:
 
 Dans ce chapitre, nous abordons la gestion des données; l'identification de modèles adéquats; l'estimation de modèles (fonction de perte, compromis biais-variance); la sélection d'un modèle (AIC,BIC,validation croisée); et l'évaluation de ce modèle (erreur de généralisation). 
 
@@ -54,8 +51,8 @@ Les étapes des Chapitre **REF** permettent généralement aux scientifique des 
 On associe aux jeux de données d'entraînement l'*erreur d'entrainement*, qui est l'erreur qu'on minimise lors de l'estimation du modèle.
 En contrepartie, les jeux de données de validation et de test servent tous deux à estimer l'*erreur de généralisation*, c'est-à-dire l'erreur faite sur de **nouvelles** données.
 Cela explique d'ailleurs la confusion entourant ces derniers et leur utilité.
-Les données de validation servent à choisir un modèle parmi tous ceux que nous avons choisit d'estimer.
-Il sont donc à choisir, par exemples, le nombre d'interactions croisées dans un modèle linéaire généralisé ou le nombre de couches cachées dans un réseau de neurones.
+Les données de validation servent à choisir un modèle parmi tous ceux estimés.
+À titre d'exemples concrets, ceci permet de choisir le nombre d'interactions croisées dans un modèle linéaire généralisé ou le nombre de couches cachées dans un réseau de neurones.
 Malgré que ce ne soit pas particulièrement conseillé, il peut arriver que l'on veuille re-mélangé les jeux d'entrainement et de validation lors du processus.
 Il est absolument impératif toutefois de garder les données de test dans un coffre-fort bien cellé.
 Sinon, notre estimation finale de l'*erreur de généralisation* pourrait être induement optimiste. Il faut garder en tête que l'objectif est de prédire de **nouvelles** valeurs $\mathbf{y}$ à l'aide de **nouvelles** valeurs $\mathbf{X}$; l'erreur de généralisation est donc au coeur de nos préoccupations.
@@ -74,7 +71,7 @@ Cela donne ainsi l'équation
 $$
   y = f(\mathbf{x}) + \varepsilon.
 $$
-Dans la grande majorité des cas, il est naturel de faire les deux hypothèses suivantes à propos de $\varepsilon$.
+Quand $Y$ est une variable continue, il est naturel de faire les deux hypothèses suivantes à propos de $\varepsilon$.
 Tout d'abord, on suppose que sa valeur moyenne est nulle, c'est-à-dire $\mathbf{E}(\varepsilon) = 0$.
 Ceci nous permet entre autre d'oublier $\varepsilon$ lorsque vient le temps de faire une prédiction.
 Étant donné $\mbf{x}$, on s'attend à ce qu'en moyenne $y$ soit égale à $f(\mbf{x})$, *i.e.* $\mathbf{E}(Y) = f(X)$.
@@ -83,55 +80,33 @@ On stipule aussi souvent, à des fins de simplification, que $\varepsilon$ et $\
 Notons qu'en introduisant $\varepsilon$, on admet l'existence d'une erreur *irréductible* : même si nous réussissions à estimer $f$ parfaitement, il faudrait s'attendre à ce que nos prédictions ne soient pas nécéssairement parfaite.
 Ceci s'explique par la présence de facteurs influençant $Y$ auxquels nous n'avons pas accès (qui ne sont pas mesurés) ou qui ne sont simplement pas mesurables; mais aussi par un choix de modèle $f$ qui ne permet pas de capturer l'essentiel de la relation entre $X$ et $Y$.
 Ainsi, pour minimiser l'erreur dite *réductible* autant que possible, il est nécessaire d'accéder à un maximum d'information (pertinente! et si possible non-redondante) et de choisir une famille de modèles appropriée pour le problème qui nous intéresse.
-
-On divise généralement les tâches en deux grandes catégories : la régression et la classification. La régression sous-entend une variable réponse continue, *e.g.* la grandeur d'une individue ; la classification sous-entend une variable réponse catégorique (une classe), *e.g.* si une photo donnée contient un chien ou un chat. Plusieurs exemples de ces deux types de modèles sont présentés dans la dernière section du chapitre. Nous focaliserons ici sur deux exemples simples : la régression linéaire et la classification à l'aide des $K$ plus proche voisin ($K$-ppv, notre traduction de *K nearest neighbors*, $K$-nn).
+On divise généralement les problèmes en deux grandes catégories : la régression et la classification.
+La régression sous-entend une variable réponse continue, *e.g.* la grandeur d'une individue ; la classification sous-entend une variable réponse catégorique (une classe), *e.g.* chat ou chien.
+Plusieurs exemples de ces deux types de modèles sont présentés dans la dernière section du chapitre.
 
 Un modèle est en fait un ensemble de contraintes qu'on impose à la fonction $f$ de REF.
-L'introduction de contraintes limite le type de relation entre $Y$ et $\mathbf{X}$ qu'il sera possible d'apprendre ; paradoxalement, c'est aussi ce qui permet l'apprentissage. 
-La régression linéaire à l'avantage d'être très intuitive à ce niveau ; elle sous-entend une relation linéaire entre la variable réponses et les facteur explicatifs :
+L'introduction de contraintes limite le type de relation entre $Y$ et $\mathbf{X}$ qu'il sera possible d'apprendre ; paradoxalement, c'est aussi ce qui permet l'apprentissage.
+Par exemple, la (bien connue!) régression linéaire sous-entend une relation linéaire entre la variable réponse (continue) et les facteur explicatifs :
 $$
-  Y = f(\mathbf{X}) = \beta_0 + \beta_1 X_1 + \dots + \beta_1 X_d + \varepsilon
+  Y = f(\mathbf{X}) + \varepsilon = \beta_0 + \beta_1 X_1 + \dots + \beta_1 X_d + \varepsilon
 $$
-Quand $d=1$, on l'appelle la régression linéaire simple. Un exemple simple avec $d=2$ : prédire la grandeur d'un individu ($Y$, continue) en fonction de son poids ($X_1$, continue) et de son sexe ($X_2$, catégorique). Notez que malgré que $X_2$ soit catégorique, elle apparaît dans l'équation sous forme numérique, *e.g.* $X_2 = 0$ pour un individu du sexe féminin, sinon $X_2 = 1$.
+La plupart du temps, les modèles plus contraignants sont favorisés lorsque peu d'observations sont disponibles.
+Lorsque justifiées, de telles contraintes permettent de prendre avantage d'une structure dans les données qui est connue (ou supposée) *à priori*.
+Certains modèles comme les réseaux de neurones profonds sont reconnus pour être efficaces dans des cas ou la relation entre les variables peut être très complexe, mais requierent généralement une quantité astromnomique de données.
+Certains modèles plus simples, comme la régression linéaire justement, sont parfois favorisés aussi pour leur meilleure interprétabilité.
+Dans ce document, nous nous intéressons plusau pouvoir prédictif qu'à l'interprétabilité.
 
-Si toutefois nous renversions les rôles pour tenter de prédire le sexe d'un individu ($Y$, catégorique) en fonction de sa grandeur et de son poids ($X_1$,$X_2$, continues), il serait ainsi question de classification. La méthode des $K$ plus proches voisins, pour prédire le sexe $y^*$ d'un individu aux caractéristiques $(x_1^*,x_2^*)$, consiste à trouver les $K$ pairs $(x_1,x_2)$ de notre jeux de données les plus similaires à $(x_1^*,x_2^*)$, et d'assigner à $y^*$ le sexe le plus fréquent parmis les $K$ personnes retenues.
+Pour plus de détails sur la classification, voir le premier exemple de la dernière section du chapitre qui concerne la méthode des $K$ plus proches voisins.
+Nous supposons une variable continue pour le reste de la partie théorique.
 
-Ce dernier exemple expose aussi le danger derrière la modélisation.
-Avec trop peu d'information, un modèle va fort probablement faire des prédictions qui relèvent plus du préjugé que d'une analyse appronfondie.
-Puisqu'en moyenne les individus de sexe masculin sont plus grands que ceux du sexe féminin, les deux modèles ici présentés vont généralement prédire qu'une grande personne est de sexe masculin. 
-S'il est question de suggérer un selle de vélo, l'erreur est pardonnable ; le sujet peut être plus sensible toutefois.
-Même avec plus d'information, il est important de garder en tête qu'un bon modèle va (jusqu'à un certain point) répliquer les biais présent dans le jeux de données d'entraînement.
-Un *chatbot* entraîné à l'aide de text provenant de forum à caractère haineux, il donnera (à moins qu'on l'entraîne spécifiquement pour l'éviter) des réponses à caractère haineux.
-
-REITERER LIMPORTANCE DES ÉTAPES PRÉCÉDENTES!
-
-**Exemples**
-
-(littéralement sous forme d'exemple avec des dataset bébé)
-
-  - régression linéaire (mention : bien comprendre les modèles linéaires est essentiel pour comprendre les modèles non-linéaire)
-  - modèles lineaires généralisé (reg. logistique)
-  - modèles additifs
-  - arbres de décisions (boosted trees)
-  - SVM (note : plus populaire en info)
-
-**NOTE :** a-t-il été mention de...
-
-- $g(Y) = f(X) + \epsilon$ -- modèle additif versus modèle multiplicatif?
-
-Si on a ce qu'il faut pour s'attendre à un comportement adéquat de notre modèle (assez d'info)
-Éléments clefs: à part type de variables... 
-
-- nombre d'observations
-- nombres de variables
-- interprétabilité vs performance (souvent lié à inférence vs prédiction)
+Revenons à l'exemple des usagers BIXI. Choisir son modèle : y est un proportion ---> régression logistique.
 
 
 
-## Estimation d'un modèle
+### Estimation d'un modèle
 
-- Un mot rapide sur le split (train/test/val) et les différentes erreurs (de prédiction et de généralisation)
 - fonction de perte (loss function/objective function)
+- erreurs de prédiction
 - ajustement du modèle: minimisation de l'erreur de prédiction moyenne.
 - explication avec un modèle simple : régression linéaire (ajuster les betas)
 - Un mot très rapide sur la régularisation (l2 (ridge), l1 (lasso), l1+l2 (elastic net))
@@ -161,4 +136,31 @@ Si on a ce qu'il faut pour s'attendre à un comportement adéquat de notre modè
 
 **Exemples**
 
+À des fins explicatives, nous focaliserons ici sur la méthode des $K$ plus proche voisins ($K$-ppv, notre traduction de $K$-nn, *K nearest neighbors*).
+Elle peut servir par exemple pour prédire le type $y^*$ (membre vs non-memmbre) du prochain utilisateur BIXI, étant données l'heure $x^*$ de sa location.
+Une façon naturelle de procéder consiste à trouver les $K$ usagers de notre jeux de données ayant utilisé le service aux heures les plus similaires et d'assigner à $y^*$ la catégorie la plus fréquente parmis les $K$ usagers retenus $y_{i_1},\dots,y_{i_K}$.
+Dans cet exemple, la fonction $f$ implicite est
+$$
+  f(x^*) = \mathrm{mode}(x_{i_1},\dots,x_{i_K}), \qquad (x_{i_1},\dots,x_{i_K}) = \mathrm{argmin}_{(j_1,\dots,j_K)} \sum_{k=1}^K |x_{j_k} - x^*|.
+$$
+Malgré sa forme fonctionnelle quelque peu épeurante, la méthode est terriblement simple.
+L'expression de droite consiste à trouver les $K$ usagers les plus similaires : on minimise la différence entre l'heure qui nous intéresse $x^*$ et celles des usagers choisis.
+L'expression de gauche calcule la classe la plus fréquente.
+
+Cette méthode peut aussi être utilisée pour prédire des variables continues comme celle qui nous intéresse, la proportion de membres parmi les usagers selon l'heure et l'arondissement. En nous restreignant encore à l'heure d'utilisation seulement, cela correspondrait à
+$$
+  f(x^*) = \frac{1}{K} \sum_{k=1}^K x_{i_k}, \qquad (x_{i_1},\dots,x_{i_K}) = \mathrm{argmin}_{(j_1,\dots,j_K)} \sum_{k=1}^K |x_{j_k} - x^*|.
+$$
+
+
 Un exemple pour chacune des trois méthodes.
+
+  - régression linéaire (mention : bien comprendre les modèles linéaires est essentiel pour comprendre les modèles non-linéaire)
+  - modèles lineaires généralisé (reg. logistique)
+  - modèles additifs
+  - arbres de décisions (boosted trees)
+  - SVM (note : plus populaire en info)
+
+**NOTE :** a-t-il été mention de...
+
+- $g(Y) = f(X) + \epsilon$ -- modèle additif versus modèle multiplicatif?
