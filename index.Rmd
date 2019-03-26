@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
 documentclass: book
-bibliography: [packages.bib]
+bibliography: [packages.bib, bibliography.bib]
 biblio-style: apalike
 link-citations: yes
 github-repo: dot-layer/modelisation-predictive-R
@@ -19,3 +19,4 @@ knitr::write_bib(c(
   .packages(), 'bookdown', 'knitr', 'rmarkdown'
 ), 'packages.bib')
 ```
+
