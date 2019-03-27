@@ -187,15 +187,72 @@ Les méthodes de transformation de données présentées dans cette section ont 
 
 ## Intégration
 
-Dans cette section, nous verrons comment appliquer les concepts théoriques décrits dans la section précédente dans un contexte où nous voulons pas seulement entraîner un modèle, mais aussi l'uitiliser pour prédire de nouvelles observations dans un contexte de production. Comme nous l'avons vu, les prétraitements de données permettent de rendre les données d'entraînement compatibles et propices à l'apprentissage. Un fois que le modèle est entraîné, nous devons répliquer ces prétraitements sur les nouvelles observations de la même manière que nous l'avons fait sur le jeu de données d'entraînement. Dans cette optique, il faudra garder une trace de ces prétraitements 
+Dans cette section, nous verrons comment appliquer les concepts théoriques décrits dans la section précédente dans un contexte où nous voulons pas seulement entraîner un modèle, mais aussi l'uitiliser pour prédire de nouvelles observations dans un contexte de production. Une fois que le modèle est entraîné, nous devons répliquer ces prétraitements sur les nouvelles observations de la même manière que nous l'avons fait sur le jeu de données d'entraînement. Dans cette optique, il faudra garder une trace de ces prétraitements pour être en mesure de les effectuer sur le jeu de données d'entraînement et sur la donnée à prédire.
 
-### Valeurs d'imputation
+Pour se faire, nous proposons de faire 2 processus de prétraitements différents:
 
-### Encodage
+- `src/pretraitements/pretraitements-train.R`
+- `src/pretraitements/pretraitements-predict.R`
+
+Le premier servira à faire le prétraitement des données d'entraînement alors que le deuxième servira à faire le prétraitement des données à prédire lors de l'inférence. Les prochaines sections permettront de formaliser les différentes étapes clés à prévoir pour ces deux scénarios différents.
+
+### Imputations de données manquantes
+
+Dans le prétraitement des données d'entraînement, il faudra sauvegarder les valeurs d'imputation et tout autre objets permettant de faire l'imputation des données manquantes une fois rendu à l'inférence. Par exemple, il est possible de définir les valeurs d'imputations et de sauvegarder ces valeurs dans un fichier JSON:
+
+```{r, eval=FALSE, echo=TRUE}
+# Définir les valeurs d'imputation
+valeurs_imputations <- list(
+  start_station_code = median(data_bixi$start_station_code),
+  start_wday = median(data_bixi$start_wday)
+)
+
+# Sauvegarder le fichier d'imputations dans un JSON
+write(jsonlite::toJSON("chemin/du/model/valeurs_imputations.json", pretty = TRUE))
+```
+
+Dans le prétraitement des données d'inférence, on peut désormais importer ces valeurs d'imputation et remplacer les données manquantes:
+
+```{r, eval=FALSE, echo=TRUE}
+# Importer en mémoire les données d'imputation
+valeurs_imputations <- jsonlite::fromJSON("chemin/du/model/valeurs_imputations.json")
+
+# Remplacer les données manquantes par leur valeurs d'imputation
+for (col in names(valeurs_imputations)) {
+    data_inference[is.na(get(col)), (col) := list[[eval(col)]]]
+}
+```
+
+### Encodage de données catégoriques
+
+Pour être en mesure de répliquer l'encode de données catégoriques, le principal défi est faire l'encodage *un-chaud*. La fonction `dummyVars` du package `caret` permet de réaliser assez facilement ce genre de transformation:
+
+```{r, eval=FALSE, echo=TRUE}
+library(caret)
+variables_un_chaud <- c("weekend_flag")
+# Il faut transformer les variables à encoder en factor d'abord
+lapply(variables_un_chaud, function(var) data_bixi[, (var) := factor(get(var))])
+objet_un_chaud <- dummyVars(" ~ .", data = data_bixi)
+saveRDS(objet_un_chaud, "chemin/du/model/objet_un_chaud.rds")
+```
+
+Lors de l'inférence, on peut importer cet objet en mémoire et transformer les variables pour les données à prédire:
+
+```{r, eval=FALSE, echo=TRUE}
+library(caret)
+
+objet_un_chaud <- readRDS("chemin/du/model/objet_un_chaud.rds")
+variables_un_chaud <- c("weekend_flag")
+lapply(variables_un_chaud, function(var) data_inference[, (var) := factor(get(var))])
+
+data_inference <- predict(objet_un_chaud, newdata = data_inference)
+```
+
+Pour les autres variables à encoder, il est généralement plus facile de répliquer les transformations faits lors de l'entraînement.
 
 ### Valeurs de normalisation
 
-- Avoir une fonction par feature et parler du naming pour les variables raw versus features
+
 
 ## Packages suggérés
 
