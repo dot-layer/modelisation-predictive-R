@@ -6,4 +6,5 @@ _book
 _bookdown_files
 *.DS_Store
 
-data/**
+data/*
+!data/geo/
