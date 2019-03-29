@@ -19,10 +19,17 @@ data_inference <- read_fst("data/data_bixi.fst", as.data.table = TRUE)
 # Données manquantes ------------------------------------------------------
 
 # apply(apply(data_bixi, 2, is.na), 2, sum)
-# Aucune données manquantes (pour le moment)
+variables_a_imputer <- jsonlite::fromJSON("data/valeurs_imputations.json")
+for (col in names(variables_a_imputer)){
+  data_inference[is.na(get(col)), (col) := variables_a_imputer[[eval(col)]]]
+}
 
 
 # Nouveaux attributs et encodage ------------------------------------------
+
+# Cleaner data quartier
+data_inference[, `:=`(start_quartier = factor(tolower(stri_replace_all_regex(start_quartier, "-| ", ""))),
+                      end_quartier = factor(tolower(stri_replace_all_regex(end_quartier, "-| ", ""))))]
 
 # week_start: 1=Lundi 7=Dimanche
 data_inference[, `:=`(start_wday = wday(start_date, week_start = 1),
