@@ -1,11 +1,11 @@
-# Méthodologie de construction de modèles
+# Construction de modèles
 
 
 Une fois les données nettoyées convenablement, la variables réponses et les variables explicatives choisies, nous sommes prêts pour construire le modèle prédictif.
 Bien sûr, le choix des variables explicatives restent préliminaires : on peut se rendre compte, après avoir tenté plusieurs modèles, qu'elles ne véhiculent pas assez d'information pour permettre des prédictions satisfaisantes.
 Dans ce cas, il faudra alors considérer d'autres options; transformer nos variables, peut-être même en collecter de nouvelles.
 
-Supposons pour l'instant que notre variable réponse $y$ est quantitative. En introduction du monographe, nous avons fait l'hypothèse qu'une fonction $f$ connecte nos variables explicatives $\mathbf{x}$ à $y$ de telle sorte que
+Supposons pour l'instant que notre variable réponse $y$ est quantitative. En introduction du monographe, nous avons fait l'hypothèse qu'une fonction $f$ connecte nos variables explicatives $\mathbf{x}$ à $y$ de telle sorte que
 $$
   \mathbf{y} \approx f(\mathbf{X}).
 $$
@@ -15,9 +15,6 @@ L'objectif principal, dans ce chapitre, est d'apprendre (ou plutôt d'approximer
 
 Nous supposons que le lecteur possède des connaissances de base en statistique (distribution, espérance, variance, etc).
 
-
-(...) Librairies et références:
-
 - modélisation (général): caret?
 - modèles: glmnet, xgBoost
 *Selon le modèle choisi.
@@ -26,9 +23,7 @@ Nous supposons que le lecteur possède des connaissances de base en statistique 
 Les sujets suivant sont traités dans le chapitre : la gestion du jeu de données; l'identification de modèles adéquats; l'estimation de modèles (fonction de perte, compromis biais-variance); la sélection d'un modèle (AIC,BIC,validation croisée); et l'évaluation de ce modèle (erreur de généralisation). 
 
 
-## Théorie
-
-### Gestion des données
+## Gestion des données
 
 Pour plusieurs raisons, il est conseillé de commencer par séparer aléatoirement son jeu de données en trois partie distinctes : les jeux de données d'entraînement, de validation et de test.
 Chacune des trois parties est associées à une étape de la construction du modèle. Les données d'entrainement serviront à estimer nos modèles; les données de validation à sélectionner un modèle; les données de test à évaluer le modèle final.
@@ -54,9 +49,8 @@ $$
 Il est important de garder en tête que ce n'est qu'une *règle du pouce*.
 Si le jeu de données contient peu de signal (d'information) pour prédire $\mathbf{y}$, il se peut qu'en laissant de côté certaines observations, l'estimation des modèles soit trop déficiente pour être utile.
 Les étapes des Chapitre **REF** permettent généralement de se faire une idée de la situation.
-Il est aussi conseillé (à moins qu'on veuille prendre avantage d'un effet temporel dans nos données) d'effectuer une permutation aléatoire de nos données, pour éviter que notre division du jeu de données ne soit pollué par la présence de corrélations indésirables avec l'ordre de collecte.
+Il est aussi conseillé (à moins qu'on veuille prendre avantage d'un effet temporel dans nos données) d'effectuer une permutation aléatoire de nos données, pour éviter que notre division du jeu de données ne soit pollué par des effets indésirables de l'ordre de collecte.
 
-CODE? -- CARET?
 
 On associe aux jeux de données d'entraînement l'*erreur d'entrainement*, qui est l'erreur qu'on minimise lors de l'estimation du modèle.
 En contrepartie, les jeux de données de validation et de test servent tous deux à estimer l'*erreur de généralisation*, c'est-à-dire l'erreur faite sur de **nouvelles** données.
@@ -68,11 +62,24 @@ Il est absolument impératif toutefois de garder les données de test dans un co
 Sinon, notre estimation finale de l'*erreur de généralisation* pourrait être induement optimiste. Il faut garder en tête que l'objectif est de prédire de **nouvelles** valeurs $y$ à l'aide de **nouvelles** valeurs $\mathbf{x}$; l'erreur de généralisation est donc au coeur de nos préoccupations.
 
 Lorsque trop peu de données sont disponible, l'étape de test doit souvent être abandonnée et des techniques plus sophistiquées peuvent nous permettre d'estimer l'erreur de généralisation à partir des données d'entrainement.
-Ces dernières sont d'ailleurs expliquées en fin de chapitre.
+Pour expliquer plus en détails les méthodes en question, mettons-nous dans cette situation et divisons notre jeu de données en deux : les données d'entraînement et de test.
+L'étape de sélection de modèle, en fin de chapitre, sera effectuée à l'aide de la validation croisée.
+Pour ce faire, la librairie `caret` offre une fonction très utile `createDataPartition`.
+```{r, echo=FALSE}
+# train_ind <- c(caret::createDataPartition(y = data$target_duree, times = 1, p = .75, list = FALSE))
+
+# y <- data[train_ind,]$target_duree
+# X <- data[train_ind, -c("target_duree","target_meme_station")]
+
+# y_test <- data[-train_ind,]$target_duree
+# X_test <- data[-train_ind, -c("target_duree","target_meme_station")]
+
+# rm(data)
+```
 D'ici là, nous utilisons $\mathbf{X}$ en tant que données d'entrainement.
 
 
-### Description d'un modèle
+## Description d'un modèle
 
 Commençons d'abord en reformulant REF en tant qu'égalité stricte.
 Pour ce faire, on introduit une quantité aléatoire $\varepsilon$ qui représente la variabilité non captée par notre modèle.
@@ -85,12 +92,15 @@ Pour une variable réponse $y$ continue, il est naturel de faire les deux hypoth
 - son espérance est nulle, c'est-à-dire $\mathbf{E}(\varepsilon) = 0$; et
 - elle est indépendante de $\mathbf{x}$.
 
-Ceci nous permet entre autre d'oublier $\varepsilon$ lorsque vient le temps de faire une prédiction.
+Ceci nous permet entre autre d'ignorer $\varepsilon$ lorsque vient le temps de faire une prédiction.
 Étant donné $\mathbf{x}$, on s'attend à ce qu'en moyenne $y$ soit égale à $f(\mathbf{x})$, *i.e.* $\mathbf{E}(y) = f(\mathbf{x})$.
 
 En introduisant $\varepsilon$, on admet l'existence d'une erreur *irréductible* : même si nous réussissions à estimer $f$ parfaitement, il faudrait s'attendre à ce que nos prédictions ne soient pas nécéssairement parfaite.
 Ceci s'explique par la présence de facteurs influençant $y$ auxquels nous n'avons pas accès (qui ne sont pas mesurés) ou qui ne sont simplement pas mesurables; mais aussi par un choix de modèle $f$ qui ne permet pas de capturer l'essentiel de la relation entre $\mathbf{x}$ et $y$.
 Ainsi, pour minimiser l'erreur dite *réductible* autant que possible, il est nécessaire d'accéder à un maximum d'information (pertinente! et si possible non-redondante) et de choisir une famille de modèles appropriée pour le problème qui nous intéresse.
+```{r, echo=TRUE}
+# Reg lineaire avec data de reltation linéaire parfaite. Pas possible d'être parfait...
+```
 
 On divise généralement les problèmes en deux grandes catégories : la régression et la classification.
 La régression sous-entend une variable réponse continue, *e.g.* la grandeur d'une individue ; la classification sous-entend une variable réponse catégorique (une classe), *e.g.* chat ou chien.
@@ -100,7 +110,7 @@ Toutefois, les concepts présentés sont aussi valides pour la classification; d
 On assigne ensuite l'observation à la classe avec la plus forte probabilité.
 
 
-### Choix d'un modèle
+## Choix d'un modèle
 
 Un modèle est en fait un ensemble de contraintes qu'on impose à la fonction $f$ de REF.
 L'introduction de contraintes limite le type de relation entre $Y$ et $\mathbf{X}$ qu'il sera possible d'apprendre ; paradoxalement, c'est aussi ce qui permet l'apprentissage.
@@ -126,7 +136,7 @@ $$
 Cette modification porte le nom de régression logistique et est un cas particulier de modèle linéaire généralisé. Le cas général est présenté en exemple à la fin du chapitre.
 
 
-### Estimation d'un modèle
+## Estimation d'un modèle
 
 Estimer un modèle consiste à déterminer les valeurs de ses paramètres; trouver les paramètres optimaux. 
 Ils sont choisis de telle sorte que le modèle soit le plus précis possible dans ses prédictions (sur les données d'entraînement).
@@ -153,13 +163,13 @@ le bien connu estimateurs des moindres carrées.
 
 
 
-### Sélection d'un modèle
+## Sélection d'un modèle
 
 Jusqu'à présent, nous avons traiter notre problème abstrait de prédiction comme si un seul modèle était choisi et estimé, mais rien ne nous empêche d'en essayer plusieurs à la fois; des modèles totalement différents et/ou des modèles semblables utilisant des variables explicatives différentes.
 Dans ce cas, il devient nécéssaire d'utiliser une méthode adéquate pour choisir le modèle final, celui qui sera déployé.
 
 
-#### Validation directe
+### Validation directe
 
 Notre objectif ultime concerne la prédiction **sur de nouvelles données**, on utilisera donc, si disponinble, le jeu de données de validation pour calculer l'*erreur de généralization*.
 Cette dernière est en fait calculée de la même façon que l'*erreur de prédiction*, c'est-à-dire avec la fonction $L$.
@@ -170,7 +180,7 @@ Un mot sur neural nets.
 - Exemple plot Keras.
 
 
-#### Validation croisée
+### Validation croisée
 
 Malheuresement, on n'a pas toujours un jeu de données de validation à disposition.
 
@@ -178,11 +188,6 @@ Malheuresement, on n'a pas toujours un jeu de données de validation à disposit
 - mention du bootstrap...
 
 Ces méthodes estiment l'*erreur de généralisation* moyenne conditionelle aux données $X$.
-
-
-
-## Construction de modèles en R
-
 
 
 
