@@ -6,4 +6,8 @@ _book
 _bookdown_files
 *.DS_Store
 
+.bib
 data/**
+!data/LIMADMIN*
+!data/models/
+!data/models/.gitkeep
