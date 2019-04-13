@@ -5,9 +5,9 @@ Pour faire de la modélisation prédictive, il est généralement inévitable de
 1. Transformer les données dans un format compatible pour l'algorithme
 2. Transformer les données de manière à faciliter l'apprentissage
 
-À ce stade-ci, nous avons une certaine connaissance de ces données acquise grâce à l'analyse de données \@ref(exploration). Dans cette section, nous serons donc en mesure de produire des données propices à l'apprentissage qui sera faite dans la section \@ref(metho). Pour se faire, nous allons couvrir la théorie derrière le nettoyage, la réduction et la transformation de données. Ensuite, nous allons voir comment intégrer cette théorie dans le processus de modélisation. Finalement, nous allons présenter des packages en R qui permettent de faciliter ce pré-traitement de données.
+À ce stade-ci, nous avons une certaine connaissance de ces données acquise grâce à l'analyse de données \@ref(exploration). Dans cette section, nous serons donc en mesure de produire des données propices à l'apprentissage qui sera faite dans la section \@ref(metho). Pour se faire, nous allons couvrir certains concepts théoriques derrière le nettoyage, la réduction et la transformation de données. Ensuite, nous allons voir comment appliquer ces concepts théoriques dans le processus de modélisation en tirant profit du langage R et de certains packages.
 
-## Théorie
+## Concepts théoriques
 
 Cette section a comme objectif de couvrir les concepts théoriques à la base du prétraitement de données. L'objectif est de présenter pourquoi il est primordial de considérer ces étapes avant de lancer des algorithmes d'apprentissage.
 
@@ -185,25 +185,76 @@ Ce type de transformation permet d'intégrer de l'ingénierie dans le jeu de don
 
 Les méthodes de transformation de données présentées dans cette section ont comme objectif de faciliter l'apprentissage. Cependant, étant donné que les données sont désormais transformées, il faut faire attention à l'interprétation des résultats. En effet, certaines transformations comme la normalisation ou le lissage font en sorte que les données ne sont plus dans leur format original.
 
-## Intégration
+## Prétraitements de données en R
 
-Dans cette section, nous verrons comment appliquer les concepts théoriques décrits dans la section précédente dans un contexte où nous voulons pas seulement entraîner un modèle, mais aussi l'uitiliser pour prédire de nouvelles observations dans un contexte de production. Comme nous l'avons vu, les prétraitements de données permettent de rendre les données d'entraînement compatibles et propices à l'apprentissage. Un fois que le modèle est entraîné, nous devons répliquer ces prétraitements sur les nouvelles observations de la même manière que nous l'avons fait sur le jeu de données d'entraînement. Dans cette optique, il faudra garder une trace de ces prétraitements 
+Dans cette section, nous verrons comment appliquer les concepts théoriques décrits dans la section précédente dans un contexte de production. Dans cette optique, il faudra garder une trace des prétraitements effectués sur le jeu de données d'entraînement pour être en mesure de les effectuer de la même manière lors de l'inférence.
 
-### Valeurs d'imputation
+Pour se faire, nous proposons de faire 2 processus de prétraitements différents:
 
-### Encodage
+- `src/pretraitements/pretraitements-train.R`
+- `src/pretraitements/pretraitements-predict.R`
+
+Le premier servira à faire le prétraitement des données d'entraînement alors que le deuxième servira à faire le prétraitement des données à prédire lors de l'inférence. Les prochaines sections permettront de formaliser les différentes étapes clés à prévoir pour ces deux scénarios différents en tirant profit de certains packages R.
+
+### Imputations de données manquantes
+
+Dans le prétraitement des données d'entraînement, il faudra sauvegarder les valeurs d'imputation et tout autre objets permettant de faire l'imputation des données manquantes. Par exemple, il est possible de définir les valeurs d'imputations et de sauvegarder ces valeurs dans un fichier JSON en utilisant le package `jsonlite`:
+
+```{r, eval=FALSE, echo=TRUE}
+# Définir les valeurs d'imputation
+valeurs_imputations <- list(
+  start_station_code = median(data_bixi$start_station_code),
+  start_wday = median(data_bixi$start_wday)
+)
+
+# Sauvegarder le fichier d'imputations dans un JSON
+write(jsonlite::toJSON("chemin/du/model/valeurs_imputations.json", pretty = TRUE))
+```
+
+Dans le prétraitement des données d'inférence, on peut désormais importer ces valeurs d'imputation et remplacer les données manquantes:
+
+```{r, eval=FALSE, echo=TRUE}
+# Importer en mémoire les données d'imputation
+valeurs_imputations <- jsonlite::fromJSON("chemin/du/model/valeurs_imputations.json")
+
+# Remplacer les données manquantes par leur valeurs d'imputation
+for (col in names(valeurs_imputations)) {
+    data_inference[is.na(get(col)), (col) := list[[eval(col)]]]
+}
+```
+
+Les fichiers JSON sont généralement faciles à traiter dans plusieurs logiciels et langagues différents. En R, il est également intéressant d'utiliser ce format qui se marie bien avec les listes. C'est donc un format que nous recommendons d'utiliser.
+
+### Encodage de données catégoriques
+
+Pour être en mesure de répliquer l'encodage de données catégoriques, le principal défi est faire l'encodage *un-chaud*. La fonction `dummyVars` du package `caret` permet de réaliser assez facilement ce genre de transformation:
+
+```{r, eval=FALSE, echo=TRUE}
+library(caret)
+variables_un_chaud <- c("weekend_flag")
+# Il faut transformer les variables à encoder en factor d'abord
+lapply(variables_un_chaud, function(var) data_bixi[, (var) := factor(get(var))])
+objet_un_chaud <- dummyVars(" ~ .", data = data_bixi)
+saveRDS(objet_un_chaud, "chemin/du/model/objet_un_chaud.rds")
+```
+
+Lors de l'inférence, on peut importer cet objet en mémoire et transformer les variables pour les données à prédire:
+
+```{r, eval=FALSE, echo=TRUE}
+objet_un_chaud <- readRDS("chemin/du/model/objet_un_chaud.rds")
+variables_un_chaud <- c("weekend_flag")
+lapply(variables_un_chaud, function(var) data_inference[, (var) := factor(get(var))])
+data_inference <- predict(objet_un_chaud, newdata = data_inference)
+```
+
+Le package `caret` offre plusieurs fonctionnalités intérressantes dans un contexte de modélisation. La fonction `dummyVars` est assez intuitve à utiliser et offre certaines options comme la possibilité de nommer les varibles indicatrices par un séparateur au choix (`sep`), comment gérer les nouvelles catégories (`na.action`), la possibilité d'enlever le niveau de base (`fullRank`), etc.
+
 
 ### Valeurs de normalisation
 
-- Avoir une fonction par feature et parler du naming pour les variables raw versus features
+Pour ce qui est de la normalisation des attributs, il faut encore une fois garder une trace de ces valeurs pour ainsi normaliser adéquatement les données lors de l'inférence.
 
-## Packages suggérés
 
-- `caret` 
-- `MICE` (pas mon pref, difficile à reconduire en prod)
 
-Je dois faire des tests et investiguer plus les deux premiers. 
-
-## Exemple
 
 ## Références

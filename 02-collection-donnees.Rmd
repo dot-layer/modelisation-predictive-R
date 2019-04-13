@@ -47,27 +47,44 @@ data_bixi[, `:=`(start_date_time = as.POSIXct(fast_strptime(start_date, format =
 data_bixi[, `:=`(start_date = as.Date(start_date_time),
                  end_date = as.Date(end_date_time))]
 
-# week_start: 1=Lundi 7=Dimanche
-data_bixi[, `:=`(start_wday = wday(start_date, week_start = 1),
-                 start_hour = hour(start_date_time))]
-data_bixi[, weekend_flag := start_wday >= 6]
+
 ```
 
-
-# Crétation de la variable réponse
-
-```{r}
-data_bixi[, target_duree := duration_sec]
-data_bixi[, target_meme_station := start_station_code == end_station_code]
-```
-
-
-# Conserver les variables pertinentes à la modélisation
+# Geocoder les stations
 
 ```{r}
-vars <- c("target_duree", "target_meme_station", "is_member", "weekend_flag", "start_hour")
-data_preprocess <- data_bixi[, ..vars]
-write_fst(data_preprocess, path = "data/data_preprocess.fst")
+library(sf)
+
+path <- "data/geo/LIMADMIN.shp"
+shape_file <- read_sf(dsn=path.expand(path))
+
+points_stations <- data.frame(
+  x = data_stations$longitude,
+  y = data_stations$latitude
+)
+
+points_stations_sf <- do.call("st_sfc", c(lapply(1:nrow(points_stations), function(i) {st_point(as.numeric(points_stations[i,]))}), list("crs" = 4326)))
+
+pnts_trans <- st_transform(points_stations_sf, 2163)
+shape_file_trans <- st_transform(shape_file, 2163)
+
+points_stations$quartier <- apply(st_intersects(shape_file_trans, pnts_trans, sparse = FALSE), 2, 
+                     function(col) { 
+                       if (length(shape_file_trans[which(col), ]$NOM)>0){
+                        shape_file_trans[which(col), ]$NOM 
+                       }else{
+                         NA_character_
+                       }
+                     })
+
+data_stations[, quartier := points_stations$quartier]
+setkey(data_stations, code)
+setkey(data_bixi, start_station_code)
+data_bixi[data_stations, start_quartier := quartier]
+setkey(data_bixi, end_station_code)
+data_bixi[data_stations, end_quartier := quartier]
+
+write_fst(data_bixi, "data/data_bixi.fst")
 ```
 
 

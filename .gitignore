@@ -8,3 +8,4 @@ _bookdown_files
 
 .bib
 data/**
+!data/LIMADMIN*
