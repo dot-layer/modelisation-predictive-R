@@ -66,7 +66,7 @@ preprocessing <- function(data, path_objects, train=TRUE) {
     
     # Conserver les variables pertinentes à la modélisation
     vars <- c("target_duree", "target_meme_station", "is_member", "weekend_flag", "moment_journee")
-    vars <- c(vars, grep("start_quartier|end_quartier", colnames(data), value = TRUE))
+    vars <- c(vars, grep("start_quartier", colnames(data), value = TRUE))
     write(jsonlite::toJSON(vars[-which(vars %in% c("target_duree", "target_meme_station"))], pretty = TRUE), paste0(path_objects, "variables_a_conserver.json"))
     
   } else {
