@@ -9,3 +9,5 @@ _bookdown_files
 .bib
 data/**
 !data/LIMADMIN*
+!data/models/
+!data/models/.gitkeep
