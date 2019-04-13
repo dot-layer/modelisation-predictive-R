@@ -87,7 +87,7 @@ preprocessing <- function(data, path_objects, train=TRUE) {
       data[, (x) := (get(x) - valeurs_normalisation$moyennes[[eval(x)]])/valeurs_normalisation$ecarts_types[[eval(x)]]]
     })[[2]]
     
-    vars <- jsonlite::fromJSON("data/variables_a_conserver.json")
+    vars <- jsonlite::fromJSON(paste0(path_objects, "variables_a_conserver.json"))
     
   }
   

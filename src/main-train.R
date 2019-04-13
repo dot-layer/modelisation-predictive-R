@@ -8,6 +8,8 @@ library(fst)
 library(stringi)
 library(lubridate)
 library(sf)
+library(xgboost)
+library(glmnet)
 
 
 # Source les fonctions ----------------------------------------------------
@@ -23,16 +25,15 @@ source("src/preprocessing/preprocessing.R")
 data_bixi <- load_data("data/")
 
 
-
 # Split data --------------------------------------------------------------
 
 ind_train <- c(caret::createDataPartition(y = data_bixi$start_station_code, times = 1, p = .75, list = FALSE))
-saveRDS(ind_train, "data/ind_train.rds")
+saveRDS(ind_train, "data/models/ind_train.rds")
 
 
 # Preprocessing -----------------------------------------------------------
 
-X <- preprocessing(data_bixi[ind_train,], path_objects = "data/", train = TRUE)
+X <- preprocessing(data_bixi[ind_train,], path_objects = "data/models/", train = TRUE)
 
 y_duree <- X$target_duree
 y_meme <- X$target_meme_station
