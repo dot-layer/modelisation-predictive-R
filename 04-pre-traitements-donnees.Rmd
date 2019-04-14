@@ -1,4 +1,4 @@
-# Prétraitements des données
+# Prétraitements des données {#preprop}
 
 Pour faire de la modélisation prédictive, il est généralement inévitable de faire des prétraitements aux données pour exploiter autant que possible les différents algorithmes d'apprentissage. Ces prétraitements permettront de réaliser 2 choses:
 

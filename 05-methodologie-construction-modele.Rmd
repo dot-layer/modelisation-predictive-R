@@ -1,4 +1,4 @@
-# Construction de modèles
+# Construction de modèles {#metho}
 
 
 Une fois les données nettoyées convenablement, la variables réponses et les variables explicatives choisies, nous sommes prêts pour construire le modèle prédictif.
@@ -11,21 +11,17 @@ $$
 $$
 L'objectif principal, dans ce chapitre, est d'apprendre (ou plutôt d'approximer) la fonction $f$ à l'aide de la théorie de l'apprentissage statistique. Plusieurs éléments sont tirés des livres *An Introduction to Statistical Learning: with Application in R* de Gareth James, Daniela Witten, Trevor Hastie et Robert Tibshirani; *The Elements of Statistical Learning* de Trevor Hastie, Robert Tibshirani et Jerome H. Friedman; et finalement *R for Data Science* de Hadley Wickham et Garrett Grolemund. L'expression *apprentissage statstique* a été grandement popularisé par les auteurs des deux premières références, qui donne la définition (traduction libre)
 
->> L'apprentissage statistique fait référence à un ensemble d'outils pour modéliser et comprendre des jeux de données complexes. C'est une sous-discipline récente de la statistique qui se développe en parallèle avec les avancées en informatique et, plus particulièrement, en apprentissage automatique.
+>> L'apprentissage statistique fait référence à un ensemble d'outils pour modéliser et comprendre des jeux de données complexes. C'est une sous-discipline récente de la statistique qui se développe en parallèle avec les avancées en informatique et, plus particulièrement, en apprentissage automatique. [@James:2014:ISL:2517747]
 
 Nous supposons que le lecteur possède des connaissances de base en statistique (distribution, espérance, variance, etc).
-
-- modélisation (général): caret?
-- modèles: glmnet, xgBoost
-*Selon le modèle choisi.
-
 
 Les sujets suivant sont traités dans le chapitre : la gestion du jeu de données; l'identification de modèles adéquats; l'estimation de modèles (fonction de perte, compromis biais-variance); la sélection d'un modèle (AIC,BIC,validation croisée); et l'évaluation de ce modèle (erreur de généralisation). 
 
 
-## Gestion des données
 
-Pour plusieurs raisons, il est conseillé de commencer par séparer aléatoirement son jeu de données en trois partie distinctes : les jeux de données d'entraînement, de validation et de test.
+## Gestion des données {#split}
+
+Pour plusieurs raisons, il est conseillé, avant même le pré-traitement des données de la Section \@ref(preprop), de séparer aléatoirement son jeu de données en trois partie distinctes : les jeux de données d'entraînement, de validation et de test.
 Chacune des trois parties est associées à une étape de la construction du modèle. Les données d'entrainement serviront à estimer nos modèles; les données de validation à sélectionner un modèle; les données de test à évaluer le modèle final.
 Lorsque le nombre d'observation le permet, la règle du pouce généralement employée est d'utiliser la moitié(e?) des observations pour l'entrainement et le quart pour chacune des deux autres étapes.
 $$
@@ -63,23 +59,30 @@ Sinon, notre estimation finale de l'*erreur de généralisation* pourrait être 
 
 Lorsque trop peu de données sont disponible, l'étape de test doit souvent être abandonnée et des techniques plus sophistiquées peuvent nous permettre d'estimer l'erreur de généralisation à partir des données d'entrainement.
 Pour expliquer plus en détails les méthodes en question, mettons-nous dans cette situation et divisons notre jeu de données en deux : les données d'entraînement et de test.
-L'étape de sélection de modèle, en fin de chapitre, sera effectuée à l'aide de la validation croisée.
-Pour ce faire, la librairie `caret` offre une fonction très utile `createDataPartition`.
-```{r, echo=FALSE}
-# train_ind <- c(caret::createDataPartition(y = data$target_duree, times = 1, p = .75, list = FALSE))
+```{r, echo=T}
+# data_bixi <- data.table::fread("data/data_bixi.csv") # jeu de données original
+# ind_test <- sample(nrow(data_bixi),nrow(data)*25/100) # 25% des données assignées au jeu test
+# saveRDS(ind_test, "data/models/ind_test.rds")
+#
+# source("src/preprocessing/preprocessing.R")
+# data_preprocess <- preprocessing(data_bixi[-ind_test,], path_objects = "data/models/", train = TRUE)
 
-# y <- data[train_ind,]$target_duree
-# X <- data[train_ind, -c("target_duree","target_meme_station")]
+data_preprocess <- fst::read.fst("data/data_preprocess.fst", as.data.table = T)
 
-# y_test <- data[-train_ind,]$target_duree
-# X_test <- data[-train_ind, -c("target_duree","target_meme_station")]
+y_duree <- data_preprocess$target_duree
+y_meme <- data_preprocess$target_meme_station
 
-# rm(data)
+X <- data_preprocess[,-c("target_duree","target_meme_station")]
+rm(data_preprocess)
 ```
+Pour une fonction qui automatise le processus, les fonctions `caret::createDataPartition` and `caret::createFolds` sont des options intéressantes.
+
+Encore une fois, notez que **la séparation du jeu de données précède le prétraitement**.
+L'étape de sélection de modèle, en fin de chapitre, sera effectuée à l'aide de la validation croisée.
 D'ici là, nous utilisons $\mathbf{X}$ en tant que données d'entrainement.
 
 
-## Description d'un modèle
+## Description d'un modèle {#description}
 
 Commençons d'abord en reformulant REF en tant qu'égalité stricte.
 Pour ce faire, on introduit une quantité aléatoire $\varepsilon$ qui représente la variabilité non captée par notre modèle.
@@ -96,11 +99,21 @@ Ceci nous permet entre autre d'ignorer $\varepsilon$ lorsque vient le temps de f
 Étant donné $\mathbf{x}$, on s'attend à ce qu'en moyenne $y$ soit égale à $f(\mathbf{x})$, *i.e.* $\mathbf{E}(y) = f(\mathbf{x})$.
 
 En introduisant $\varepsilon$, on admet l'existence d'une erreur *irréductible* : même si nous réussissions à estimer $f$ parfaitement, il faudrait s'attendre à ce que nos prédictions ne soient pas nécéssairement parfaite.
+Par exemple, même en sachant que nos données sont telles que $y_i = 2x_i + \varepsilon_i$, l'erreur moyenne de prédiction résultante (avec le vrai modèle) sera d'environ $\mathbb{V}{\rm ar}(\varepsilon_1)$.
+Avec $n=25$, on obtiendrait par exemple le graphique suivant, qui montre l'écart résiduel $y_i - f(x_i)$ entre la fonction de prédiction $f(x)$ et les observations $(y_i)_{i=1}^n$.
+```{r, echo=FALSE}
+dt <- data.table(x = runif(25), eps = rnorm(25,0,.1))
+dt[, y := 2*x + eps]
+
+ggplot(dt, aes(x=x)) +
+  geom_point(aes(y=y)) +
+  geom_line(aes(y=2*x)) +
+  geom_text(x=.15, y=.4, label="f(x)") +
+  theme_minimal()
+```
+
 Ceci s'explique par la présence de facteurs influençant $y$ auxquels nous n'avons pas accès (qui ne sont pas mesurés) ou qui ne sont simplement pas mesurables; mais aussi par un choix de modèle $f$ qui ne permet pas de capturer l'essentiel de la relation entre $\mathbf{x}$ et $y$.
 Ainsi, pour minimiser l'erreur dite *réductible* autant que possible, il est nécessaire d'accéder à un maximum d'information (pertinente! et si possible non-redondante) et de choisir une famille de modèles appropriée pour le problème qui nous intéresse.
-```{r, echo=TRUE}
-# Reg lineaire avec data de reltation linéaire parfaite. Pas possible d'être parfait...
-```
 
 On divise généralement les problèmes en deux grandes catégories : la régression et la classification.
 La régression sous-entend une variable réponse continue, *e.g.* la grandeur d'une individue ; la classification sous-entend une variable réponse catégorique (une classe), *e.g.* chat ou chien.
@@ -110,7 +123,7 @@ Toutefois, les concepts présentés sont aussi valides pour la classification; d
 On assigne ensuite l'observation à la classe avec la plus forte probabilité.
 
 
-## Choix d'un modèle
+## Choix d'un modèle {#choix}
 
 Un modèle est en fait un ensemble de contraintes qu'on impose à la fonction $f$ de REF.
 L'introduction de contraintes limite le type de relation entre $Y$ et $\mathbf{X}$ qu'il sera possible d'apprendre ; paradoxalement, c'est aussi ce qui permet l'apprentissage.
@@ -136,7 +149,7 @@ $$
 Cette modification porte le nom de régression logistique et est un cas particulier de modèle linéaire généralisé. Le cas général est présenté en exemple à la fin du chapitre.
 
 
-## Estimation d'un modèle
+## Estimation d'un modèle {#estimation}
 
 Estimer un modèle consiste à déterminer les valeurs de ses paramètres; trouver les paramètres optimaux. 
 Ils sont choisis de telle sorte que le modèle soit le plus précis possible dans ses prédictions (sur les données d'entraînement).
@@ -163,7 +176,7 @@ le bien connu estimateurs des moindres carrées.
 
 
 
-## Sélection d'un modèle
+## Sélection d'un modèle {#sélection}
 
 Jusqu'à présent, nous avons traiter notre problème abstrait de prédiction comme si un seul modèle était choisi et estimé, mais rien ne nous empêche d'en essayer plusieurs à la fois; des modèles totalement différents et/ou des modèles semblables utilisant des variables explicatives différentes.
 Dans ce cas, il devient nécéssaire d'utiliser une méthode adéquate pour choisir le modèle final, celui qui sera déployé.

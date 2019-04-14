@@ -2,12 +2,12 @@
 
 # Load les packages -------------------------------------------------------
 
+library(sf)
 library(data.table)
 library(caret)
 library(fst)
 library(stringi)
 library(lubridate)
-library(sf)
 library(xgboost)
 library(glmnet)
 
@@ -22,18 +22,21 @@ source("src/preprocessing/preprocessing.R")
 
 # Doit avoir le fichier 'LIMADMIN.shp' dans le repertoire passer en argument
 # a la fonction load_data()
-data_bixi <- load_data("data/")
+data_bixi <- fread("data/data_bixi.csv")
 
 
 # Split data --------------------------------------------------------------
 
-ind_train <- c(caret::createDataPartition(y = data_bixi$start_station_code, times = 1, p = .75, list = FALSE))
-saveRDS(ind_train, "data/models/ind_train.rds")
+# ind_train <- c(caret::createDataPartition(y = data_bixi$start_station_code, times = 1, p = .75, list = FALSE))
+# saveRDS(ind_train, "data/models/ind_train.rds")
+
+ind_test <- sample(nrow(data_bixi), .25*nrow(data_bixi))
+saveRDS(ind_test, "data/models/ind_test.rds")
 
 
 # Preprocessing -----------------------------------------------------------
 
-X <- preprocessing(data_bixi[ind_train,], path_objects = "data/models/", train = TRUE)
+X <- preprocessing(data_bixi[-ind_test,], path_objects = "data/models/", train = TRUE)
 
 y_duree <- X$target_duree
 y_meme <- X$target_meme_station
