@@ -67,15 +67,15 @@ Pour expliquer plus en détails les méthodes en question, mettons-nous dans cet
 # source("src/preprocessing/preprocessing.R")
 # data_preprocess <- preprocessing(data_bixi[-ind_test,], path_objects = "data/models/", train = TRUE)
 
-data_preprocess <- fst::read.fst("data/data_preprocess.fst", as.data.table = T)
+data <- fst::read.fst("data/data_preprocess.fst", as.data.table = T)
 
-y_duree <- data_preprocess$target_duree
-y_meme <- data_preprocess$target_meme_station
-
-X <- data_preprocess[,-c("target_duree","target_meme_station")]
-rm(data_preprocess)
+# y_duree <- data_preprocess$target_duree
+# y_meme <- data_preprocess$target_meme_station
+# 
+# X <- data_preprocess[,-c("target_duree","target_meme_station")]
+# rm(data_preprocess)
 ```
-Pour une fonction qui automatise le processus, les fonctions `caret::createDataPartition` and `caret::createFolds` sont des options intéressantes.
+Pour automatiser le processus, les fonctions `caret::createDataPartition` and `caret::createFolds` sont des options intéressantes.
 
 Encore une fois, notez que **la séparation du jeu de données précède le prétraitement**.
 L'étape de sélection de modèle, en fin de chapitre, sera effectuée à l'aide de la validation croisée.
@@ -117,9 +117,9 @@ Ainsi, pour minimiser l'erreur dite *réductible* autant que possible, il est n�
 
 On divise généralement les problèmes en deux grandes catégories : la régression et la classification.
 La régression sous-entend une variable réponse continue, *e.g.* la grandeur d'une individue ; la classification sous-entend une variable réponse catégorique (une classe), *e.g.* chat ou chien.
+Avec nos données bixi, on fera de la régression pour prédire la durée d'un trajet et de la classification pour prédire si un utilisateur terminera sa course dans le même arondissement.
 Plusieurs exemples de ces deux types de modèles sont présentés dans la dernière section du chapitre.
-Nous continuons pour l'instant en supposant que notre variable $y$ est continue.
-Toutefois, les concepts présentés sont aussi valides pour la classification; d'autant plus que pour classifier des observations/exemples, on modélise généralement la probabilité qu'une observation appartienne à certaine une classe, ce qui rend en quelque sorte notre variable réponse continue.
+Notez que pour classifier des observations/exemples, on modélise généralement la probabilité qu'une observation appartienne à certaine une classe, ce qui rend en quelque sorte notre variable réponse continue.
 On assigne ensuite l'observation à la classe avec la plus forte probabilité.
 
 
@@ -132,21 +132,23 @@ $$
   y = f(\mathbf{X}) + \varepsilon = \beta_0 + \beta_1 x_1 + \dots + \beta_1 x_d + \varepsilon
 $$
 Ici, les paramètres $\mathbf{\beta} = (\beta_0,\dots,\beta_d)$ détermine comment un changement porté aux variables explicatrices va influencer notre prédiction.
+Nous utiliserons ce modèle pour prédire la durée station à station d'un trajet en bixi.
 
 La plupart du temps, les modèles plus contraignants sont favorisés lorsque peu d'observations sont disponibles.
 Lorsque justifiées, de telles contraintes permettent de prendre avantage d'une structure dans les données qui est connue (ou supposée) *à priori*.
-Certains modèles comme les réseaux de neurones profonds sont reconnus pour être efficaces dans des cas ou la relation entre les variables peut être très complexe, mais requierent généralement une quantité astromnomique de données.
+Certains modèles comme les réseaux de neurones profonds sont reconnus pour être efficaces dans des cas ou la relation entre les variables est très complexe, mais requierent généralement une quantité astromnomique de données.
 Certains modèles plus simples, comme la régression linéaire justement, sont parfois favorisés aussi pour leur interprétation plus facile.
-Dans ce document, nous nous intéressons plusau pouvoir prédictif qu'à l'interprétabilité.
+Dans ce document, nous nous intéressons plus au pouvoir prédictif qu'à l'interprétabilité.
 
-Certaines contraintes sont parfois plus intuitives lorsqu'introduites via notre variable réponse. Supposons par exemple que notre objectif soit de prédire une proportion $y \in (0,1)$.
+Certaines contraintes sont parfois plus intuitives lorsqu'introduites via notre variable réponse. Supposons par exemple que notre objectif soit de prédire une proportion ou une probabilité $y \in (0,1)$.
 La régression linéaire présentée ci-haut n'assure pas le respect de cette contrainte (que $y$ soit toujours entre zéro et un).
 Pour l'intégrer au modèle, on peut modifier le côté gauche de l'équation de telle sorte qu'il puisse prendre toutes les valeurs réelles, en s'assurant néanmoins que notre variable $y$ reste entre 0 et 1.
 On utilise ici la fonction *logit*, qui donne
 $$
   \mathrm{ln}\left( \frac{y}{1-y} \right) = \beta_0 + \beta_1 x_1 + \dots + \beta_d x_d + \varepsilon.
 $$
-Cette modification porte le nom de régression logistique et est un cas particulier de modèle linéaire généralisé. Le cas général est présenté en exemple à la fin du chapitre.
+Cette modification porte le nom de régression logistique et est un cas particulier de modèle linéaire généralisé, qui est présenté en exemple à la fin du chapitre.
+Nous l'utiliserons pour modéliser la probabilité qu'un(e) utilisateur(rice) range son vélo bixi dans l'arrondissement où il a été pris.
 
 
 ## Estimation d'un modèle {#estimation}
@@ -170,6 +172,27 @@ $$
   \mathrm{argmin}_{\boldsymbol{\beta}} \sum_{i=1}^n L(y_i,\hat{y}_i) = \mathrm{argmin}_{\mathbf{\beta}} \ (\mathbf{y} - \mathbf{X}^\top \boldsymbol{\beta})^{\top}(\mathbf{y} - \mathbf{X}^\top \boldsymbol{\beta}) = (\mathbf{X} \mathbf{X}^\top)^{-1} \mathbf{X} \mathbf{y},
 $$
 le bien connu estimateurs des moindres carrées.
+
+Plusieurs librairies R permettent l'ajustement de modèles linéaires généralisés.
+Nous utilisons ici `glmnet` pour modéliser la durée d'un trajet. 
+```{r, echo=T}
+# my_cols <- grep("start_q", colnames(data_preprocess)) # on note les colonnes de quartier
+# colnames(data_preprocess)[my_cols] <- paste0("start_quartier_", 1:length(my_cols))
+# rhs1 <- paste0("moment_journee:", colnames(data_preprocess)[my_cols], collapse=" + ")  # interaction avec moment
+# rhs2 <- paste0(colnames(data_preprocess)[my_cols], collapse=" + ") # sans interaction
+# rhs <- paste(colnames(data_preprocess)[3],    # glue ith the rest
+#              colnames(data_preprocess)[4],
+#              colnames(data_preprocess)[5],
+#              rhs1, rhs2, sep = " + ")
+# 
+# f <- as.formula(paste("y_duree", rhs, sep=" ~ "))
+# data_preprocess$moment_journee <- factor(data_preprocess$moment_journee, labels=c("A","B","C","D"))
+# x <- model.matrix(f, data_preprocess)
+
+# glm <- glmnet::glmnet(x = x, y = as.matrix(y_duree,ncol=1), family = "gaussian", lambda=0)
+# sum(abs(predict(object = glm, newx = x[1:1000,], lambda = 0) - y_duree[1:1000]))
+# print(coef(glm))
+```
 
 
 - Un mot très rapide sur la régularisation (l2 (ridge), l1 (lasso), l1+l2 (elastic net))

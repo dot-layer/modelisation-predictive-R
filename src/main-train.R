@@ -22,7 +22,7 @@ source("src/preprocessing/preprocessing.R")
 
 # Doit avoir le fichier 'LIMADMIN.shp' dans le repertoire passer en argument
 # a la fonction load_data()
-data_bixi <- fread("data/data_bixi.csv")
+data_bixi <- load_data("data/")
 
 
 # Split data --------------------------------------------------------------
@@ -37,6 +37,7 @@ saveRDS(ind_test, "data/models/ind_test.rds")
 # Preprocessing -----------------------------------------------------------
 
 X <- preprocessing(data_bixi[-ind_test,], path_objects = "data/models/", train = TRUE)
+# fst::write.fst(X,'data/data_preprocess.fst')
 
 y_duree <- X$target_duree
 y_meme <- X$target_meme_station
