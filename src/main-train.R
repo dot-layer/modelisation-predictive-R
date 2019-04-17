@@ -33,7 +33,7 @@ saveRDS(ind_train, "data/models/ind_train.rds")
 
 # Preprocessing -----------------------------------------------------------
 
-X <- preprocessing(data_bixi[ind_train,], path_objects = "data/models/", train = TRUE)
+X <- preprocessing(data = data_bixi[ind_train,], path_objects = "data/models/", train = TRUE)
 
 y_duree <- X$target_duree
 y_meme <- X$target_meme_station

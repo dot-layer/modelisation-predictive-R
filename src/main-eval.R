@@ -29,7 +29,7 @@ data_test <- data_bixi[sample(1:nrow(data_bixi), 1),]
 
 # Preprocessing -----------------------------------------------------------
 
-data_test <- preprocessing(data_test, path_objects = "data/models/", train = FALSE)
+data_test <- preprocessing(data = data_test, path_objects = "data/models/", train = FALSE)
 
 
 # Prediction --------------------------------------------------------------

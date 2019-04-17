@@ -4,6 +4,11 @@
 library(usethis)
 library(xgboost)
 
+
+########################
+# demo Iris
+########################
+
 data("iris")
 target_raw <- iris$Species
 iris_levels <- levels(target_raw)
@@ -18,4 +23,15 @@ param <- list(max_depth = 3, num_class = 3, eta = 0.05,
               objective = "multi:softprob", eval_metric = "merror")
 model_iris <- xgboost::xgb.train(params = param, data = dtrain, nrounds = 400, watchlist = watchlist, print_every_n = 25)
 
-usethis::use_data(model_iris, iris_levels, internal = T, overwrite = T)
+########################
+# Bixi
+########################
+
+# preprocessing
+source("../../preprocessing/preprocessing.R")
+
+# modeles
+model_glm <- readRDS(file = "../../../data/models/glm.rds")
+model_xgb <- readRDS(file = "../../../data/models/xgb.rds")
+
+usethis::use_data(model_iris, iris_levels, preprocessing, model_glm, model_xgb, internal = T, overwrite = T)
