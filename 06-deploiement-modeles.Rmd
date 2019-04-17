@@ -1,6 +1,8 @@
 # Déploiement de modèles
 
-L'ultime étape pour donner vie à un modèle est de le mettre en production. Le cas d'utilisation générique considéré dans ce chapitre assume que l'usager veut 
+L'ultime étape pour donner vie à un modèle est de le mettre en production. 
+
+Les exemples de déploiement de modèles sont omniprésents. Il peut s'agir de cas plus évidents comme l'obtention d'un score de crédit afin de déterminer l'éligibilité pour un prêt ou encore une soumission pour un produit d'assurance basé sur les caractéristiques de l'appliquant et du bien assurés. De manière plus large, ça inclut également des recommendations d'achat faites par un marchand en ligne, aux utilitaires un appareil photo permettant la reconnaissance des visages ou à un système de conduite autonome. 
 
 Il existe différentes manières d'y arriver, dépendemment du cas d'utilisation du modèle. 
 
@@ -15,7 +17,7 @@ Nous verrons ici deux outils permettant de servir les résultats d'un modèle:
  - [OpenCPU](https://www.opencpu.org/)
  - [Plumber](https://www.rplumber.io/)
 
-Chacun de ces outils permet de servir un modèle via un REST API, ce qui signifie que les échanges sont réalisés au travers du protocole http. Comme il s'agit d'un protocole omniprésent, il existe de nombreux outils disponibles pour en faciliter l'intégration dans différentes applications. Ça signifie que ces applications peuvent exploiter les capacités de modélisation de R sans qu'elles aient à intégrer R d'aucune façon. L'utilisation d'un modèle via un REST API devient donc agnostic du ou des langages utilisé à l'intérieur de cet API. 
+Chacun de ces outils permet de servir un modèle via un REST API, ce qui signifie que les échanges sont réalisés au travers du protocole http. Comme il s'agit d'un protocole omniprésent, il existe de nombreux outils disponibles pour en faciliter l'intégration dans différentes applications. Ça signifie que ces applications peuvent exploiter les capacités de modélisation de R sans qu'elles aient à intégrer R d'aucune façon. L'utilisation d'un modèle via un REST API devient donc agnostic du ou des langages utilisés à l'intérieur de cet API. 
 
 ## OpenCPU
 
@@ -139,7 +141,7 @@ Une exemple minimaliste est founi dans le dossier `deploiement/model.plumber/plu
 Ce code peut être servi en un service plumber de la manière suivante: 
 
 ```
-pr <- plumber::plumb("deploiement/model.plumber/plumber_ini.R")
+pr <- plumber::plumb("src/deploiement/model.plumber/plumber_ini.R")
 pr$run()
 ```
 
@@ -157,7 +159,7 @@ curl -d "msg=Salut!" -G "http://127.0.0.1:5099/message"
 
 
 ```
-pr <- plumber::plumb("deploiement/model.plumber/pred_xgboost.R")
+pr <- plumber::plumb("src/deploiement/model.plumber/pred_xgboost.R")
 pr$run()
 ```
 
