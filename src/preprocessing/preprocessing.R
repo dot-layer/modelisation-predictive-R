@@ -1,7 +1,7 @@
 
 
 
-preprocessing <- function(data, train_mode=TRUE) {
+preprocessing <- function(data, train_mode=TRUE, list_objects=NULL) {
   
   # Features engineering
   data[, `:=`(start_quartier = tolower(stri_replace_all_regex(start_quartier, "-| ", "")),
@@ -38,7 +38,6 @@ preprocessing <- function(data, train_mode=TRUE) {
     variables_a_imputer <- list()
     variables_a_imputer["start_quartier"] <- "autre"
     variables_a_imputer["end_quartier"] <- "autre"
-    #write(jsonlite::toJSON(variables_a_imputer, pretty = TRUE), paste0(path_objects, "valeurs_imputations.json"))
     
     # Imputer les données manquantes
     for (col in names(variables_a_imputer)){
@@ -48,7 +47,6 @@ preprocessing <- function(data, train_mode=TRUE) {
     # One-hot encoding
     objet_un_chaud <- dummyVars(" ~ .", copy(data)[, (c("target_duree", "target_meme_station")) := NULL], 
                                 fullRank = TRUE)
-    #saveRDS(objet_un_chaud, paste0(path_objects, "objet_un-chaud.rds"))
     data <- cbind(
       predict(objet_un_chaud, copy(data)[, (c("target_duree", "target_meme_station")) := NULL]),
       copy(data)[, (c("target_duree", "target_meme_station")), with = F]
@@ -62,7 +60,6 @@ preprocessing <- function(data, train_mode=TRUE) {
       moyennes = as.list(moyennes),
       ecarts_types = as.list(ecarts_types)
     )
-    #write(jsonlite::toJSON(valeurs_normalisation, pretty = TRUE), paste0(path_objects, "valeurs_normalisation.json"))
     data <- lapply(names(valeurs_normalisation$moyennes), function(x) {
       data[, (x) := (get(x) - valeurs_normalisation$moyennes[[eval(x)]])/valeurs_normalisation$ecarts_types[[eval(x)]]]
     })[[2]]
@@ -70,7 +67,6 @@ preprocessing <- function(data, train_mode=TRUE) {
     # Conserver les variables pertinentes à la modélisation
     vars <- c("target_duree", "target_meme_station", "is_member", "weekend_flag", "moment_journee")
     vars <- c(vars, grep("start_quartier", colnames(data), value = TRUE))
-    #write(jsonlite::toJSON(, pretty = TRUE), paste0(path_objects, "variables_a_conserver.json"))
     
     list(
       data_preprocess = data[, ..vars],
@@ -83,25 +79,23 @@ preprocessing <- function(data, train_mode=TRUE) {
   } else {
     
     # Imputer les données manquantes
-    variables_a_imputer <- jsonlite::fromJSON(paste0(path_objects, "valeurs_imputations.json"))
+    variables_a_imputer <- list_objects$variables_a_imputer
     for (col in names(variables_a_imputer)){
       data[is.na(get(col)), (col) := variables_a_imputer[[eval(col)]]]
     }
     
     # One-hot encoding
-    objet_un_chaud <- readRDS(paste0(path_objects, "objet_un-chaud.rds"))
+    objet_un_chaud <- list_objects$objet_un_chaud
     data <- data.table(predict(objet_un_chaud, data))
     
     # Normaliser les données
-    valeurs_normalisation <- jsonlite::fromJSON(paste0(path_objects, "valeurs_normalisation.json"))
+    valeurs_normalisation <- list_objects$valeurs_normalisation
     data <- lapply(names(valeurs_normalisation$moyennes), function(x) {
       data[, (x) := (get(x) - valeurs_normalisation$moyennes[[eval(x)]])/valeurs_normalisation$ecarts_types[[eval(x)]]]
     })[[2]]
     
-    vars <- jsonlite::fromJSON(paste0(path_objects, "variables_a_conserver.json"))
-    list(
-      data_preprocess = data[, ..vars]
-    )
+    vars <- list_objects$vars_to_keep
+    data[, ..vars]
     
   }
   
