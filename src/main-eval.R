@@ -2,12 +2,12 @@
 
 # Load les packages -------------------------------------------------------
 
+library(sf)
 library(data.table)
 library(caret)
 library(fst)
 library(stringi)
 library(lubridate)
-library(sf)
 library(xgboost)
 library(glmnet)
 
