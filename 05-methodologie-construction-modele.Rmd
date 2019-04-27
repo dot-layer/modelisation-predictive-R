@@ -1,6 +1,5 @@
 # Construction de modèles {#metho}
 
-
 Une fois les données nettoyées convenablement, la variables réponse et les variables explicatives choisies, nous sommes prêts pour construire le modèle prédictif.
 Bien sûr, le choix des variables explicatives restent préliminaires : on peut réaliser, après avoir tenté plusieurs modèles, qu'elles ne véhiculent pas assez d'information pour permettre des prédictions satisfaisantes.
 Il faudra alors considérer d'autres options; transformer nos variables, ou en en collecter de nouvelles.
@@ -15,7 +14,7 @@ L'objectif principal, dans ce chapitre, est d'apprendre (ou plutôt d'approximer
 
 Nous supposons que le lecteur possède des connaissances de base en statistique (espérance, variance, etc).
 
-Les sujets suivant sont traités : la gestion du jeu de données (entraîenement/validation/test); l'identification de modèles adéquats; l'estimation de modèles (fonction de perte, compromis biais-variance); la sélection et l'évaluation d'un modèle (validation croisée, erreur de généralisation). 
+Les sujets suivants sont traités : la gestion du jeu de données (entraîenement/validation/test); l'identification de modèles adéquats; l'estimation de modèles (fonction de perte, compromis biais-variance); la sélection et l'évaluation d'un modèle (validation croisée, erreur de généralisation). 
 
 
 
@@ -72,7 +71,7 @@ Divisons donc notre jeu de données en deux : les données d'entraînement et de
 
 library(data.table)
 library(ggplot2)
-data <- fst::read.fst("data/data_preprocess.fst", as.data.table = T)
+data <- fst::read.fst("data/data_preprocess.fst", as.data.table = T)[1:10000,]
 data$moment_journee <- factor(data$moment_journee, labels=c("A","B","C","D"))
 ```
 Pour automatiser le processus, les fonctions `caret::createDataPartition` and `caret::createFolds` sont des options intéressantes.
@@ -295,34 +294,12 @@ Notons que $\mathbb{E}[Y|X = .75]$ est donné par
 x0 <- .75
 Ex0 <- dnorm(x0,1,1/2)
 ```
-On s<en sert ici pour calculer le biais
-```{r, echo=T}
-# For each value of k, we replicate the process 25 times
-preds <- sapply(1:50, function(k){
-  
-  replicate(1000, {
-  train_dummy <- data.table(y = sample(0:1, 50, replace = T))
-  train_dummy[, x := rnorm(n=50, mean=y, sd=1/2)]
-  
-  new_y_pred <- class::knn(train = matrix(train_dummy$x,ncol=1),
-                           test = matrix(x0,ncol=1),
-                           cl = train_dummy$y,
-                           k = k)
-  as.numeric(as.vector(new_y_pred))
-  })
-})
+On s'en sert ici pour calculer le biais
+```{r, visible = F}
+# createMseFig()
 
-erreur_gen_x0 <- apply(preds, 2, function(y) mean((y - Ex0)^2))
-bias2_x0 <- apply(preds, 2, function(y) mean(y - Ex0)^2)
-var_x0 <- apply(preds, 2, function(y) var(y))
-
-dt <- data.table(val = c(erreur_gen_x0, bias2_x0, var_x0),
-                quantity = factor(rep(c("Gen","Biais2","Var"),
-                               each = length(var_x0))),
-                k = rep(1:length(var_x0), times = 3))
-ggplot(dt, aes(x = k, y = val, col = quantity)) + geom_point() +
-  theme_minimal() + ylab("")
 ```
+![Dummy MSE](dummy-mse.png)
 
 Fait important, les hyper-paramètres comme $\alpha$, $\lambda$ et $k$ ne peuvent être estimés de façon traditionnelle.
 On se contente souvent d'estimer un modèle pour chaque valeur de `alpha` et `lambda` préalablement choisies : ce qu'on appelle souvent un *grid search*.
