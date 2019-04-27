@@ -2,12 +2,12 @@
 
 # Load les packages -------------------------------------------------------
 
+library(sf)
 library(data.table)
 library(caret)
 library(fst)
 library(stringi)
 library(lubridate)
-library(sf)
 library(xgboost)
 library(glmnet)
 
@@ -16,6 +16,12 @@ library(glmnet)
 
 source("src/extraction/load-data.R")
 source("src/preprocessing/preprocessing.R")
+
+
+# A lancer au debut du server ---------------------------------------------
+
+source("src/deploiement/init.R")
+init_objects <- init("data/models/")
 
 
 # Importer les données ----------------------------------------------------
@@ -29,19 +35,15 @@ data_test <- data_bixi[sample(1:nrow(data_bixi), 1),]
 
 # Preprocessing -----------------------------------------------------------
 
-data_test <- preprocessing(data_test, path_objects = "data/models/", train = FALSE)
+data_test <- preprocessing(data_test, train_mode = FALSE, list_objects = init_objects)
 
 
 # Prediction --------------------------------------------------------------
 
-model_glm <- readRDS(file = "data/models/glm.rds")
-model_xgb <- readRDS(file = "data/models/xgb.rds")
-
 # Penser a avoir un fichier de configs maybe? (threshold, lambda dans glmnet, etc)
-
 list(
   # Gerer le lambda dans glmnet
-  duree = predict(model_glm, as.matrix(data_test), s = rev(model_glm$lambda)[1]),
+  duree = predict(init_objects$model_glm, as.matrix(data_test), s = rev(init_objects$model_glm$lambda)[1]),
   # Gerer le threshold différement
-  meme_station = predict(model_xgb, as.matrix(data_test)) > 0.5
+  meme_station = predict(init_objects$model_xgb, as.matrix(data_test)) > 0.5
 )
