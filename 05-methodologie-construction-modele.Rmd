@@ -3,6 +3,10 @@
 ```{r, echo = F}
 library(data.table)
 library(ggplot2)
+
+library(glmnet)
+library(xgboost)
+
 data <- fst::read.fst("data/data_preprocess.fst", as.data.table = T)[1:10000,]
 data$moment_journee <- factor(data$moment_journee, labels=c("A","B","C","D"))
 ```
@@ -329,7 +333,7 @@ On s'en sert ici pour calculer le biais
 On estime un modèle pour chaque valeur de `alpha` et `lambda` préalablement choisies : ce qu'on appelle souvent un *grid search*.
 On peut utiliser la fonction `expand.grid` pour créer la grille
 ```
-hp_grid <- expand.grid(alpha = seq(0,1,.01), lambda = seq(0,10,.1)).
+hp_grid <- expand.grid(alpha = seq(0,1,.01), lambda = seq(0,10,.1))
 ```
 Pour la fonction `glmnet::glmnet`, on peut laisser l'argument `lambda` vide et spécifier `nlambda`, le nombre de valeurs à essayer (la fonction s'occupe du reste).
 Par défaut `lambda = NULL` et `nlambda = 100`.
@@ -398,46 +402,109 @@ $$
   \end{array}
 $$
 Pour chaque valeur de $k \in \{1,\dots,10\}$, l'idée est d'entraîner nos modèles sur les données $(\mathbf{X}_{\rm train}^{-k}|\mathbf{y}_{\rm train}^{-k})$, c'est-à-dire toutes les données sauf $(\mathbf{X}_{\rm train}^{k}|\mathbf{y}_{\rm train}^{k})$.
-Le but est de prédire, avec ces modèles, les réponses $\mathbf{y}_{\rm train}^{k}$ à partir de $\mathbf{X}_{\rm train}^{k}$.
-
-Restreignons-nous à la régression linéaire et fixons les hyper-paramètres $\alpha$ et $p$ (à des valeurs arbitraires).
-Utilisons $f_{\alpha,p}(\mathbf{x})$ pour référer au modèle théorique et $f_{\alpha,p}^{(-k)}(\mathbf{x})$ les modèles estimés sur $(\mathbf{X}_{\rm train}^{-k}|\mathbf{y}_{\rm train}^{-k})$.
+Le but est de prédire, avec ces modèles, les réponses $\mathbf{y}_{\rm train}^{k}$ à partir de $\mathbf{X}_{\rm train}^{k}$ et donc en n'ayant jamais "vu" $\mathbf{y}_{\rm train}^{k}$.
+Utilisons $f_{\alpha,p}(\mathbf{x})$ pour référer au modèle théorique et $f_{\alpha,p}^{(-k)}(\mathbf{x})$ pour les modèles estimés sur $(\mathbf{X}_{\rm train}^{-k}|\mathbf{y}_{\rm train}^{-k})$.
 L'erreur de généralisation (calculée sur $n(1-K^{-1})$ données!) de $f_{\alpha,p}(\mathbf{x})$ est estimée par
 \begin{equation}
   \frac{1}{K} \sum_{k=1}^K \mathbf{L}(\mathbf{\hat{y}}^k, \mathbf{y}_{\rm train}^k)
 \end{equation}
-où $\hat{y}_i^k = \hat{f}_{\alpha,p}^{(-k)}(\mathbf{x}_i^k)$
+où $\hat{y}_i^k = \hat{f}_{\alpha,p}^{(-k)}(\mathbf{x}_i^k)$.
 
 
-Le point essentiel de la procédure est qu'en aucun cas les données utilisées pour l'estimation ne soient utilisées pour la prédictions.
-**L'erreur la plus commune** commise lors de la validation croisée concerne la sélection de variables.
-La sélection automatique de variables repose sur le jeu de données d'entraînement.
-Ainsi, il est impératif d'opérer la sélection à partir du jeu de données $(\mathbf{X}_{\rm train}^{-k}|\mathbf{y}_{\rm train}^{-k})$ pour prédire les $\mathbf{y}_{\rm train}^{k}$.
+L'élément essentiel de la procédure est qu'en aucun cas les observations "à prédire" ne doivent être utilisées pour l'estimation.
+C'est là que l'erreur la plus commune est commise.
+Les méthodes comme *lasso* et les régressions *step-wise*, en combinant la sélection de variables avec l'estimation, utilisent le jeu de données d'entraînement.
+**L'étape de sélection doit donc faire partie de la routine de validation croisée.**
 Ce n'est donc pas les modèles aux-mêmes que nous évaluons, mais les méthodes d'estimation.
+Pour notre exemple principal avec la libraire `glmnet`, cela signifie q'on doit donc appliquer la fonction `glmnet::glmnet` à chaque jeu d'entraînement $(\mathbf{X}_{\rm train}^{-k}|\mathbf{y}_{\rm train}^{-k})$.
+**Subtilité :** Il est difficile de choisir les valeurs de `lambda` à priori -- et laisser la fonction les choisir produira des `lambda` hétérogènes de *fold* en *fold*.
+Heureusement pour nous, une fonction existe pour nous éviter ce problème, `cv.glmnet`.
+Il ne nous reste qu'à s'occuper de `alpha`.
+Commençons avec `alpha = 0`
+```{r, echo = T, out.width = "60%",fig.align='center'}
+fold <- sample(1:10, size = nrow(data), replace=T) # On assigne chaque obs. à un fold.
 
-Exemple:
-Pour approximer l'erreur de généralisation, par exemple, de notre modèle linéaire obtenu avec `glmnet::glmnet`, **il est absolument nécessaire de refaire la sélection des variables pour chaque bloc (*fold*)**.
-Puisque la fonction détermine les valeurs de `lambda` automatiquement, il nous sera impossible de choisir `lambda` directement.
-Toutefois, pour chaque valeur de `alpha`, on obtient une séquence de modèles : un pour chaque valeur `k`
+# Pour un alpha donné, on sélectionne le lambda optimal
+glm0_cv <- cv.glmnet(x = model.matrix(f, data),
+          y = matrix(data$target_duree, ncol=1),
+          foldid = fold,
+          alpha = 0)
+plot(glm0_cv)
+```
+Des intervalles de confiances sont fournies, ce qui permet non seulement d'identifier la valeur de lambda qui minimise l'erreur, mais aussi la plus grande valeur pour laquelle l'erreur se trouve à moins d'un écart-type du minimum.
+Ces valeurs sont indiquées par les traits verticaux et s'obtiennent avec
+```{r, echo = T}
+log(glm0_cv$lambda.min)
+log(glm0_cv$lambda.1se)
+```
 
+Il est important d'utiliser les même folds pour pouvoir comparer les performances pour différentes valeurs de `alpha`.
+```{r, echo = T, out.width = "60%",fig.align='center'}
+alpha <- seq(0,1,.05)
+glm_al <- lapply(alpha, function(al){
+  cv.glmnet(x = model.matrix(f, data),
+          y = matrix(data$target_duree, ncol=1),
+          foldid = fold,
+          alpha = al)
+})
 
+res_cv <- sapply(glm_al, function(glm_path){
+  c(glm_path$lambda.min,
+    glm_path$cvm[which(glm_path$lambda == glm_path$lambda.min)])
+})
 
+plot(alpha, res_cv[2,])
+```
+Comme on peut voir, les modèles sont assez similaires, excluant le régression ridge pure.
+Choisissons le minimum.
+```{r, echo = T}
+glm_final <- glm_al[which.min(res_cv[2,])]
 
-- Bien important d'intégrer toute la procédure d'estimation! Et nous pas juste les modèles...
-- glmnet à déjà une procédure pour `lambda` -- cv.glmnet(X, Y, parallel = TRUE)
-- faisons de même pour `alpha` (on met en oeuvre le gris search)
-- [REF] à un exemple sur additive models à la fin de la section.
+# Pour utilisation,
+cbind(
+  predict(glm_final, newx = model.matrix(f, data[1:10,]), s = "lambda.min")[[1]],
+  true = data[1:10,target_duree]
+)
+```
 
-
-
-est continue, on considère l'hyper-paramètre
-
-le paramètre `lambda` est
 
 
 
 
 ## Exemples additionels (bullshiat fo now)
+
+
+
+```{r, echo = T}
+# CANSWELL CA ET FAIS LE AVEC xgBoost juste sur la profondeur des trees
+
+# K <- 10
+# folds <- caret::createFolds(data$target_duree, k = K)
+# 
+# hp_grid <- expand.grid(alpha = seq(0,1,.25)) # lambda est pris en charge par la fonction
+# 
+# sapply(1:K, function(k){
+#   
+#   erreur_gen <- lapply(hp_grid, function(al){
+# 
+#     # on enleve le jeu k pour entrainer
+#     glm_al <- glmnet::glmnet(x = model.matrix(f, data[-folds[[k]],]),
+#                    y = as.matrix(data[-folds[[k]],]$target_duree,ncol=1), 
+#                    family = "gaussian",
+#                    alpha = al)
+#     # on calcule notre erreur de prediction sur le jeu k (pour les valeurs de lambda choisies)
+#     erreur_pred <- colMeans( (predict(glm_al, model.matrix(f, data[folds[[k]],])) - data[folds[[k]],]$target_duree)^2 )
+#     
+#     cbind(erreur_pred, glm_al$lambda)
+#   })
+#   
+# })
+
+
+```
+
+
+
 
 **Exemples**
 
