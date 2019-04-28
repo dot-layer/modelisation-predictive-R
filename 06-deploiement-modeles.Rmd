@@ -2,7 +2,13 @@
 
 L'ultime étape pour donner vie à un modèle est de le mettre en production. 
 
-Les exemples de déploiement de modèles sont omniprésents. Il peut s'agir de cas plus évidents comme l'obtention d'un score de crédit afin de déterminer l'éligibilité pour un prêt ou encore une soumission pour un produit d'assurance basé sur les caractéristiques de l'appliquant et du bien assurés. De manière plus large, ça inclut également des recommendations d'achat faites par un marchand en ligne, aux utilitaires un appareil photo permettant la reconnaissance des visages ou à un système de conduite autonome. 
+Les exemples de déploiement de modèles sont omniprésents. Il peut s'agir de cas plus évidents comme l'obtention d'un score de crédit afin de déterminer l'éligibilité pour un prêt ou encore une soumission pour un produit d'assurance basé sur les caractéristiques de l'appliquant et du bien assuré. De manière plus large, ça comprend également des recommendations d'achat faites par un marchand en ligne, les utilitaires un appareil photo permettant la reconnaissance des visages ou un système de conduite autonome. 
+
+De par la diversité des cas de consommation des modèles, il n'existe pas de solution unique applicable à toutes les situations. Parmi les considérations, notons le nombre de requêtes qui devra être supporté (l'application est-elle destinée à un groupe d'employé ou à une masse de consommateurs localisés partout sur le globe?), les besoins en latence (cherche-t-on simplement à assurer une expérience client dynamique ou doit-on exécuter un ordre d'achat dans un contexte d'arbitrage boursier à haute fréquence?), les contraintes de la plateforme qui supoprtera les prédictions (par exemple un système de contrôle intelligent qui a des resources processeur et mémoire limités) ou encore les besoins de stabilité dy système (est-ce qu'une défaillance ou une latence non-déterministe due aux collecteur de déchet pourrait entraîner une collision aérienne?). 
+
+En présence de contraintes importantes sur les précédents facteurs, il peut être préférable d'avoir recours à des langages compilés ou encore plus près du matériel qu'un langage dynamique dynamique tel que R. Il n'en reste pas moins que pour un large éventail de contextes, une capacité de développement rapide combinée à des options de déploiement simples font de R une option intéressante pour le déploiement de modèle. 
+
+
 
 Il existe différentes manières d'y arriver, dépendemment du cas d'utilisation du modèle. 
 
@@ -21,7 +27,7 @@ Chacun de ces outils permet de servir un modèle via un REST API, ce qui signifi
 
 ## OpenCPU
 
-L'unité de travail de OpenCPU repose sur la librairie. Pour pouvoir servir un modèle, on doit donc le structurer de manière à ce qu'il puisse être servi par une librairie. Si l'approche peut paraître contraignante, elle incite à l'adoption d'une discipline dans la structure du code et de ses dépendances qui peut être salutaires à sa maintenance. 
+L'unité de travail de OpenCPU repose sur la librairie. Pour pouvoir servir un modèle, on doit donc le structurer de manière à ce qu'il puisse être encapsulé à l'intérieur d'une librairie. Si l'approche peut paraître contraignante, elle incite à l'adoption d'une discipline dans la structure du code et de ses dépendances qui peut être salutaire à sa maintenance. 
 
 ### Débuter avec OpenCPU
 
@@ -42,11 +48,11 @@ La commande précédente devrait retourner un résultat similaire au suivant:
 
 Que s'est-il passé? Le serveur a reçu une requête pour la fonction `rnorm` situé dans `stats/R/` avec `n=2` comme paramètre. La segment `/json` a servi à demander à ce que le résultat soit retourné dans le format json. De fait, l'appel à la fonction a retourné un json contenant deux observations simulées d'une Normale(0,1). 
 
-Il a été possible de faire la précédente requête puisque par défaut, la librairie `stats` est accessible par OpenCPU, à l'instar de l'ensemble des librairies accessibles au niveau système. Pour servir un modèle prédictif, une librairie permettant de retourner les prédictions de ce modèle devra donc être développée. 
+Il a été possible de faire la précédente requête puisque par défaut, la librairie `stats` est accessible par OpenCPU, à l'instar de l'ensemble des librairies accessibles au niveau système. Pour servir un modèle prédictif, une librairie permettant de retourner les prédictions de ce modèle devra donc être développée et installée. 
 
 ### Bâtir un squelette de librairie
 
-Avant d'illustruer le déploiement d'un modèle, nous allons présenter comment utiliser OpenCPU à partir d'un exemple le plus minimal possible.
+Avant d'illustrer le déploiement d'un modèle, nous allons présenter comment utiliser OpenCPU à partir d'un exemple le plus minimal possible.
 
 La première étape est d'avoir le code structuré en une librairie. Une librairie peut être initialisée à l'aide de la commande: 
 
@@ -57,9 +63,9 @@ usethis::create_package("~/model.ocpu/")
 
 Alternativement, Rstudio offre la fonctionnalité à partir du menu: `File -> New Project -> New Directory -> R Package`. 
 
-Une librarie en R n'est qu'un projet qui contient un fichier `DESCRIPTION`, un fichier `NAMESPACE` ainsi qu'un dossier `R/` à l'intérieur duquel se trouve les codes R. Les fonctions d'initialisation ci-haut ne sont que des aides facilitant la création de cette structure. 
+Une librarie en R n'est qu'un projet qui contient un fichier `DESCRIPTION`, un fichier `NAMESPACE` ainsi qu'un dossier `R/` à l'intérieur duquel se trouvent les codes R. Les fonctions d'initialisation ci-haut ne sont que des aides facilitant la création de cette structure. 
 
-Une fois la création du squelette complétée, une fonction test peut être créée. Par exemple, avec le code suivant dans le fichier `./R/salut.R`:
+Une fois la création du squelette complétée, une fonction de test peut être créée. Par exemple, avec le code suivant dans le fichier `./R/salut.R`:
 
 ```
 #' Salut
@@ -70,7 +76,7 @@ salut <- function() {
 }
 ```
 
-La librairie mode.ocpu peut maintenant être bâtie. 
+La librairie model.ocpu peut maintenant être bâtie. 
 La documentation sera d'abord générée:
 
 ```
@@ -79,14 +85,14 @@ devtools::document()
 
 L'installation peut ensuite s'exécuter à l'aide du raccourci: `ctrl-shift-B`.
 
-En démarrant à une nouvelle session du serveur OpenCPU, il sera désormais possible d'intéragir avec la librairie model.ocpu nouvellement installée. 
+En démarrant une nouvelle session du serveur OpenCPU, il sera désormais possible d'intéragir avec la librairie model.ocpu nouvellement installée. 
 
 `curl http://localhost:5656/ocpu/library/model.ocpu/R/salut/json -d ""`
 
 
 ### Intégrer un modèle prédictif dans une librairie
 
-Une librairie permettant de retourner des prédictions devra supporter les fonctionnalité suivante: 
+Une librairie permettant de retourner des prédictions devra supporter les fonctionnalité suivantes: 
  - Lire les informations relativement aux observations pour lesquelles une prédiction doit être retournée
  - Appliquer les possibles transformations utilisées dans la préparation des données sur lesquelle le modèle a été construit. 
  - Effectuer la prédiction sur ces donnée à partir du modèle sélectionné pour la déploiement. 

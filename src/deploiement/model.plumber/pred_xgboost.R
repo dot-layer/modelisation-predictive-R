@@ -1,6 +1,6 @@
 # pred_xgboost.R
 
-load("deploiement/model.plumber/sysdata.rda")
+load("src/deploiement/model.plumber/sysdata.rda")
 library(xgboost)
 
 #' Classification from individually specified features
@@ -46,4 +46,3 @@ search <- function(q="", pretty=0){
   paste0("The q parameter is '", q, "'. ",
          "The pretty parameter is '", pretty, "'.")
 }
-
