@@ -46,13 +46,6 @@ texte, son, image, combinaison
 
 #### Entreposage
 feather
-readxl
-readxl
-sqldf
-dplyr
-dbplyr
-readr
-rio
 
 
 ### Qualité
@@ -72,7 +65,22 @@ socio-démographique, etc.
 ### Accessibilité
 Dans notre parallèle avec la table, le coût était la troisième considération principale. Dans le cas des données, nous allons plutôt parler d'accessibilité, dont le coût est une des composantes.
 #### coût (gratuit?)
-#### Web Scraping (légalité/api/service)
+#### Lecture de fichiers
+readr
+readxl
+xlsx
+#### Connexion à une base de données
+sqldf
+dbplyr
+rio
+DBI
+odbc
+RMySQL, RPostgresSQL, RSQLite
+foreign
+haven
+https://db.rstudio.com/
+#### Web Scraping (légalité/api/service/timeouts)
+XML
 xml2
 curl
 httr
@@ -88,14 +96,5 @@ googlesheets
 - https://www.reddit.com/r/datasets
 - https://archive.ics.uci.edu/ml/index.php?fbclid=IwAR09F5grBOTCr1SS4v8gONEYeqk0DqqWpPdt1blmYF9ucZkhsQeM5T0E7ew
 - http://donnees.ville.montreal.qc.ca/
-
-
-## Collecte de données en R
-
-### Retour sur une section (### ou ####) précédente
-
-### Retour sur une section (### ou ####) précédente
-
-### Retour sur une section (### ou ####) précédente
 
 ## Références
