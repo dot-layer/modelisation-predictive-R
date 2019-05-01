@@ -8,7 +8,7 @@ createMseFig <- function(path = "static-files/"){
   preds <- sapply(1:50, function(k){
     print(k)
     
-    replicate(1000, {
+    replicate(2000, {
       train_dummy <- data.table(y = sample(0:1, 50, replace = T))
       train_dummy[, x1 := rnorm(n=50, mean=y, sd=1/2)]
       train_dummy[, x2 := x1 + rnorm(n=50, mean=y, sd=1/4)]
