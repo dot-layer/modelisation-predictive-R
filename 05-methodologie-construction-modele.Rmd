@@ -366,9 +366,9 @@ Pour la fonction `glmnet::glmnet`, on peut laisser l'argument `lambda` vide et s
 Par défaut `lambda = NULL` et `nlambda = 100`.
 On a donc qu'à s'occuper de `alpha`
 ```{r, echo=T}
-# glm_list <- lapply(seq(0,1,.25), function(alpha){
-#   glmnet::glmnet(x = model.matrix(f, data), y = as.matrix(data$target_duree,ncol=1), family = "gaussian", alpha = alpha)
-# })
+glm_list <- lapply(seq(0,1,.25), function(alpha){
+  glmnet::glmnet(x = model.matrix(f, data), y = as.matrix(data$target_duree,ncol=1), family = "gaussian", alpha = alpha)
+})
 ```
 Lorsque `alpha` est positif, les modèles associés aux plus fortes valeur de `lambda` feront usage de moins de variables pour expliquer la réponse; à l'opposé, `lambda = 0` produira un modèle les incluant toutes.
 En particulier, le modèle *lasso* (`alpha = 1`) avec la plus forte intensité `lambda` utilisera seulement $\beta_0$.
@@ -377,18 +377,20 @@ Comme chaque combinaison d'hyper-paramètres produit un modèle, c'est à l'éta
 En fait, surtout lorsque les hyper-paramètres en question concernent la sélection de variables, la recherche en grille est souvent intégrée à l'étape de sélection de modèle.
 
 
-## Sélection d'un modèle {#sélection}
+## Sélection d'un modèle et son évaluation {#sélection}
 
-Une fois qu'on possède plusieurs candidats intéressants, il reste à choisir le modèle final parmi ceux-ci.
+<span style="color:fuchsia">**Concepts clefs : erreur de généralisation, validation croisée, matrice de confusion**</span>
+
+Une fois que l'on possède plusieurs candidats intéressants, il reste à choisir le modèle final parmi ceux-ci.
 Pour rester fidèle à l'objectif ultime, on choisit le modèle avec la plus faible erreur de généralisation.
 Voici quelques méthodes qui permettent de trouver ce modèle.
 
 ### Validation directe
 
-Notre objectif ultime concerne la prédiction **sur de nouvelles données**, on utilisera donc, si disponible, le jeu de données de validation pour calculer l'*erreur de généralization*.
-Cette dernière est en fait calculée de la même façon que l'*erreur de prédiction* sur le jeu d'entraînement, c'est-à-dire avec la fonction $\boldsymbol{L}$.
-La fonction `predict` est l'outil R principal : on doit simplement lui fournir les données de validation, *e.g.* `predict(modele, newx = nouveau_data)`.
-La différence majeure avec l'erreur de prédiction en entraînement vient du fait que les observations $(\mathbf{x},\mathbf{y})$ maintenant utilisées ne l'ont pas été durant l'estimation du modèle; l'information qu'elles contiennent n'est donc pas déjà "aggrégée" dans $f$.
+Si un jeu de données de validation est disponible, c'est maintenant qu'on l'utilise pour calculer l'*erreur de généralization*.
+À moins qu'une autre fonction de perte ne se présente comme naturelle pour le problème en question, on calcule l'erreur de généralisation de la même façon que l'erreur sur le jeu d'entraînement, c'est-à-dire avec la fonction $\boldsymbol{L}$.
+La fonction `predict` est l'outil principal en R pour effectuer cette tâche : on doit simplement lui fournir les données de validation, *e.g.* `predict(modele, newx = donnees_validation)`.
+Encore une fois, la différence majeure avec l'erreur de prédiction en entraînement vient du fait que les observations $(\mathbf{x},\mathbf{y})$ maintenant utilisées ne l'ont pas été durant l'estimation du modèle; l'information qu'elles contiennent n'est donc pas déjà "aggrégée" dans le modèle.
 
 
 ### Critères classiques
@@ -400,9 +402,10 @@ Pour la régression linéaire,
 $$
    AIC(f) = 2 k - 2 \boldsymbol{L}(\boldsymbol{y},f(\boldsymbol{\boldsymbol{x}}))
 $$
-où $k$ est le nombre de paramètres qu'implque la régression $f$ de [REF] et $\boldsymbol{L}$ est la perte quadratique.
-Notez que ceci est valide justement parce que la perte quadratique, dans ce cas particulier, coincide avec la log-vraisemblance du modèle et $\boldsymbol{\hat\beta}$ est le vecteur qui minimise la perte.
-L'utilisation de plus de paramètres permets un meilleur ajustement aux données d'entraînement (une valeur plus faible de $\boldsymbol{L}$), mais cette amélioration, pour être acceptée, doit compenser l'augmentation qu'induit le terme $2k$.
+où $k$ est le nombre de paramètres inclut la régression $f$ de \@ref(eq:reg) et $\boldsymbol{L}$ est la perte quadratique.
+Notez que ceci est valide justement parce que la perte quadratique, dans ce cas particulier, coincide avec la log-vraisemblance du modèle et que $\boldsymbol{\hat\beta}$ est le vecteur qui minimise la perte.
+L'utilisation de plus de paramètres permet un meilleur ajustement aux données d'entraînement (une valeur plus faible de $\boldsymbol{L}$), mais cette amélioration, pour être acceptée, doit compenser l'augmentation qu'induit le terme $2k$.
+On fait donc un compromis entre précision et complexité, entre biais et variance.
 
 Ces méthodes, quoique très simples, reposent en général sur certaines hypothèses qui peuvent rendre leur utilisation douteuse.
 Pour notre application, nous utilisons la validation croisée.
@@ -412,6 +415,7 @@ Pour notre application, nous utilisons la validation croisée.
 
 La validation croisée permet d'estimer l'erreur de généralisation à même le jeu de données d'entraînement.
 Pour ce faire, on se crée artificiellement des pairs $(\mathbf{X}_{\rm train},\mathbf{X}_{\rm val})$ est divisant le jeu d'entraîenement $\mathbf{X}$ en (disons) $K = 10$ partie de même taille.
+De là le nom anglophone *$K$-fold cross-validation*.
 $$
   {\Large \left(\mathbf{X}|\mathbf{y}\right)}
   \quad
@@ -424,79 +428,84 @@ $$
     x_{n1} & \dots & x_{nd}  & y_n
   \end{array}\right)
   \begin{array}{ccc}
-    \Big\} & \stackrel{\approx 1/10}{\longrightarrow} & (\mathbf{X}_{\rm train}^1|\mathbf{y}_{\rm train}^{10})\\
+    \Big\} & \stackrel{\approx 1/10}{\longrightarrow} & (\mathbf{X}^1|\mathbf{y}^{10})\\
     \vdots &   & \vdots\\
-    \Big\} & \stackrel{\approx 1/10}{\longrightarrow} & (\mathbf{X}_{\rm train}^{10}|\mathbf{y}_{\rm train}^{10})
+    \Big\} & \stackrel{\approx 1/10}{\longrightarrow} & (\mathbf{X}^{10}|\mathbf{y}^{10})
   \end{array}
 $$
-Pour chaque valeur de $k \in \{1,\dots,10\}$, l'idée est d'entraîner nos modèles sur les données $(\mathbf{X}_{\rm train}^{-k}|\mathbf{y}_{\rm train}^{-k})$, c'est-à-dire toutes les données sauf $(\mathbf{X}_{\rm train}^{k}|\mathbf{y}_{\rm train}^{k})$.
-Le but est de prédire, avec ces modèles, les réponses $\mathbf{y}_{\rm train}^{k}$ à partir de $\mathbf{X}_{\rm train}^{k}$ et donc en n'ayant jamais "vu" $\mathbf{y}_{\rm train}^{k}$.
-Utilisons $f_{\alpha,p}(\mathbf{x})$ pour référer au modèle théorique et $f_{\alpha,p}^{(-k)}(\mathbf{x})$ pour les modèles estimés sur $(\mathbf{X}_{\rm train}^{-k}|\mathbf{y}_{\rm train}^{-k})$.
-L'erreur de généralisation (calculée sur $n(1-K^{-1})$ données!) de $f_{\alpha,p}(\mathbf{x})$ est estimée par
-\begin{equation}
-  \frac{1}{K} \sum_{k=1}^K \mathbf{L}(\mathbf{\hat{y}}^k, \mathbf{y}_{\rm train}^k)
-\end{equation}
-où $\hat{y}_i^k = \hat{f}_{\alpha,p}^{(-k)}(\mathbf{x}_i^k)$.
+Pour chaque valeur de $k \in \{1,\dots,10\}$, l'idée est d'entraîner nos modèles sur les données $(\mathbf{X}^{-k}|\mathbf{y}^{-k})$, c'est-à-dire toutes les données sauf $(\mathbf{X}^{k}|\mathbf{y}^{k})$.
+Le but est de prédire, avec ces modèles, les réponses $\mathbf{y}_{\rm train}^{k}$ laissées de côté pour l'entraînement à partir des variables explicatrices $\mathbf{X}^{k}$.
 
+Comme précédemment, utilisons $f(\mathbf{x})$ pour référer au modèle théorique et $f^{(-k)}(\mathbf{x})$ pour les modèles estimés sur $(\mathbf{X}^{-k}|\mathbf{y}^{-k})$.
+L'erreur de généralisation (calculée sur $n(1-K^{-1})$ observations!) de $f(\mathbf{x})$ est estimée par
+\begin{equation}
+  \frac{1}{K} \sum_{k=1}^K \mathbf{L}(f^{(-k)}(\mathbf{x}_i^k), \mathbf{y}^k).
+\end{equation}
 
 L'élément essentiel de la procédure est qu'en aucun cas les observations "à prédire" ne doivent être utilisées pour l'estimation.
 C'est là que l'erreur la plus commune est commise.
 Les méthodes comme *lasso* et les régressions *step-wise*, en combinant la sélection de variables avec l'estimation, utilisent le jeu de données d'entraînement.
 **L'étape de sélection doit donc faire partie de la routine de validation croisée.**
 Ce n'est donc pas les modèles aux-mêmes que nous évaluons, mais les méthodes d'estimation.
-Pour notre exemple principal avec la libraire `glmnet`, cela signifie q'on doit donc appliquer la fonction `glmnet::glmnet` à chaque jeu d'entraînement $(\mathbf{X}_{\rm train}^{-k}|\mathbf{y}_{\rm train}^{-k})$.
+Pour notre exemple principal avec la libraire `glmnet`, cela signifie q'on doit donc appliquer la fonction `glmnet::glmnet` à chaque jeu d'entraînement $(\mathbf{X}^{-k}|\mathbf{y}^{-k})$.
 **Subtilité :** Il est difficile de choisir les valeurs de `lambda` à priori -- et laisser la fonction les choisir produira des `lambda` hétérogènes de *fold* en *fold*.
 Heureusement pour nous, une fonction existe pour nous éviter ce problème, `cv.glmnet`.
 Il ne nous reste qu'à s'occuper de `alpha`.
 Commençons avec `alpha = 0`
 ```{r, echo = T, out.width = "60%",fig.align='center'}
-# fold <- sample(1:10, size = nrow(data), replace=T) # On assigne chaque obs. à un fold.
-# 
-# # Pour un alpha donné, on sélectionne le lambda optimal
-# glm0_cv <- cv.glmnet(x = model.matrix(f, data),
-#           y = matrix(data$target_duree, ncol=1),
-#           foldid = fold,
-#           alpha = 0)
-# plot(glm0_cv)
+fold <- sample(1:10, size = nrow(data), replace=T) # On assigne chaque obs. à un fold.
+
+# Pour un alpha donné, on sélectionne le lambda optimal
+glm0_cv <- cv.glmnet(x = model.matrix(f, data),
+          y = matrix(data$target_duree, ncol=1),
+          foldid = fold,
+          alpha = 0)
+plot(glm0_cv)
 ```
 Des intervalles de confiances sont fournies, ce qui permet non seulement d'identifier la valeur de lambda qui minimise l'erreur, mais aussi la plus grande valeur pour laquelle l'erreur se trouve à moins d'un écart-type du minimum.
 Ces valeurs sont indiquées par les traits verticaux et s'obtiennent avec
 ```{r, echo = T}
-# log(glm0_cv$lambda.min)
-# log(glm0_cv$lambda.1se)
+log(glm0_cv$lambda.min)
+log(glm0_cv$lambda.1se)
 ```
 
-Il est important d'utiliser les même folds pour pouvoir comparer les performances pour différentes valeurs de `alpha`.
+Il est important d'utiliser les même *folds* pour pouvoir comparer les performances pour différentes valeurs de `alpha`.
 ```{r, echo = T, out.width = "60%",fig.align='center'}
-# alpha <- seq(0,1,.05)
-# glm_al <- lapply(alpha, function(al){
-#   cv.glmnet(x = model.matrix(f, data),
-#           y = matrix(data$target_duree, ncol=1),
-#           foldid = fold,
-#           alpha = al)
-# })
-# 
-# res_cv <- sapply(glm_al, function(glm_path){
-#   c(glm_path$lambda.min,
-#     glm_path$cvm[which(glm_path$lambda == glm_path$lambda.min)])
-# })
-# 
-# plot(alpha, res_cv[2,])
+alpha <- seq(0,1,.05)
+glm_al <- lapply(alpha, function(al){
+  cv.glmnet(x = model.matrix(f, data),
+          y = matrix(data$target_duree, ncol=1),
+          foldid = fold,
+          alpha = al)
+})
+
+res_cv <- sapply(glm_al, function(glm_path){
+  c(glm_path$lambda.min,
+    glm_path$cvm[which(glm_path$lambda == glm_path$lambda.min)])
+})
+
+ggplot(data.table(alpha = alpha, lamda_min = res_cv[1,], cv_error = res_cv[2,]), aes(x = alpha, y = cv_error)) + geom_line()
 ```
 Comme on peut voir, les modèles sont assez similaires, excluant le régression ridge pure.
 Choisissons le minimum.
 ```{r, echo = T}
-# glm_final <- glm_al[which.min(res_cv[2,])]
-# 
-# # Pour utilisation,
-# cbind(
-#   predict(glm_final, newx = model.matrix(f, data[1:10,]), s = "lambda.min")[[1]],
-#   true = data[1:10,target_duree]
-#)
+glm_final <- glm_al[[which.min(res_cv[2,])]]
+coef(glm_final, s = "lambda.min")
+```
+
+```{r, echo = T}
+# Pour utilisation,
+my_sample  <- sample(nrow(data),15)
+cbind(
+  predict(glm_final, newx = model.matrix(f, data[my_sample,]), s = "lambda.min"),
+  true = data[my_sample,target_duree]
+)
 ```
 
 
+### Évaluation finale
 
+DONNEES TEST ET MATRICE DE CONFUSION
 
 
 ## Exemples additionels (bullshiat fo now)
