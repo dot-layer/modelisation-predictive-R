@@ -1,6 +1,10 @@
 
 # Collecte de données
 
+``` {r}
+library(magrittr)
+```
+
 La collecte de données est le point de départ de la chaîne. Les données étant quelque peu la matière première du produit que nous nous apprêtons à bâtir, plusieurs considérations influenceront leur collecte. 
 
 Pour illustrer le tout, prétendons pour l'instant que le produit qui nous intéresse est en fait une table. La construction d'une table nécessite évidemment de considérer la quantité, la qualité et le coût de la matière première. Toutefois, plusieurs considérations additionnelles viennent s'ajouter quand on s'intéresse à la provenance, au processus de récolte ou de transformation et à l'entreposage des matériaux.
