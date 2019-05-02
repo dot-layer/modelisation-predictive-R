@@ -379,7 +379,7 @@ En fait, surtout lorsque les hyper-paramètres en question concernent la sélect
 
 ## Sélection d'un modèle et son évaluation {#sélection}
 
-<span style="color:fuchsia">**Concepts clefs : erreur de généralisation, validation croisée, matrice de confusion**</span>
+<span style="color:fuchsia">**Concepts clefs : erreur de généralisation, validation croisée, matrice de confusion, fonction `predict`**</span>
 
 Une fois que l'on possède plusieurs candidats intéressants, il reste à choisir le modèle final parmi ceux-ci.
 Pour rester fidèle à l'objectif ultime, on choisit le modèle avec la plus faible erreur de généralisation.
@@ -389,8 +389,15 @@ Voici quelques méthodes qui permettent de trouver ce modèle.
 
 Si un jeu de données de validation est disponible, c'est maintenant qu'on l'utilise pour calculer l'*erreur de généralization*.
 À moins qu'une autre fonction de perte ne se présente comme naturelle pour le problème en question, on calcule l'erreur de généralisation de la même façon que l'erreur sur le jeu d'entraînement, c'est-à-dire avec la fonction $\boldsymbol{L}$.
-La fonction `predict` est l'outil principal en R pour effectuer cette tâche : on doit simplement lui fournir les données de validation, *e.g.* `predict(modele, newx = donnees_validation)`.
-Encore une fois, la différence majeure avec l'erreur de prédiction en entraînement vient du fait que les observations $(\mathbf{x},\mathbf{y})$ maintenant utilisées ne l'ont pas été durant l'estimation du modèle; l'information qu'elles contiennent n'est donc pas déjà "aggrégée" dans le modèle.
+Pour réduire l'influence des valeurs extrêmes, nous utiliserons -- au lieu de l'erreur quadratique moyenne (*MSE*, $(y - f(x))^2$) -- l'erreur absolue moyenne (*MAE*, $|y - f(x)|$).
+Il sera aussi plus facile d'interpréter les écarts de performance entre les modèles.
+La fonction `predict` est l'outil principal en R pour effectuer cette tâche : on doit simplement lui fournir les données de validation, *e.g.*
+```
+predict(modele, newx = nouvelles_donnes)
+```
+Nous utiliserons une fonction "built-in" de de glmnet pour faire la validation croisée, mais elle fait une brève apparition à la fin de la section tout de même.
+(En fait, nous l'avons déjà utilisée dans la Section \@ref(estimation).)
+
 
 
 ### Critères classiques
@@ -446,7 +453,7 @@ L'élément essentiel de la procédure est qu'en aucun cas les observations "à 
 C'est là que l'erreur la plus commune est commise.
 Les méthodes comme *lasso* et les régressions *step-wise*, en combinant la sélection de variables avec l'estimation, utilisent le jeu de données d'entraînement.
 **L'étape de sélection doit donc faire partie de la routine de validation croisée.**
-Ce n'est donc pas les modèles aux-mêmes que nous évaluons, mais les méthodes d'estimation.
+Ce n'est donc pas seulement les modèles que nous évaluons, la procédure d'estimation.
 Pour notre exemple principal avec la libraire `glmnet`, cela signifie q'on doit donc appliquer la fonction `glmnet::glmnet` à chaque jeu d'entraînement $(\mathbf{X}^{-k}|\mathbf{y}^{-k})$.
 **Subtilité :** Il est difficile de choisir les valeurs de `lambda` à priori -- et laisser la fonction les choisir produira des `lambda` hétérogènes de *fold* en *fold*.
 Heureusement pour nous, une fonction existe pour nous éviter ce problème, `cv.glmnet`.
@@ -458,6 +465,7 @@ fold <- sample(1:10, size = nrow(data), replace=T) # On assigne chaque obs. à u
 # Pour un alpha donné, on sélectionne le lambda optimal
 glm0_cv <- cv.glmnet(x = model.matrix(f, data),
           y = matrix(data$target_duree, ncol=1),
+          type.measure = "mae",
           foldid = fold,
           alpha = 0)
 plot(glm0_cv)
@@ -475,6 +483,7 @@ alpha <- seq(0,1,.05)
 glm_al <- lapply(alpha, function(al){
   cv.glmnet(x = model.matrix(f, data),
           y = matrix(data$target_duree, ncol=1),
+          type.measure = "mae",
           foldid = fold,
           alpha = al)
 })
@@ -484,10 +493,23 @@ res_cv <- sapply(glm_al, function(glm_path){
     glm_path$cvm[which(glm_path$lambda == glm_path$lambda.min)])
 })
 
-ggplot(data.table(alpha = alpha, lamda_min = res_cv[1,], cv_error = res_cv[2,]), aes(x = alpha, y = cv_error)) + geom_line()
+ggplot(data.table(alpha = alpha, cv_error = res_cv[2,]), aes(x = alpha, y = cv_error)) + 
+  geom_line() +
+  geom_point(aes(x = alpha[2], y = cv_error[2]), col = "green", size = 4) +
+  geom_point(aes(x = alpha[which.min(cv_error)], y = cv_error[which.min(cv_error)]), col = "blue", size = 4)
 ```
 Comme on peut voir, les modèles sont assez similaires, excluant le régression ridge pure.
-Choisissons le minimum.
+Examinons le reste de plus près.
+```{r, echo = T, out.width = "60%",fig.align='center'}
+ggplot(data.table(alpha = alpha[-1], cv_error = res_cv[2,-1]), aes(x = alpha, y = cv_error)) + 
+  geom_line() + ylab("erreur (en secondes)")
+  geom_point(aes(x = alpha[1], y = cv_error[1]), col = "green", size = 4) +
+  geom_point(aes(x = alpha[which.min(cv_error)], y = cv_error[which.min(cv_error)]), col = "blue", size = 4)
+```
+
+
+Dans ce cas, il semble raisonnable Choisissons le minimum.
+
 ```{r, echo = T}
 glm_final <- glm_al[[which.min(res_cv[2,])]]
 coef(glm_final, s = "lambda.min")
@@ -497,7 +519,7 @@ coef(glm_final, s = "lambda.min")
 # Pour utilisation,
 my_sample  <- sample(nrow(data),15)
 cbind(
-  predict(glm_final, newx = model.matrix(f, data[my_sample,]), s = "lambda.min"),
+  predict(glm_final, newx = model.matrix(f, data[my_sample,])),
   true = data[my_sample,target_duree]
 )
 ```
