@@ -145,14 +145,14 @@ Une exemple minimaliste est founi dans le dossier `src/deploiement/model.plumber
 Ce code peut être servi comme un service plumber de la manière suivante: 
 
 ```
-pr <- plumber::plumb("src/deploiement/model.plumber/plumber_ini.R")
-pr$run()
+pr <- plumber::plumb("src/deploiement/plumber/plumber_ini.R")
+pr$run(port=8985)
 ```
 
 Il est alors possible d'accéder au service: 
 
 ```
-curl -X GET "http://127.0.0.1:5099/message?msg=Salut!" -H "accept: application/json"
+curl -X GET "http://127.0.0.1:8985/message?msg=Salut!" -H "accept: application/json"
 ```
 
 ```
@@ -162,7 +162,7 @@ curl -d "msg=Salut!" -G "http://127.0.0.1:5099/message"
 ### Inférence de modèle prédictif
 
 ```
-pr <- plumber::plumb("src/deploiement/model.plumber/pred_xgboost.R")
+pr <- plumber::plumb("src/deploiement/plumber/pred_xgboost.R")
 pr$run(port = 8985)
 ```
 
@@ -172,7 +172,7 @@ curl -X GET --data '{"input":[1.1,2.2,3.3,4]}' "http://localhost:8985/xgbvector"
 ```
 
 ```
-pr <- plumber::plumb("src/deploiement/model.plumber/pred_bixi.R")
+pr <- plumber::plumb("src/deploiement/plumber/pred_bixi.R")
 pr$run(port = 8985)
 ```
 
@@ -219,6 +219,17 @@ La commande `-X` est utilisée pour forcer le remplacement des instructions par 
 
 ### OpenAPI/Swagger doc
 
-### Déploiement docker
+## Déploiement avec Docker
 
- 
+Construire une image. Requiert un fichier Dockerfile. 
+
+```
+docker build ./plumber/ -t jeremiedb/dot-layer:plumber
+```
+
+
+Lancer une image. 
+
+```
+docker run --rm -p 8080:8080 -v D:\Github\modelisation-predictive-R\src\deploiement\plumber:/dotlayer jeremiedb/dot-layer:plumber
+```
