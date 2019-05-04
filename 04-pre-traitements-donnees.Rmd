@@ -33,7 +33,7 @@ La première étape du prétraitement de données consite à nettoyer les donné
 
 La majorité des jeux de données réels sont témoins de données manquantes. Certains algorithmes ne sont pas en mesure de gérer les données manquantes par eux-mêmes. Cela nous oblige donc à traiter celles-ci et imputer le jeu de données. Les causes d'absence de données peuvent être relativement variées: bris de système, abstention, perte de données, etc. Il est généralement difficile de connaître la raison exacte, ce qui rend le traitement de données manquantes une étape importante. Avant même de trouver une méthode pour imputer ces données manquantes, il faut d'abord évaluer la quantité de données manquantes (voir fig \@ref(fig:missing)) et tenter de comprendre le mécanisme expliquant la non-réponse d'une donnée. 
 
-```{r missing, fig.align='center', fig.cap="Pourcentage de données manquantes selon la variable du jeu de données BIXI."}
+```{r missing, echo=FALSE, fig.align='center', fig.cap="Pourcentage de données manquantes selon la variable du jeu de données BIXI."}
 library(scales)
 data.table(
   variable = names(data_bixi),
@@ -88,19 +88,19 @@ Plusieurs algorithmes d'apprentissage ne peuvent pas traiter des données catég
 Voici un exemple de donnée ordinale (`condition_generale`) où il est possible d'ordonner les observations:
 
 ```{r, echo = FALSE}
-data.table(Id = seq(1, 4), condition_generale = c('moyen', 'mauvais', 'excellent', 'bon'))
+data.table(Id = seq(1, 4), condition_station = c('moyen', 'mauvais', 'excellent', 'bon'))
 ```
 
 À l'inverse, voici un exemple où il est moins adéquat d'ordonner les observations selon la variable `quartier`:
 
 ```{r, echo = FALSE}
-data.table(Id = seq(1, 4), quartier = c('centre-ville', 'plateau mont-royal', 'verdun', 'rosemont'))
+data.table(Id = seq(1, 4), start_quartier = c('Ville-Marie', 'Verdun', 'Westmount', 'LaSalle'))
 ```
 
 Dans le cas d'une variable ordinale, une méthode d'encodage possible et adéquate (selon le contexte) serait d'assigner une valeur numérique pour chaque catégorie:
 
 ```{r, echo = FALSE}
-data.table(Id = seq(1, 4), condition_generale = c(1, 0, 3, 2))
+data.table(Id = seq(1, 4), condition_station = c(1, 0, 3, 2))
 ```
 
 Dans l'exemple ci-dessus, il faut être **prudent**, car en encodant la variable de cette manière, on spécifie au modèle que la distance entre `'mauvais'` et `'moyen'` est la même qu'entre `'bon'` et `'excellent'`. Cette hypothèse n'est pas toujours valide selon le contexte. Les avantages avec cette méthode sont qu'elle est relativement simple, intuitive et qu'elle n'augmente pas le nombre de variables.
