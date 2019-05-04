@@ -1,19 +1,18 @@
 
 # Collecte de données
 
-``` {r}
+``` {r, echo = FALSE}
 library(magrittr)
 ```
 
 La collecte de données est le point de départ de la chaîne. Les données étant quelque peu la matière première du produit que nous nous apprêtons à bâtir, plusieurs considérations influenceront leur collecte. 
 
-Pour illustrer le tout, prétendons pour l'instant que le produit qui nous intéresse est en fait une table. La construction d'une table nécessite évidemment de considérer la quantité, la qualité et le coût de la matière première. Toutefois, plusieurs considérations additionnelles viennent s'ajouter quand on s'intéresse à la provenance, au processus de récolte ou de transformation et à l'entreposage des matériaux.
+Pour illustrer le tout, prétendons pour l'instant que le produit qui nous intéresse est en fait une table. La construction d'une table nécessite évidemment de considérer la quantité, la qualité et le prix de la matière première. Toutefois, plusieurs considérations additionnelles viennent s'ajouter quand on s'intéresse à la provenance, au processus de récolte ou de transformation et à l'entreposage des matériaux.
 
 Les mêmes considérations peuvent s'appliquer dans notre contexte. La section suivante aura donc pour objectif d'aborder ces considérations, tout en soumettant les données de notre atelier à celles-ci.
 
 Idées :
 - Toujours relier la théorie au dataset bixi (pourquoi on l'a pris, etc.)
-- Balise quelconque pour les overlaps avec la partie pre-processing de Sté
 
 ## Liste des données potentielles pour notre atelier
 
@@ -21,6 +20,12 @@ La première étape d'un déploiement de modèle prédictif est de dresser la li
 
 Les plus expérimentés auront déjà en tête la majorité des considérations couvertes dans ce chapitre au moment de dresser leur liste. Dans notre cas, permettons-nous de lister naïvement un grand nombre de sources. Chaque considération à venir nous permettra de distiller notre sélection.
 
+- http://donnees.ville.montreal.qc.ca/dataset?q=velo
+    - BIXI - Historique des déplacements
+    - BIXI - État des stations
+    - Arceaux à vélos
+    - Piste Cyclable
+    - Vélos - comptage sur les pistes cyclables
 - Données météorologiques
     - température
     - précipitations
@@ -49,29 +54,36 @@ Tel que discuté dans l'introduction, notre ouvrage est linéaire, donc le proce
 
 Comme nous pouvons le constater, la liste de données potentielles est sans limites. Les considérations qui suivent auront pour objectif de nous exposer les limites de certaines sources, pour ensuite identifier celle(s) qui sont le plus adaptées à notre problématique.
 
-### Quantité
+### Volume
+On parlera de volume plutôt que de quantité.
 
-Afin d'exprimer la quantité, nous nous intéresserons au volume et au format des données.
-
-#### Volume
 Nous définissons le volume comme l'espace occupé par un objet sur disque ou en mémoire. Le volume d'une source de données sera donc le produit du nombre d'observations et de la richesse de chaque observation.
 
 Si notre source de données contient beaucoup d'observations ou des observations riches, nous aurons donc des contraintes d'espace disque ou de mémoire. Bien que R soit parfois réputé lent ... [il n'en est rien](http://adv-r.had.co.nz/Performance.html)
-base / dplyr / data.table [autre section?](https://stackoverflow.com/questions/21435339/data-table-vs-dplyr-can-one-do-something-well-the-other-cant-or-does-poorly)
 
 mémoire vive (algos à batches)
 
+#### Nombre d'observations
+Sampling rate
+Niveau d'aggrégation → perte potentielle d'information car nous pouvons toujours faire l'aggrégation nous-même
+base / dplyr / data.table [autre section?](https://stackoverflow.com/questions/21435339/data-table-vs-dplyr-can-one-do-something-well-the-other-cant-or-does-poorly)
+
+> [Sté] aggrégation fait partie du pre-processing mais absent dans notre ouvrage. Je couvre? Je mentionne? J'ignore? Ex. on aurait pu aggréger par ID du client si on avait eu un ID de client
+
 #### Format
-Nous définissons le format comme la façon dont est représentée une donnée. C'est entre autres ce qui va déterminer la richesse de chaque donnée. On peut   Structuré vs. non-structuré
+La richesse d'une observation est définie par son format.
+
+Nous définissons le format comme la façon dont est représentée une donnée. C'est entre autres ce qui va déterminer la richesse de chaque donnée. On peut alors placer les données sur un continuum de structuré à non-structuré. Certaines définitions considèrent que les données semi-structurées sont une classe à part... nous nous contenterons de dire qu'il existe un continuum de degrés d'organisation des données.
 
 ##### Données structurées
-organisées en base de données relationnelles constituées de tables disposées en colonnes et rangées. On utilise un modèle de données
-SQL=Structured Query Language
+organisées en base de données relationnelles constituées de tables disposées en colonnes et rangées. On utilise un modèle de données  
+SQL=Structured Query Language  
 oracle
 
 ##### Données non-structurées
-les données non-structurées sont celles qui ne sont pas organisées à l'aide d'un modèle de données. Une base de données non-structurée peut donc contenir à la fois du texte, des images, du son ou une combinaison (ex. vidéo). Certaines définitions considèrent que les données semi-structurées sont une classe à part... nous nous contenterons de dire qu'il existe un continuum de degrés d'organisation des données.
-JSON, XML
+les données non-structurées sont celles qui ne sont pas organisées à l'aide d'un modèle de données. Une base de données non-structurée peut donc contenir à la fois du texte, des images, du son ou une combinaison (ex. vidéo).  
+JSON  
+XML
 
 ### Qualité
 Plusieurs aspects peuvent influencer notre perception de qualité d'une source de donnée, tels que son organisation, sa documentation, son pouvoir prédictif, sa fréquence, la capacité de faire des jointures et le biais. Encore une fois, notons que les étapes futures peuvent invalider une source de données. Par exemple, le pouvoir prédictif est difficile à évaluer sans un premier modèle naïf au moins.
@@ -91,8 +103,12 @@ knitr::kable(tibble::data_frame(`Date début` = maintenant, `Date fin` = mainten
   kable_settings
 ```
 
-Bien que cet exemple soit simpliste et fictif, il illustre tout de même que des éléments tels que le nom, la structure ou la documentation des données influenceront notre capacité à maximiser notre utilisation de ces données.
+Évidemment, nous préférerons, dans l'ordre, 3, 2, 1. Bien que cet exemple soit simpliste et fictif, il illustre tout de même que des éléments tels que le nom, la structure ou la documentation des données influenceront notre capacité à maximiser notre utilisation de ces données.
 
+#### complexité
+Rapport coût-bénéfice
+Bénéfice : A-t-on déjà des bons proxys?
+Coût : complexité additionnelle
 
 #### pouvoir prédictif
 Garbage In Garbage Out
@@ -100,33 +116,49 @@ Garbage In Garbage Out
 #### fréquence
 À quelle fréquence la source de données est-elle mise à jour? À quelle fréquence l'information sous-jacente à la source de données change-t-elle? De quelle précision aurons-nous besoin? Est-ce que note prédiction dépend de données instantanées ou intemporelles?
 
-```{r, warnings = FALSE, echo = FALSE}
+```{r, warning = FALSE, echo = FALSE}
 x <- tibble::data_frame(`Mise à jour fréquente` = c("Données météorologiques", "????"),
-                        `Mise à jour rare` = c("Données démographiques", "Données géographiques"))
+                        `Mise à jour rare` = c("????", "Données géographiques"))
 rownames(x) <- c("Changements fréquents", "Changements rares")
 
 knitr::kable(x) %>%
   kable_settings
 ```
 
-météo demande d'avoir un live feed, alors que données géographiques 
+météo demande d'avoir un live feed, alors que données géographiques peuvent être figées dans le temps
 
 #### Merge
 facilité/pertinence de la clé, etc. Exemple : historique des déplacements du client ... pas dispo. Données ouvertes Montréal : ok peut-être...
 
+http://donnees.ville.montreal.qc.ca/dataset/pistes-cyclables
+http://donnees.ville.montreal.qc.ca/dataset/geobase
+
+
 #### Biais
 socio-démographique, etc.
+dès que des données personnelles sont en jeu
+dès que des proxys de données personnelles sont en jeu
+aggravé lorsque les prédictions ont un impact réel sur la vie des gens
 
 ### Accessibilité
 Dans notre parallèle avec la table, le coût était la troisième considération principale. Dans le cas des données, nous allons plutôt parler d'accessibilité, dont le coût est une des composantes.
 
 #### coût (gratuit?)
+Plusieurs (#sources) gratuites
+
+#### Sources {#sources}
+- https://www.kaggle.com/datasets
+- https://toolbox.google.com/datasetsearch
+- https://www.reddit.com/r/datasets
+- https://archive.ics.uci.edu/ml/index.php?fbclid=IwAR09F5grBOTCr1SS4v8gONEYeqk0DqqWpPdt1blmYF9ucZkhsQeM5T0E7ew
+- http://donnees.ville.montreal.qc.ca/
 
 #### Lecture de fichiers
-
+data.table (fread)
 readr
 readxl
 xlsx
+
 #### Connexion à une base de données
 sqldf
 dbplyr
@@ -137,6 +169,7 @@ RMySQL, RPostgresSQL, RSQLite
 foreign
 haven
 https://db.rstudio.com/
+
 #### Web Scraping (légalité/api/service/timeouts)
 XML
 xml2
@@ -146,16 +179,11 @@ rvest
 downloader
 jsonlite
 googlesheets
+
 #### Stabilité
 - Évolution anticipée du format des données (pas de contrôle sur la source de données? → copier les données freezées. Le modèle a encore de la valeur)
 - Pourquoi on va utiliser les shapefiles comme exemple de merge (statique, etc.)
-#### sécurité
 
-#### Sources
-- https://www.kaggle.com/datasets
-- https://toolbox.google.com/datasetsearch
-- https://www.reddit.com/r/datasets
-- https://archive.ics.uci.edu/ml/index.php?fbclid=IwAR09F5grBOTCr1SS4v8gONEYeqk0DqqWpPdt1blmYF9ucZkhsQeM5T0E7ew
-- http://donnees.ville.montreal.qc.ca/
+#### sécurité
 
 ## Références
