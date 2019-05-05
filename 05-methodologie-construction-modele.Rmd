@@ -1,14 +1,16 @@
 # Construction de modèles {#metho}
 
 ```{r, echo = F}
+library(sf)
 library(data.table)
 library(ggplot2)
+library(fst)
 
 library(glmnet)
 library(xgboost)
 library(mvtnorm)
 
-data <- fst::read.fst("data/data_preprocess.fst", as.data.table = T)[1:10000,]
+data <- fst::read.fst("data/data_preprocess.fst", as.data.table = T)[1:50000,]
 data$moment_journee <- factor(data$moment_journee, labels=c("A","B","C","D"))
 ```
 
@@ -317,7 +319,7 @@ g <- ggplot(train_dummy, aes(x=x1, y=x2, col=factor(y))) + geom_point(size=2) +
 g
 ```
 On peut utiliser ces données pour prédire la classe associée à un nouveau point $x_0$ en fonction des (disons) 3 points $x_j$ dans `data_dummy` les plus près de $x_0$.
-```{r, echo=T}
+```{r, echo=T, out.width = "60%", fig.align='center'}
 test_dummy <- data.table(y = sample(0:1, 100, replace = T))
 test_dummy[, x1 := rnorm(n=100, mean=y, sd=1/2)]
 test_dummy[, x2 := x1 + rnorm(n=100, mean=y, sd=1/4)]
@@ -381,9 +383,9 @@ En fait, surtout lorsque les hyper-paramètres en question concernent la sélect
 
 <span style="color:fuchsia">**Concepts clefs : erreur de généralisation, validation croisée, matrice de confusion, fonction `predict`**</span>
 
-Une fois que l'on possède plusieurs candidats intéressants, il reste à choisir le modèle final parmi ceux-ci.
-Pour rester fidèle à l'objectif ultime, on choisit le modèle avec la plus faible erreur de généralisation.
-Voici quelques méthodes qui permettent de trouver ce modèle.
+Pour sélectionner un modèle parmi plusieurs, on reste encore fidèle à l'objectif ultime : minimiser l'erreur de généralisation.
+Ceci passe généralement par un compromis entre le nombre de paramètres et la qualité de l'ajustement du modèle, ou directement par l'estimation de l'erreur de généralisation.
+
 
 ### Validation directe
 
@@ -412,7 +414,6 @@ $$
 où $k$ est le nombre de paramètres inclut la régression $f$ de \@ref(eq:reg) et $\boldsymbol{L}$ est la perte quadratique.
 Notez que ceci est valide justement parce que la perte quadratique, dans ce cas particulier, coincide avec la log-vraisemblance du modèle et que $\boldsymbol{\hat\beta}$ est le vecteur qui minimise la perte.
 L'utilisation de plus de paramètres permet un meilleur ajustement aux données d'entraînement (une valeur plus faible de $\boldsymbol{L}$), mais cette amélioration, pour être acceptée, doit compenser l'augmentation qu'induit le terme $2k$.
-On fait donc un compromis entre précision et complexité, entre biais et variance.
 
 Ces méthodes, quoique très simples, reposent en général sur certaines hypothèses qui peuvent rendre leur utilisation douteuse.
 Pour notre application, nous utilisons la validation croisée.
@@ -453,7 +454,7 @@ L'élément essentiel de la procédure est qu'en aucun cas les observations "à 
 C'est là que l'erreur la plus commune est commise.
 Les méthodes comme *lasso* et les régressions *step-wise*, en combinant la sélection de variables avec l'estimation, utilisent le jeu de données d'entraînement.
 **L'étape de sélection doit donc faire partie de la routine de validation croisée.**
-Ce n'est donc pas seulement les modèles que nous évaluons, la procédure d'estimation.
+Ce n'est donc pas seulement les modèles que nous évaluons, mais la procédure d'estimation.
 Pour notre exemple principal avec la libraire `glmnet`, cela signifie q'on doit donc appliquer la fonction `glmnet::glmnet` à chaque jeu d'entraînement $(\mathbf{X}^{-k}|\mathbf{y}^{-k})$.
 **Subtilité :** Il est difficile de choisir les valeurs de `lambda` à priori -- et laisser la fonction les choisir produira des `lambda` hétérogènes de *fold* en *fold*.
 Heureusement pour nous, une fonction existe pour nous éviter ce problème, `cv.glmnet`.
@@ -479,7 +480,7 @@ log(glm0_cv$lambda.1se)
 
 Il est important d'utiliser les même *folds* pour pouvoir comparer les performances pour différentes valeurs de `alpha`.
 ```{r, echo = T, out.width = "60%",fig.align='center'}
-alpha <- seq(0,1,.05)
+alpha <- seq(0,1,.25)
 glm_al <- lapply(alpha, function(al){
   cv.glmnet(x = model.matrix(f, data),
           y = matrix(data$target_duree, ncol=1),
@@ -502,14 +503,13 @@ Comme on peut voir, les modèles sont assez similaires, excluant le régression 
 Examinons le reste de plus près.
 ```{r, echo = T, out.width = "60%",fig.align='center'}
 ggplot(data.table(alpha = alpha[-1], cv_error = res_cv[2,-1]), aes(x = alpha, y = cv_error)) + 
-  geom_line() + ylab("erreur (en secondes)")
+  geom_line() + ylab("erreur (en secondes)") +
   geom_point(aes(x = alpha[1], y = cv_error[1]), col = "green", size = 4) +
   geom_point(aes(x = alpha[which.min(cv_error)], y = cv_error[which.min(cv_error)]), col = "blue", size = 4)
 ```
 
 
-Dans ce cas, il semble raisonnable Choisissons le minimum.
-
+Choisissons le minimum.
 ```{r, echo = T}
 glm_final <- glm_al[[which.min(res_cv[2,])]]
 coef(glm_final, s = "lambda.min")
@@ -527,7 +527,86 @@ cbind(
 
 ### Évaluation finale
 
-DONNEES TEST ET MATRICE DE CONFUSION
+Puisque l'erreur de généralisation fut estimée pour sélectionner le modèle, il semble inutile de refaire l'exercice avec le jeu de données test. 
+Pour comprendre l'utilité de cette étape finale, considérons la régression linéaire
+\begin{equation}
+  y = x_1 + x_2 + x_3 + x_4 + x_5 + \varepsilon
+  (\#eq:reg-dummy)
+\end{equation}
+où $x_1,\dots,x_5,\varepsilon \stackrel{\rm iid}{\sim} U(0,1)$. (Les variables sont toutes distribuées uniformément sur l'intervalle $(0,1)$, vraiment des données bidons quoi.)
+Supposons que, pour une raison quelconque, nous puissions seulement utiliser une variable pour faire nos prédictions.
+Les modèles en compétitions (en supposant en plus que nous sachions que les coefficients sont égaux à $1$ dans \@ref(eq:reg-dummy) -- aucune estimation requise!) seraient donc, pour $k=1,\dots,5$,
+\begin{equation}
+  y \approx 5 x_k.
+\end{equation}
+Évidemment, on doit s'attendre à ce que tous nos modèles soient équivalents.
+Estimons leur erreur de généralisation (sur des données simulées).
+```{r, echo = T}
+set.seed(666)
+X_test <- matrix(runif(10*6), 10, 6)
+y_test <- rowSums(X)
+
+colSums((y_test - 5*X_test[,-6])^2)
+```
+Selon nos estimations, le modèle utilisant $x_4$ est clairement meilleur que les autres.
+Refaisons le test.
+```{r, echo = T}
+set.seed(667)
+X_test <- matrix(runif(10*6), 10, 6)
+y_test <- rowSums(X_test)
+
+colSums((y_test - 5*X_test[,-6])^2)
+```
+Maintenant les modèles 2 et 3 semblent bien meilleurs!
+Au fond, puisque dans ce cas nous savons que tous les modèles sont équivalent, on peut obtenir une meilleure estimation de l'erreur de généralisation en moyennant celles de chacun des modèles.
+On obtient
+```{r, echo = T}
+mean(colSums((y_test - 5*X_test[,-6])^2))
+```
+qui est vraiment au-dessus de notre estimation.
+La morale de ces petits tests est la suivante : si nos modèles sont équivalents, on va nécéssairement sélectionner le modèle qui performe le mieux sur nos données de validation.
+La supériorité du modèle choisit est illusoire et on risque donc de sous-estimer l'erreur de généralisation.
+C'est pourquoi il est plus sage de faire une évaluation finale de notre modèle gagnant après l'étape de sélection.
+
+Avec nos données bixi, l'étape est très simple :
+```{r, echo = T}
+ind_test <- readRDS("data/models/ind_test.rds")
+ind_test <- ind_test[1:10000]
+
+data_test <- fst::read.fst("data/data_preprocess.fst", as.data.table = T)[15000:20000,]
+data_test$moment_journee <- factor(data_test$moment_journee, labels=c("A","B","C","D"))
+
+cols <- grep("start_q", colnames(data_test))
+colnames(data_test)[cols] <- paste0("start_quartier_",1:length(cols))
+
+data_test[,glm_pred := predict(object = glm_final, newx = model.matrix(f, data_test))]
+data_test[,glm_error := abs(target_duree - glm_pred)]
+mean(data_test$target_duree)
+```
+Ce chiffre nous donne idée de l'erreur moyenne qu'on fera (en secondes) sur la durée d'un trajet lorsqu'on mettra notre modèle en production.
+
+Pour une analyse plus détaillée, on peut se pencher sur l'erreur par quartier de départ.
+```{r, echo = T}
+data_test_long <- melt(data_test, measure.vars = grep("start_q", colnames(data_test)),
+                                  variable.name = "start_quartier",
+                                  value.name = "ind_quartier")
+
+data_test_long <- data_test_long[ind_quartier == 1,]
+data_test_long[,mean(target_duree), .(start_quartier)]
+```
+On voit que c'est très inégal.
+
+
+
+Pour les modèles de classification, un des outils les plus utiles est la matrice de confusion, qui nous permet de visualiser les différents type d'erreurs que notre modèle fait.
+```{r, echo = T}
+# library(caret)
+# cM <- confusionMatrix(as.factor(y_predict),as.factor(data$target_meme_station))
+```
+
+
+
+
 
 
 ## Exemples additionels (bullshiat fo now)
