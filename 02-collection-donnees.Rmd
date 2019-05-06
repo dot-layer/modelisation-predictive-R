@@ -26,6 +26,9 @@ Les plus expérimentés auront déjà en tête la majorité des considérations 
     - Arceaux à vélos
     - Piste Cyclable
     - Vélos - comptage sur les pistes cyclables
+
+> [STOP] premier exercice soft et pour s'assurer que tout le monde est bien set up : on load les données BIXI!
+
 - Données météorologiques
     - température
     - précipitations
@@ -144,14 +147,18 @@ aggravé lorsque les prédictions ont un impact réel sur la vie des gens
 Dans notre parallèle avec la table, le coût était la troisième considération principale. Dans le cas des données, nous allons plutôt parler d'accessibilité, dont le coût est une des composantes.
 
 #### coût (gratuit?)
-Plusieurs (#sources) gratuites
+Si (la)[] (plupart)[] des (tribunes)[] s'entendent pour dire que le nouvel or noir est les données, nous aurons donc à considérer le coût pour accéder aux données. Or, plusieurs (#sources) sont gratuites.
 
-#### Sources {#sources}
+##### Sources gratuites {#sources-gratuites}
 - https://www.kaggle.com/datasets
 - https://toolbox.google.com/datasetsearch
 - https://www.reddit.com/r/datasets
 - https://archive.ics.uci.edu/ml/index.php?fbclid=IwAR09F5grBOTCr1SS4v8gONEYeqk0DqqWpPdt1blmYF9ucZkhsQeM5T0E7ew
 - http://donnees.ville.montreal.qc.ca/
+
+##### Sources payantes {#sources-payantes}
+- brokers
+- ...
 
 #### Lecture de fichiers
 data.table (fread)
@@ -181,9 +188,18 @@ jsonlite
 googlesheets
 
 #### Stabilité
+Pour que la stabilité des sources de données soit problématique, deux éléments doivent être réunis :
+- le format des données change
+- notre fréquence d'extraction est trop élevée pour nous donner le temps de réagir
+
+Alors que nous n'avons peu de contrôle sur le premier élément, nous pouvons mitiger le deuxième. Nous pouvons travailler avec une *copie* des données, de sorte que nous ne serons pas affectés par un changement à la source. Évidemment, en contrepartie on sacrifie la réactivité... l'approche à prendre dépendra donc de la valeur d'avoir les données les plus à jour dans le modèle, de notre anticipation de la stabilité ainsi que de l'impact d'une panne du service.
+
+Dans notre cas, les shapefiles...
+
 - Évolution anticipée du format des données (pas de contrôle sur la source de données? → copier les données freezées. Le modèle a encore de la valeur)
 - Pourquoi on va utiliser les shapefiles comme exemple de merge (statique, etc.)
 
-#### sécurité
+#### sécurité et confidentialité
+Comme dans tout projet informatique, nous devons nous assurer du niveau de sécurité approprié pour l'usage
 
 ## Références
