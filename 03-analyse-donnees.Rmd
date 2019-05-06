@@ -1,9 +1,16 @@
 ```{r, setup, echo=FALSE}
 library(data.table)
 library(ggplot2)
+library(rgdal)
+
+source("src/extraction/load-data.R")
+data <- load_data("data/")
 
 data_bixi <- fread("data/data_bixi.csv")
 data_stations <- fread("data/data_stations.csv")
+data_quartiers <- readOGR("data/LIMADMIN.shp")
+
+set.seed(20190513L)
 ```
 
 # Exploration de données {#exploration}
@@ -20,6 +27,8 @@ Le but de ce chapitre est donc simple, on veut remplir les deux objectifs expliq
 1. Suggérer des transformations de variables potentielles
 
 Le chapitre sera découpé en quatre parties, chacune d'entre elle étant un stade différent du processus d'analyse de données. Dans la première partie, on ira de l'analyse la plus simple en explorant des observations individuelles. Ensuite, on poursuivra l'analyse en agrégeant ces observations individuelles selon certains axes. L'avant-dernière étape consistera à définir et évaluer différentes métriques basées sur nos données. Enfin, pour terminer le chapitre, on créera des représentations graphiques de nos données.
+
+Prendre note que le but de ce livre n'est pas de présenter une panoplie de solutions pour manipuler des données en R, mais bien d'avoir une vue d'ensemble sur le processus complet de modélisation. Pour des préférences personnelles, la minuplation des données sera effectuée en utilisant une combinaison des packages de base et du package `data.table` dans ce chapitre. Le lecteur est invité à consulter la documentation de base des packages pour mieux comprendre leur utilisation. Une autre solution populaire est l'utilisation de `dplyr` qui fait partie de la collection de packages du `tidyverse`.
 
 ## Observations individuelles
 
@@ -46,14 +55,102 @@ On affiche ensuite les premières observations de `data_stations` :
 head(data_stations)
 ```
 
-Les varoables présentes dans le jeu de données sont :
+Les variables présentes dans le jeu de données sont :
 
 - `code` : code de la station;
 - `name` : nom de la station;
 - `latitude` : latitude de la station
 - `longitude`: longitude de la station
 
+Comme on peut facilement l'observer avec les premières observations de chaque jeu de données, les observations sont rarement ordonnées dans un ordre aléatoire. Quelqu'un de naïf pourrait légitimement croire, à première vue, que la majorité des trajets sont faits dans l'arrondissement de La Salle, les nuits de printemps par des membres réguliers. Bien que cela paraisse un peu ridicule dans ce contexte étant donné notre intuition face aux données, il faut garder en tête que le processus de modélisation doit être robuste peu importe le contexte dans lequel on l'utilise. Il n'est pas rare qu'un scientifique de données soit appelé à créer un modèle prédictif dans un contexte avec lequel il n'est pas familier.
+
+La morale du dernier paragraphe est qu'il est donc préférable de regarder un échantillon aléatoire des données au lieu de regarder les premières observations pour éviter de se créer un biais mental non intentionnel. On répète l'exercice précédent avec un échantillon aléatoire.
+
+```{r, explore_random}
+data_bixi[sample(.N, 5L)]
+data_stations[sample(.N, 5L)]
+```
+
+Comme on pouvait s'y en attendre, nos hypothèses précédentes, un peu loufoques avouons-le, sont majoritairement invalidées. Notre jeu de données semble maintenant contenir des trajets d'un peu partout sur l'île de Montréal effectués à tout moment au cours de la saison estivale 2017. Notre échantillon ne nous permet cependant pas d'infirmer notre hypothèse que tous les trajets sont effectués par des membres réguliers du programme BIXI. La prochaine section, le coeur du chapitre, nous permettra d'approfondir encore plus nos connaissances sur notre jeu de données.
+
 ## Observations agrégées
+
+Dans la précédente section, on s'est familiarisé avec le format de nos données en regardant un échantillon aléatoire de nos observations. Bien que ce soit le point de départ, on est loin d'avoir suffisament apprivoisé notre jeu de données pour passer à la prochaine phase du cycle, le prétraitement des données.
+
+La question qui reste en suspens pour le moment est de savoir si notre jeu de données ne contient que des observations des membres ou s'il contient aussi les observations des non-membres. Bien qu'on puisse augmenter le nombre d'observations aléatoires jusqu'à ce qu'on regarde tout le jeu de données, on conviendra que ce n'est pas la solution idéale pour connaître toutes les valeurs que peuvent prendre chacune des variables.
+
+La première étape pour agréger des données est de se familiariser avec les distributions marginales de chacun des champs. On doit évidemment traîter différemment les variables continues des variables discrètes. Il y a différentes manières de procéder, on propose une solution parmi tant d'autres dans le livre.
+
+```{r, quartier_exposure}
+library(leaflet)
+library(magrittr)
+
+# Sommaire par station
+
+data_stations_rides <- data[, .(
+  code = start_station_code,
+  quartier = start_quartier,
+  nb = .N,
+  mean = mean(duration_sec)
+), .(start_station_code, start_quartier)][, `:=`(
+  start_station_code = NULL,
+  start_quartier = NULL
+)]
+
+# Agréger sommaire par station
+
+setkey(data_stations_rides, code)
+setkey(data_stations, code)
+
+data_stations[data_stations_rides, `:=`(
+  quartier = quartier,
+  rides_nb = nb,
+  rides_mean = mean
+)]
+
+leaflet() %>%
+  addTiles() %>%
+  addMarkers(
+    data = data_stations,
+    lng = ~longitude,
+    lat = ~latitude,
+    icon = makeIcon(
+      iconUrl = "static-files/bixi-logo.png",
+      iconWidth = ~8+rides_nb/1500,
+      iconHeight = ~8+rides_nb/1500
+    ),
+    label = ~name
+  )
+```
+
+
+```{r, quartier_one_way}
+# Sommaire par quartier
+
+data_quartiers_rides <- data_stations[!is.na(quartier), .(
+  nom = quartier,
+  stations_nb = .N,
+  rides_nb = sum(rides_nb),
+  rides_mean = weighted.mean(rides_mean, rides_nb)
+), quartier][, quartier:=NULL]
+
+# Limiter moyenne des temps de trajet
+
+limits <- c(700, 1000)
+
+data_quartiers_rides[, rides_capped_mean:=rides_mean]
+data_quartiers_rides[rides_mean<limits[1], rides_capped_mean:=limits[1]]
+data_quartiers_rides[rides_mean>limits[2], rides_capped_mean:=limits[2]]
+
+# Agréger sommaire par quartier
+
+setkey(data_quartiers_rides, nom)
+
+
+
+
+```
+
 
 ## Métriques des observations
 
