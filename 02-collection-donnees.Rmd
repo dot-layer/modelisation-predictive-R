@@ -70,7 +70,7 @@ dplyr::left_join(A, B, by = c("start_station_code" = "station_ID")) %>%
   kableExtra::kable_styling(full_width = FALSE, position = "float_right")
 ```
 
-Nous entreprenons donc une revue des sources de données disponibles pour nous aider à prédire les étiquettes. Une recherche plus approfondie des mots-clés précédents devrait vous mener à la page du Portail données ouvertes de la Ville de Montréal réservée elle aussi à [l'historique des déplacements](http://donnees.ville.montreal.qc.ca/dataset/bixi-historique-des-deplacements). A priori, c'est simplement un lien vers les données précédentes. Un clic sur le bouton *Vélo* de la section Mots-clés nous ouvre toutefois une [boîte de Pandore](http://donnees.ville.montreal.qc.ca/dataset?q=velo) : L'[État en temps réel des stations BIXI](http://donnees.ville.montreal.qc.ca/dataset/bixi-etat-des-stations), la [Géolocalisation des arceaux à vélos](http://donnees.ville.montreal.qc.ca/dataset/arceaux-velos), la [cartographie du réseau cyclable](http://donnees.ville.montreal.qc.ca/dataset/pistes-cyclables) et le [nombre de passages quotidiens sur les pistes cyclables](http://donnees.ville.montreal.qc.ca/dataset/velos-comptage) sur le territoire de la Ville de Montréal.
+Nous entreprenons donc une revue des sources de données additionnelles disponibles pour nous aider à prédire les étiquettes. Une recherche plus approfondie des mots-clés précédents devrait vous mener à la page du Portail données ouvertes de la Ville de Montréal réservée elle aussi à [l'historique des déplacements](http://donnees.ville.montreal.qc.ca/dataset/bixi-historique-des-deplacements). A priori, c'est simplement un lien vers les données précédentes. Un clic sur le bouton *Vélo* de la section Mots-clés nous ouvre toutefois une [boîte de Pandore](http://donnees.ville.montreal.qc.ca/dataset?q=velo) : L'[État en temps réel des stations BIXI](http://donnees.ville.montreal.qc.ca/dataset/bixi-etat-des-stations), la [Géolocalisation des arceaux à vélos](http://donnees.ville.montreal.qc.ca/dataset/arceaux-velos), la [cartographie du réseau cyclable](http://donnees.ville.montreal.qc.ca/dataset/pistes-cyclables) et le [nombre de passages quotidiens sur les pistes cyclables](http://donnees.ville.montreal.qc.ca/dataset/velos-comptage) sur le territoire de la Ville de Montréal.
 
 
 > [STOP] premier exercice soft et pour s'assurer que tout le monde est bien set up : on load les données BIXI!
@@ -98,7 +98,7 @@ Nous entreprenons donc une revue des sources de données disponibles pour nous a
 - Historique de trajets par individu
 
 
-Tel que discuté dans l'introduction, notre ouvrage est linéaire, donc le processus de sélection de données se fera d'un seul trait. Bien entendu, dans un projet réel, il est presque certain que certains aspects nous échappent au début, et que nous devions réajuster le tir dans les phases subséquentes.
+Tel que mentionné en introduction, notre ouvrage est linéaire, donc le processus de sélection de données se fera d'un seul trait. Bien entendu, dans un projet réel, il est presque certain que certains aspects nous échappent au début, et que nous devions réajuster le tir dans les phases subséquentes.
 
 > [STOP] demander aux participants leurs idées de dataset intéressant
 
@@ -107,21 +107,14 @@ Tel que discuté dans l'introduction, notre ouvrage est linéaire, donc le proce
 Comme nous pouvons le constater, la liste de données potentielles est sans limites. Les considérations qui suivent auront pour objectif de nous exposer les limites de certaines sources, pour ensuite identifier celle(s) qui sont le plus adaptées à notre problématique.
 
 ### Volume
-On parlera de volume plutôt que de quantité.
-
-Nous définissons le volume comme l'espace occupé par un objet sur disque ou en mémoire. Le volume d'une source de données sera donc le produit du nombre d'observations et de la richesse de chaque observation. Si notre source de données contient beaucoup d'observations ou des observations riches, nous aurons donc des contraintes de rapidité de calcul, d'espace disque ou de mémoire au moment de l'entraînement, et potentiellement même au moment de la prédiction selon l'algorithme choisi.
+On parlera de volume plutôt que de quantité. Nous définissons le volume comme l'espace occupé par un objet sur disque ou en mémoire. Le volume d'une source de données sera donc le produit du nombre d'observations et de la richesse de chaque observation. Si notre source de données contient beaucoup d'observations ou des observations riches, nous aurons donc des contraintes de rapidité de calcul, d'espace disque ou de mémoire au moment de l'entraînement, et potentiellement même au moment de la prédiction selon l'algorithme choisi.
 
 #### Nombre d'observations
 Si nous avons le *malheur* d'être ensevelis sous un trop grand nombre d'observations, plusieurs options s'offrent à nous, qu'elles soient informatiques ou mathématiques/statistiques.
 
 Du point de vue informatique, R est parfois réputé lent et capricieux en termes de mémoire vive. Or, [il n'en est rien](http://adv-r.had.co.nz/Performance.html). En effet, il existe plusieurs stratégies simples pour optimiser une expression R : [profiler le code](http://adv-r.had.co.nz/Profiling.html), [comprendre la gestion de la mémoire](http://adv-r.had.co.nz/memory.html) ou des interfaces [C++](http://adv-r.had.co.nz/Rcpp.html) et [C](http://adv-r.had.co.nz/C-interface.html).
 
-Du point de vue mathématique, il serait étonnant que la quantité d'observations *étiquettées* soit trop grande. Comme a déjà admis le Scientifique en Chef de Google : «Nous n'avons pas de meilleurs algorithmes que n'importe qui d'autre; nous avons seulement plus de données»[https://www.forbes.com/sites/scottcleland/2011/10/03/googles-infringenovation-secrets]. Par contre, il est possible que nous pouvons parfois aggréger les données. Par exemple, si le taux d'échantillonnage est trop grand pour nos besoins
-
-Sampling rate
-Niveau d'aggrégation → perte potentielle d'information car nous pouvons toujours faire l'aggrégation nous-même
-base / dplyr / data.table [autre section?](https://stackoverflow.com/questions/21435339/data-table-vs-dplyr-can-one-do-something-well-the-other-cant-or-does-poorly)
-mémoire vive (algos à batches)
+Du point de vue mathématique, il serait étonnant que la quantité d'observations *étiquettées* soit trop grande. Comme a déjà admis le Scientifique en Chef de Google : «Nous n'avons pas de meilleurs algorithmes que n'importe qui d'autre; nous avons seulement plus de données»[https://www.forbes.com/sites/scottcleland/2011/10/03/googles-infringenovation-secrets]. Pour contourner les problèmes de mémoire ou d'espace disque, il existe des algorithmes qui taitent les données par *batches*, c'est-à-dire par tranches de $n$ observations à la  fois, où $n$ devra être assez petit pour contourner les contraintes d'espace, mais assez grand pour que l'algorithme puisse généraliser son apprentissage. [source algos à batches].
 
 #### Format
 La richesse d'une observation est définie par son format.
@@ -137,6 +130,13 @@ oracle
 les données non-structurées sont celles qui ne sont pas organisées à l'aide d'un modèle de données. Une base de données non-structurée peut donc contenir à la fois du texte, des images, du son ou une combinaison (ex. vidéo).  
 JSON  
 XML
+
+#### Aggrégation
+À la section précédente, nous avons pris la peine de préciser que ce sont les données étiquettées qui ne peuvent pas être trop nombreuses. Par contre, pour toutes les données additionnelles à joindre à nos données étiquettées, il est possible que le... Par exemple, si le taux d'échantillonnage est trop grand pour nos besoins ... Le choix d'aggrégation des données sera alors capital. Nous préférerons tout de même toujours une source la plus granulaire possible, car en aggrégant nous même, nous évitons la perte potentielle d'information prédictive pour notre modèle
+
+base / dplyr / data.table [autre section?](https://stackoverflow.com/questions/21435339/data-table-vs-dplyr-can-one-do-something-well-the-other-cant-or-does-poorly)
+
+> [STOP] on va faire un merge des données ... Météo?
 
 ### Qualité
 Plusieurs aspects peuvent influencer notre perception de qualité d'une source de donnée, tels que son organisation, sa documentation, son pouvoir prédictif, sa fréquence, la capacité de faire des jointures et le biais. Encore une fois, notons que les étapes futures peuvent invalider une source de données. Par exemple, le pouvoir prédictif est difficile à évaluer sans un premier modèle naïf au moins.
