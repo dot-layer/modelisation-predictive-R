@@ -5,14 +5,11 @@
 library(magrittr)
 ```
 
-La collecte de données est le point de départ de la chaîne. Les données étant quelque peu la matière première du produit que nous nous apprêtons à bâtir, plusieurs considérations influenceront leur collecte. 
+La collecte de données est le point de départ de la chaîne. Les données étant quelque peu la matière première du produit que nous nous apprêtons à bâtir, plusieurs considérations influenceront leur collecte.
 
-Pour illustrer le tout, prétendons pour l'instant que le produit qui nous intéresse est en fait une table. La construction d'une table nécessite évidemment de considérer la quantité, la qualité et le prix de la matière première. Toutefois, plusieurs considérations additionnelles viennent s'ajouter quand on s'intéresse à la provenance, au processus de récolte ou de transformation et à l'entreposage des matériaux.
+Les premières considérations qui viennent à l'esprit dans le cas des matières premières sont évidemment la quantité, la qualité et le prix. Toutefois, d'autres facteurs influencent le choix de matière première comme la provenance, le processus de récolte ou de transformation, la constance de l'approvisionnement, l'entreposage et la sécurité.
 
-Les mêmes considérations peuvent s'appliquer dans notre contexte. La section suivante aura donc pour objectif d'aborder ces considérations, tout en soumettant les données de notre atelier à celles-ci.
-
-Idées :
-- Toujours relier la théorie au dataset bixi (pourquoi on l'a pris, etc.)
+Les mêmes considérations peuvent s'appliquer dans notre contexte. La section suivante aura donc pour objectif d'aborder ces considérations, tout en exposant à celles-ci une liste de données potentielles pour l'atelier.
 
 ## Liste des données potentielles pour notre atelier
 
@@ -20,22 +17,74 @@ La première étape d'un déploiement de modèle prédictif est de dresser la li
 
 Les plus expérimentés auront déjà en tête la majorité des considérations couvertes dans ce chapitre au moment de dresser leur liste. Dans notre cas, permettons-nous de lister naïvement un grand nombre de sources. Chaque considération à venir nous permettra de distiller notre sélection.
 
-- http://donnees.ville.montreal.qc.ca/dataset?q=velo
-    - BIXI - Historique des déplacements
-    - BIXI - État des stations
-    - Arceaux à vélos
-    - Piste Cyclable
-    - Vélos - comptage sur les pistes cyclables
+Tout d'abord, une simple recherche des mots-clés *données historiques BIXI* dans votre moteur de recherche favori devrait vous mener à la page du site web de BIXI réservée à [l'historique des déplacements](https://bixi.com/fr/donnees-ouvertes).
+
+Un coup d'oeil aux données disponibles permet de constater que, pour l'année 2017, nous avons accès, pour chacun des mois d'ouverture du service (avril à novembre), à des données tabulaires sous cette structure :
+
+``` {r, echo = FALSE}
+data_2017_04 <- data.table::fread("https://s3.ca-central-1.amazonaws.com/jeremiedb/share/dot-layer/R-Quebec/BixiMontrealRentals2017/OD_2017-04.csv",
+                                  nrows = 5)
+data_2017_04 %>% 
+  knitr::kable()
+```
+
+Voilà qui devrait nous fournir les éléments les plus précieux : nos 2 variables réponses, ou *étiquettes*. En effet, pour chacun des trajets, nous pourrons déterminer la durée avec la colonne *duration_sec* et si le cycliste était membre à l'aide de la colonne *is_member*. Ces données renferment aussi d'autres éléments intéressants. Nous pourrons notamment utiliser le jour de la semaine, l'heure et la station de départ pour tenter de prédire les variables réponses.
+
+En général, dans un contexte de modélisation prédictive, nous avons sous la main une source de données *étiquettée* comme la nôtre,
+
+```{r, echo = FALSE}
+data_2017_04 %>% 
+  dplyr::select(start_station_code, duration_sec) %>% 
+  knitr::kable()
+```
+
+où ```start_station_code``` est un code unique représentant une entité unique/récurrente/identifiable (souvent appelé ID), et où ```duration_sec``` est l'étiquette, soit la valeur que nous voulons prédire. Souvent, quelques variables accompagnent ces champs et peuvent nous aider à prédire les étiquettes. Dans nos données historiques de BIXI, c'est le cas notamment de l'heure de la journée, du jour de la semaine, et du mois, qui peuvent tous fournir davantage de précision à nos prédictions.
+
+Or, notre travail de collecte ne s'arrête pas là. Il est souvent possible de joindre des données supplémentaires, entre autres via les IDs. Par exemple, dans notre cas, le code de station est une porte d'entrée vers l'information spécifique aux stations ou à leur emplacement géographique. Nous pouvons dès lors utiliser n'importe quelle information reliée à la station ou son emplacement et susceptible de raffiner les prédictions. Par exemple, si nous connaissions l'altitude de chaque station et croyions qu'une station de départ plus élevée produit en général des trajets plus longs, nous pourrions procéder ainsi :
+
+```{r, echo = FALSE}
+A <- data_2017_04 %>% 
+  dplyr::select(start_station_code, duration_sec)
+
+A %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling(full_width = FALSE)
+```
+
+PLUS
+
+```{r, echo = FALSE}
+B <- tibble::data_frame(station_ID = c(6104, 6173, 6174, 6203, 7060), elevation = c(10, 20, 15, 5, 100))
+
+B %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling(full_width = FALSE)
+```
+
+EQUALS
+
+```{r, echo = FALSE}
+dplyr::left_join(A, B, by = c("start_station_code" = "station_ID")) %>% 
+  dplyr::select(start_station_code, elevation, duration_sec) %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling(full_width = FALSE, position = "float_right")
+```
+
+Nous entreprenons donc une revue des sources de données disponibles pour nous aider à prédire les étiquettes. Une recherche plus approfondie des mots-clés précédents devrait vous mener à la page du Portail données ouvertes de la Ville de Montréal réservée elle aussi à [l'historique des déplacements](http://donnees.ville.montreal.qc.ca/dataset/bixi-historique-des-deplacements). A priori, c'est simplement un lien vers les données précédentes. Un clic sur le bouton *Vélo* de la section Mots-clés nous ouvre toutefois une [boîte de Pandore](http://donnees.ville.montreal.qc.ca/dataset?q=velo) : L'[État en temps réel des stations BIXI](http://donnees.ville.montreal.qc.ca/dataset/bixi-etat-des-stations), la [Géolocalisation des arceaux à vélos](http://donnees.ville.montreal.qc.ca/dataset/arceaux-velos), la [cartographie du réseau cyclable](http://donnees.ville.montreal.qc.ca/dataset/pistes-cyclables) et le [nombre de passages quotidiens sur les pistes cyclables](http://donnees.ville.montreal.qc.ca/dataset/velos-comptage) sur le territoire de la Ville de Montréal.
+
 
 > [STOP] premier exercice soft et pour s'assurer que tout le monde est bien set up : on load les données BIXI!
 
+À cette liste, nous pourrions ajouter une tonne d'autres sources de données permettant de mieux contextualiser les observations et améliorer nos prédictions. Parmi celles-ci, notons les suivantes :
+
 - Données météorologiques
-    - température
+    - [température](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html)
     - précipitations
     - vent
 - Données géographiques
-    - découpage des quartiers
+    - [découpage des quartiers](http://donnees.ville.montreal.qc.ca/dataset/polygones-arrondissements/resource/bc6e94c7-9393-490d-899f-4296dd1e3dcf)
     - pentes
+    - altitude
     - cours d'eau
     - pistes cyclables
 - Données démographiques
@@ -49,7 +98,7 @@ Les plus expérimentés auront déjà en tête la majorité des considérations 
 - Historique de trajets par individu
 
 
-Tel que discuté dans l'introduction, notre ouvrage est linéaire, donc le processus de sélection de données se fera d'un seul trait. Bien entendu, dans un projet réel, il est possible que certains aspects nous échappent au début, et que nous devions réajuster le tir dans les phases subséquentes.
+Tel que discuté dans l'introduction, notre ouvrage est linéaire, donc le processus de sélection de données se fera d'un seul trait. Bien entendu, dans un projet réel, il est presque certain que certains aspects nous échappent au début, et que nous devions réajuster le tir dans les phases subséquentes.
 
 > [STOP] demander aux participants leurs idées de dataset intéressant
 
@@ -60,18 +109,19 @@ Comme nous pouvons le constater, la liste de données potentielles est sans limi
 ### Volume
 On parlera de volume plutôt que de quantité.
 
-Nous définissons le volume comme l'espace occupé par un objet sur disque ou en mémoire. Le volume d'une source de données sera donc le produit du nombre d'observations et de la richesse de chaque observation.
-
-Si notre source de données contient beaucoup d'observations ou des observations riches, nous aurons donc des contraintes d'espace disque ou de mémoire. Bien que R soit parfois réputé lent ... [il n'en est rien](http://adv-r.had.co.nz/Performance.html)
-
-mémoire vive (algos à batches)
+Nous définissons le volume comme l'espace occupé par un objet sur disque ou en mémoire. Le volume d'une source de données sera donc le produit du nombre d'observations et de la richesse de chaque observation. Si notre source de données contient beaucoup d'observations ou des observations riches, nous aurons donc des contraintes de rapidité de calcul, d'espace disque ou de mémoire au moment de l'entraînement, et potentiellement même au moment de la prédiction selon l'algorithme choisi.
 
 #### Nombre d'observations
+Si nous avons le *malheur* d'être ensevelis sous un trop grand nombre d'observations, plusieurs options s'offrent à nous, qu'elles soient informatiques ou mathématiques/statistiques.
+
+Du point de vue informatique, R est parfois réputé lent et capricieux en termes de mémoire vive. Or, [il n'en est rien](http://adv-r.had.co.nz/Performance.html). En effet, il existe plusieurs stratégies simples pour optimiser une expression R : [profiler le code](http://adv-r.had.co.nz/Profiling.html), [comprendre la gestion de la mémoire](http://adv-r.had.co.nz/memory.html) ou des interfaces [C++](http://adv-r.had.co.nz/Rcpp.html) et [C](http://adv-r.had.co.nz/C-interface.html).
+
+Du point de vue mathématique, il serait étonnant que la quantité d'observations *étiquettées* soit trop grande. Comme a déjà admis le Scientifique en Chef de Google : «Nous n'avons pas de meilleurs algorithmes que n'importe qui d'autre; nous avons seulement plus de données»[https://www.forbes.com/sites/scottcleland/2011/10/03/googles-infringenovation-secrets]. Par contre, il est possible que nous pouvons parfois aggréger les données. Par exemple, si le taux d'échantillonnage est trop grand pour nos besoins
+
 Sampling rate
 Niveau d'aggrégation → perte potentielle d'information car nous pouvons toujours faire l'aggrégation nous-même
 base / dplyr / data.table [autre section?](https://stackoverflow.com/questions/21435339/data-table-vs-dplyr-can-one-do-something-well-the-other-cant-or-does-poorly)
-
-> [Sté] aggrégation fait partie du pre-processing mais absent dans notre ouvrage. Je couvre? Je mentionne? J'ignore? Ex. on aurait pu aggréger par ID du client si on avait eu un ID de client
+mémoire vive (algos à batches)
 
 #### Format
 La richesse d'une observation est définie par son format.
@@ -155,6 +205,10 @@ Si (la)[] (plupart)[] des (tribunes)[] s'entendent pour dire que le nouvel or no
 - https://www.reddit.com/r/datasets
 - https://archive.ics.uci.edu/ml/index.php?fbclid=IwAR09F5grBOTCr1SS4v8gONEYeqk0DqqWpPdt1blmYF9ucZkhsQeM5T0E7ew
 - http://donnees.ville.montreal.qc.ca/
+- stats can
+- ville Montréal
+- gc.ca
+
 
 ##### Sources payantes {#sources-payantes}
 - brokers
@@ -186,6 +240,9 @@ rvest
 downloader
 jsonlite
 googlesheets
+
+#### Accès aux données historiques et en temps réel
+Exemple température
 
 #### Stabilité
 Pour que la stabilité des sources de données soit problématique, deux éléments doivent être réunis :
