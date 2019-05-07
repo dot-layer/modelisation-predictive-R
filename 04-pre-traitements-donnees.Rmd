@@ -218,6 +218,40 @@ Dans cette section, nous verrons comment appliquer les concepts théoriques déc
 
 Pour se faire, nous proposons de faire 2 processus de prétraitements différents. Le premier servira à faire le prétraitement des données d'entraînement alors que le deuxième servira à faire le prétraitement des données à prédire lors de l'inférence. Les prochaines sections permettront de formaliser les différentes étapes clés à prévoir pour ces deux scénarios différents en tirant profit de certains packages R.
 
+### Séparation du jeu de données
+
+Avant même d'effectuer les premiers prétraitements, il est primordial de garder en tête que nous cherchons à construire un modèle prédictif qui sera performant en généralisation. Pour se faire, il faut inévitablement garder de côté un jeu de données test que nous utiliserons à la toute fin pour avoir une idée plausible de la performance de notre modèle sur des données que celui-ci n'a jamais encore vues. Afin de ne pas induire de l'information de ce jeu de données dans notre entraînement, nous devrons d'abord effectuer cette séparation et ensuite faire les différents prétraitements sur le jeu de données d'entraînement seulement. À la toute fin, nous pourrons effectuer ces mêmes prétraitements sur le jeu de données test et ainsi simuler l'entrée de nouvelles données.
+
+Pour faire la séparation, il courant dans la pratique de prendre un pourcentage arbitraire des données, par exemple 10%, sélectionné aléatoirement pour le jeu de données test. Pour faire cela, il est possible d'utiliser des fonctions de base en R, comme la fonction `sample`:
+
+```{r, echo=TRUE}
+ind_train <- sample(x = 1:nrow(data_bixi), size = 0.9 * nrow(data_bixi), replace = FALSE)
+head(sort(ind_train), 10)
+lapply(list(data_bixi[ind_train,]$duration_sec, data_bixi[-ind_train,]$duration_sec), mean)
+```
+
+Dans certaines situations, il peut être utile de faire une séparation qui permet de s'assurer de la présence de certaines données dans chaque jeu de données. Pour faire ce genre de séparation, il est possible de faire un échantilloannage stratifiée sur certaines variables, ce qui assure la cohérence entre les deux jeux de données vis-à-vis ces variables. Cela peut être notamment utile dans un contexte de données débanlancées. Pour faciliter la mise en place de ce genre de séparation, il est possible d'utiliser la fonction `createDataPartition` du package `caret`:
+
+```{r, echo=TRUE}
+ind_train <- createDataPartition(y = data_bixi$duration_sec, times = 1, p = 0.9, list = FALSE)
+head(sort(ind_train), 10)
+lapply(list(data_bixi[ind_train,]$duration_sec, data_bixi[-ind_train,]$duration_sec), mean)
+```
+
+Une fois que la séparation du jeu de données est faite, on peut désormais effectuer nos prétraitements via 2 processus différents. Un premier processus sera appliqué sur les données d'entraînement et un deuxième processus sera appliqué sur le jeu de données test (ou les données nouvelles données à prédire par notre modèle).
+
+### Prétraitements en entraînement
+
+Le processus de prétraitements en entraînement 
+
+```{r workflow, echo=FALSE, fig.align='center', fig.cap="Processsing"}
+knitr::include_graphics("static-files/preprocessing-workflow.png")
+```
+
+
+
+### Prétraitements en inférence
+
 ### Imputations de données manquantes
 
 Dans le prétraitement des données d'entraînement, il faudra garder une trace des valeurs d'imputation ou tout autre objet permettant de faire l'imputation des données manquantes. Par exemple, il est possible de définir les valeurs d'imputations et de sauvegarder ces valeurs dans un fichier JSON en utilisant le package `jsonlite`:
