@@ -1,4 +1,6 @@
 ```{r, setup, echo=FALSE}
+library(sf)
+library(lubridate)
 library(data.table)
 library(ggplot2)
 library(rgdal)
@@ -81,12 +83,11 @@ La question qui reste en suspens pour le moment est de savoir si notre jeu de do
 
 La première étape pour agréger des données est de se familiariser avec les distributions marginales de chacun des champs. On doit évidemment traîter différemment les variables continues des variables discrètes. Il y a différentes manières de procéder, on propose une solution parmi tant d'autres dans le livre.
 
-```{r, quartier_exposure}
+```{r, spatial_exposure, warning=FALSE}
 library(leaflet)
 library(magrittr)
 
 # Sommaire par station
-
 data_stations_rides <- data[, .(
   code = start_station_code,
   quartier = start_quartier,
@@ -98,35 +99,15 @@ data_stations_rides <- data[, .(
 )]
 
 # Agréger sommaire par station
-
 setkey(data_stations_rides, code)
 setkey(data_stations, code)
-
 data_stations[data_stations_rides, `:=`(
   quartier = quartier,
   rides_nb = nb,
   rides_mean = mean
 )]
 
-leaflet() %>%
-  addTiles() %>%
-  addMarkers(
-    data = data_stations,
-    lng = ~longitude,
-    lat = ~latitude,
-    icon = makeIcon(
-      iconUrl = "static-files/bixi-logo.png",
-      iconWidth = ~8+rides_nb/1500,
-      iconHeight = ~8+rides_nb/1500
-    ),
-    label = ~name
-  )
-```
-
-
-```{r, quartier_one_way}
 # Sommaire par quartier
-
 data_quartiers_rides <- data_stations[!is.na(quartier), .(
   nom = quartier,
   stations_nb = .N,
@@ -135,16 +116,95 @@ data_quartiers_rides <- data_stations[!is.na(quartier), .(
 ), quartier][, quartier:=NULL]
 
 # Limiter moyenne des temps de trajet
-
 limits <- c(700, 1000)
-
 data_quartiers_rides[, rides_capped_mean:=rides_mean]
 data_quartiers_rides[rides_mean<limits[1], rides_capped_mean:=limits[1]]
 data_quartiers_rides[rides_mean>limits[2], rides_capped_mean:=limits[2]]
 
 # Agréger sommaire par quartier
-
 setkey(data_quartiers_rides, nom)
+#data_quartiers <- readOGR("data/LIMADMIN.shp")
+data_quartiers@data <- as.data.table(data_quartiers@data, keep.rownames="ID")
+data_quartiers@data[, ID:=as.integer(ID)]
+setkey(data_quartiers@data, NOM)
+data_quartiers@data[data_quartiers_rides, `:=`(
+  stations_nb = stations_nb,
+  rides_nb = rides_nb,
+  rides_mean = rides_mean
+)]
+setorder(data_quartiers@data, ID)[, ID:=NULL]
+
+# Création de la palette de couleur des quartiers
+categorical_pal <- colorFactor(
+  palette = rainbow(data_quartiers@data[!is.na(stations_nb), .N]),
+  domain = data_quartiers@data[!is.na(stations_nb), as.character(NOM)]
+)
+
+# Création de la carte
+exposure_map <- leaflet() %>%
+  addTiles() %>%
+  addMarkers(
+    data = data_stations,
+    group = "Stations",
+    lng = ~longitude,
+    lat = ~latitude,
+    icon = makeIcon(
+      iconUrl = "static-files/bixi-logo.png",
+      iconWidth = ~8+rides_nb/1500,
+      iconHeight = ~8+rides_nb/1500
+    ),
+    popup = ~paste(
+      paste0("<b>", name, "</b>"),
+      paste0("Nombre de trajets : ", format(rides_nb, big.mark=" ")),
+      #paste0("Durée moyenne : ", format(rides_mean, digits=0, big.mark=" "), " sec"),
+      sep = "<br/>"
+    ),
+    label = ~name
+  ) %>%
+  addPolygons(
+    data = data_quartiers,
+    group = "Quartiers",
+    color = "black",
+    weight = 2,
+    fillColor = ~categorical_pal(NOM),
+    #fillOpacity = 0.5,
+    dashArray = "2 4",
+    popup = ~paste(
+      paste0("<b>", NOM, "</b>"),
+      paste0("Nombre de stations : ", format(stations_nb, big.mark=" ")),
+      paste0("Nombre de trajets : ", format(rides_nb, big.mark=" ")),
+      #paste0("Durée moyenne : ", format(rides_mean, digits=0, big.mark=" "), " sec"),
+      sep = "<br/>"
+    ),
+    highlightOptions = highlightOptions(
+      weight = 3,
+      opacity = 1,
+      dashArray = FALSE,
+      bringToFront = TRUE
+    )
+  ) %>%
+  # addLegend(
+  #   data = data_quartiers@data[!is.na(stations_nb)],
+  #   position = "bottomright",
+  #   pal = categorical_pal,
+  #   values = ~NOM,
+  #   opacity = 1,
+  #   title = "Quartiers",
+  #   group = "Quartiers"
+  # ) %>%
+  addLayersControl(
+    overlayGroups = c("Stations", "Quartiers"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+
+# Affichage de la carte
+exposure_map
+```
+
+
+
+```{r, spatial_one_way}
+
 
 
 
