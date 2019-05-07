@@ -17,11 +17,10 @@ preprocessing <- function(data, train_mode=TRUE, list_objects=NULL) {
   data[, weekend_flag := as.integer(start_wday >= 6)]
   
   data[, moment_journee := 0L]
-  data[start_hour >= 6 & start_hour < 23, moment_journee := 1L]
+  data[start_hour >= 6 & start_hour < 11, moment_journee := 1L]
   data[start_hour >= 11 & start_hour < 16, moment_journee := 2L]
   data[start_hour >= 16 & start_hour < 23, moment_journee := 3L]
-  
-  
+
   if (train_mode) {
     
     # On crée les variables réponses
@@ -51,28 +50,40 @@ preprocessing <- function(data, train_mode=TRUE, list_objects=NULL) {
       predict(objet_un_chaud, copy(data)[, (c("target_duree", "target_meme_station")) := NULL]),
       copy(data)[, (c("target_duree", "target_meme_station")), with = F]
     )
+    
+    data[, moment_journee := as.factor(c("nuit","am","pm","soir")[moment_journee+1])]
+    
+    objet_un_chaud <- dummyVars(" ~ .", copy(data)[, (c("target_duree", "target_meme_station")) := NULL], 
+                                fullRank = TRUE)
+    data <- cbind(
+      predict(objet_un_chaud, copy(data)[, (c("target_duree", "target_meme_station")) := NULL]),
+      copy(data)[, (c("target_duree", "target_meme_station")), with = F]
+    )
+    
                        
     # Normalisation 
-    variables_a_normaliser <- c("moment_journee", "weekend_flag")
-    moyennes <- apply(data[, (variables_a_normaliser), with = F], 2, mean)
-    ecarts_types <- apply(data[, (variables_a_normaliser), with = F], 2, sd)
-    valeurs_normalisation <- list(
-      moyennes = as.list(moyennes),
-      ecarts_types = as.list(ecarts_types)
-    )
-    data <- lapply(names(valeurs_normalisation$moyennes), function(x) {
-      data[, (x) := (get(x) - valeurs_normalisation$moyennes[[eval(x)]])/valeurs_normalisation$ecarts_types[[eval(x)]]]
-    })[[2]]
+    # variables_a_normaliser <- c("moment_journee", "weekend_flag")
+    # moyennes <- apply(data[, (variables_a_normaliser), with = F], 2, mean)
+    # ecarts_types <- apply(data[, (variables_a_normaliser), with = F], 2, sd)
+    # valeurs_normalisation <- list(
+    #   moyennes = as.list(moyennes),
+    #   ecarts_types = as.list(ecarts_types)
+    # )
+    # data <- lapply(names(valeurs_normalisation$moyennes), function(x) {
+    #   data[, (x) := (get(x) - valeurs_normalisation$moyennes[[eval(x)]])/valeurs_normalisation$ecarts_types[[eval(x)]]]
+    # })[[2]]
     
     # Conserver les variables pertinentes à la modélisation
-    vars <- c("target_duree", "target_meme_station", "is_member", "weekend_flag", "moment_journee")
+    # vars <- c("target_duree", "target_meme_station", "is_member", "weekend_flag", "moment_journee")
+    vars <- c("target_duree", "target_meme_station", "is_member", "weekend_flag")
+    vars <- c(vars, grep("moment_journee", colnames(data), value = TRUE))
     vars <- c(vars, grep("start_quartier", colnames(data), value = TRUE))
     
     list(
       data_preprocess = data[, ..vars],
       variables_a_imputer = variables_a_imputer,
       objet_un_chaud = objet_un_chaud,
-      valeurs_normalisation = valeurs_normalisation,
+      # valeurs_normalisation = valeurs_normalisation,
       vars_to_keep = vars[-which(vars %in% c("target_duree", "target_meme_station"))]
     )
     
@@ -89,10 +100,10 @@ preprocessing <- function(data, train_mode=TRUE, list_objects=NULL) {
     data <- data.table(predict(objet_un_chaud, data))
     
     # Normaliser les données
-    valeurs_normalisation <- list_objects$valeurs_normalisation
-    data <- lapply(names(valeurs_normalisation$moyennes), function(x) {
-      data[, (x) := (get(x) - valeurs_normalisation$moyennes[[eval(x)]])/valeurs_normalisation$ecarts_types[[eval(x)]]]
-    })[[2]]
+    # valeurs_normalisation <- list_objects$valeurs_normalisation
+    # data <- lapply(names(valeurs_normalisation$moyennes), function(x) {
+    #   data[, (x) := (get(x) - valeurs_normalisation$moyennes[[eval(x)]])/valeurs_normalisation$ecarts_types[[eval(x)]]]
+    # })[[2]]
     
     vars <- list_objects$vars_to_keep
     data[, ..vars]
