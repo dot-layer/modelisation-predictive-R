@@ -61,7 +61,7 @@ saveRDS(classif_objects$objet_un_chaud, paste0(path_objects, "objet_un_chaud_cla
 # write(jsonlite::toJSON(preprocessed_objects$valeurs_normalisation, pretty = TRUE), paste0(path_objects, "valeurs_normalisation.json"))
 write(jsonlite::toJSON(classif_objects$vars_to_keep, pretty = TRUE), paste0(path_objects, "variables_a_conserver_classif.json"))
 # Objets du modele regression
-write(jsonlite::toJSON(classif_objects$vars_to_keep, pretty = TRUE), paste0(path_objects, "variables_a_conserver_regression.json"))
+write(jsonlite::toJSON(regression_objects$vars_to_keep, pretty = TRUE), paste0(path_objects, "variables_a_conserver_regression.json"))
 
 
 # Setter les tables pour le modeling

@@ -30,13 +30,13 @@ preprocessing_classif <- function(data, train_mode=TRUE, list_objects=NULL) {
   } else {
     
     # One-hot encoding
-    objet_un_chaud <- list_objects$objet_un_chaud
+    objet_un_chaud <- list_objects$objet_un_chaud_classif
     data <- cbind(
       predict(objet_un_chaud, data),
       copy(data)[, (c("start_quartier_group", "moment_journee")) := NULL]
     )
     
-    vars <- list_objects$vars_to_keep
+    vars <- list_objects$vars_to_keep_classif
     data[, ..vars]
     
   }

@@ -25,7 +25,7 @@ preprocessing_regression <- function(data, train_mode=TRUE, list_objects=NULL) {
     
   } else {
     
-    vars <- list_objects$vars_to_keep
+    vars <- list_objects$vars_to_keep_regression
     data[, ..vars]
     
   }
