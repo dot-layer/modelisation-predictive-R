@@ -13,8 +13,13 @@ library(data.table)
 library(lubridate)
 library(ggplot2)
 
-source("src/extraction/load-data.R")
-data_bixi <- load_data("data/")
+source("src/extraction/load-historical-data.R")
+source("src/extraction/load-merging-data.R")
+source("src/extraction/merge-data.R")
+
+historical_data <- load_historical_data("data/")
+merging_data <- load_merging_data("data/")
+data_bixi <- merge_data(historical_data, merging_data$data_stations, merging_data$points_stations)
 ```
 
 ```{r, head_donnees}
