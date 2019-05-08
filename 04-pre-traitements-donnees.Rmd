@@ -233,6 +233,7 @@ lapply(list(data_bixi[ind_train,]$duration_sec, data_bixi[-ind_train,]$duration_
 Dans certaines situations, il peut être utile de faire une séparation qui permet de s'assurer de la présence de certaines données dans chaque jeu de données. Pour faire ce genre de séparation, il est possible de faire un échantilloannage stratifiée sur certaines variables, ce qui assure la cohérence entre les deux jeux de données vis-à-vis ces variables. Cela peut être notamment utile dans un contexte de données débanlancées. Pour faciliter la mise en place de ce genre de séparation, il est possible d'utiliser la fonction `createDataPartition` du package `caret`:
 
 ```{r, echo=TRUE}
+library(caret)
 ind_train <- createDataPartition(y = data_bixi$duration_sec, times = 1, p = 0.9, list = FALSE)
 head(sort(ind_train), 10)
 lapply(list(data_bixi[ind_train,]$duration_sec, data_bixi[-ind_train,]$duration_sec), mean)
@@ -286,7 +287,6 @@ Les fichiers JSON sont généralement faciles à traiter dans plusieurs logiciel
 Pour être en mesure de répliquer l'encodage de données catégoriques, le principal défi est faire l'encodage *un-chaud*. La fonction `dummyVars` du package `caret` permet de réaliser assez facilement ce genre de transformation:
 
 ```{r, eval=FALSE, echo=TRUE}
-library(caret)
 variables_un_chaud <- c("weekend_flag")
 # Il faut transformer les variables à encoder en factor d'abord
 lapply(variables_un_chaud, function(var) data_bixi[, (var) := factor(get(var))])
