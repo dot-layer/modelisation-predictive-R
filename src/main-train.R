@@ -23,7 +23,9 @@ library(glmnet)
 
 # Source les fonctions ----------------------------------------------------
 
-source("src/extraction/load-data.R")
+source("src/extraction/load-historical-data.R")
+source("src/extraction/load-merging-data.R")
+source("src/extraction/merge-data.R")
 source("src/preprocessing/preprocessing.R")
 source("src/preprocessing/preprocessing_classif.R")
 source("src/preprocessing/preprocessing_regression.R")
@@ -38,7 +40,9 @@ path_objects <- "data/models/"
 
 # Doit avoir le fichier 'LIMADMIN.shp' dans le repertoire passer en argument
 # a la fonction load_data()
-data_bixi <- load_data("data/")
+historical_data <- load_historical_data("data/")
+merging_data <- load_merging_data("data/")
+data_bixi <- merge_data(historical_data, merging_data$data_stations, merging_data$points_stations)
 
 
 # Split data --------------------------------------------------------------
