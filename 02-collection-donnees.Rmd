@@ -22,8 +22,8 @@ Tout d'abord, une simple recherche des mots-clés *données historiques BIXI* da
 Un coup d'oeil aux données disponibles permet de constater que, pour l'année 2017, nous avons accès, pour chacun des mois d'ouverture du service (avril à novembre), à des données tabulaires sous cette structure :
 
 ``` {r, echo = FALSE}
-data_2017_04 <- data.table::fread("https://s3.ca-central-1.amazonaws.com/jeremiedb/share/dot-layer/R-Quebec/BixiMontrealRentals2017/OD_2017-04.csv",
-                                  nrows = 5)
+data_2017_04 <- data.table::fread("data/data_bixi.csv", nrows = 5)
+
 data_2017_04 %>% 
   knitr::kable()
 ```
