@@ -68,31 +68,28 @@ write(jsonlite::toJSON(classif_objects$vars_to_keep, pretty = TRUE), paste0(path
 write(jsonlite::toJSON(regression_objects$vars_to_keep, pretty = TRUE), paste0(path_objects, "variables_a_conserver_regression.json"))
 
 # Setter les tables pour le modeling
-X_classif <- copy(classif_objects$data_preprocess)
 X_regression <- copy(regression_objects$data_preprocess)
+X_classif <- copy(classif_objects$data_preprocess)[, target_meme_station := NULL]
 # write.fst(X_classif, "data/X_classif.fst")
 # write.fst(X_regression, "data/X_regression.fst")
 
-# X_classif <- copy(classif_objects$data_preprocess)[, target_meme_station := NULL]
-# X_regression <- copy(regression_objects$data_preprocess)[, target_duree := NULL]
-# y_classif <- classif_objects$data_preprocess$target_meme_station
-# y_regression <- regression_objects$data_preprocess$target_duree
+y_classif <- classif_objects$data_preprocess$target_meme_station
 
 
 # Modeling ----------------------------------------------------------------
 
 # La formule pour créer notre régression.
 # Elle ne fait que one-hot encode là, mais on pourrait ajouter des intéractions.
-f <- as.formula(paste("y_regression", " ~ ", paste(names(X_regression), collapse = " + ")))
+f <- as.formula(paste("target_duree", " ~ ", paste(names(X_regression)[-1], collapse = " + ")))
 sub_sample <- sample(nrow(X_regression),1e+6)
 
 glm_full <- glmnet::cv.glmnet(x = model.matrix(f, X_regression)[sub_sample,-1],
-                              y = y_regression[sub_sample],
+                              y = X_regression$target_duree[sub_sample],
                               family = "gaussian",
                               nfolds = 5)
 
 ratio <- mean(y_classif == 1)
-xgb_full <- xgboost::xgboost(data = as.matrix(X_classif), weight = (1-ratio)*y_classif + ratio*(1-y_classif), label = y_classif, booster = "gbtree", objective = "binary:logistic", eval.metric = "logloss", nrounds = 15)
+xgb_full <- xgboost::xgboost(data = as.matrix(X_classif), weight = (1-ratio)*y_classif + ratio*(1-y_classif), label = y_classif, booster = "gbtree", objective = "binary:logistic", eval.metric = "logloss", nrounds = 20)
 
 
 saveRDS(glm_full, paste0(path_objects, "glm.rds"))
