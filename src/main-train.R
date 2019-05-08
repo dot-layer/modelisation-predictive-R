@@ -72,7 +72,7 @@ y_classif <- preprocessed_objects$data_classif$target_meme_station
 
 # Modeling ----------------------------------------------------------------
 
-sub_sample <- sample(nrow(X_regression),10000)
+sub_sample <- sample(nrow(X_regression), 1e+6)
 
 glm_full <- glmnet::cv.glmnet(x = as.matrix(X_regression)[sub_sample,],
                               y = y_regression[sub_sample],
@@ -80,7 +80,7 @@ glm_full <- glmnet::cv.glmnet(x = as.matrix(X_regression)[sub_sample,],
                               nfolds = 5)
 
 ratio <- mean(y_classif == 1)
-xgb_full <- xgboost::xgboost(data = as.matrix(X_classif), weight = (1-ratio)*y_classif + ratio*(1-y_classif), label = y_classif, booster = "gbtree", objective = "binary:logistic", eval.metric = "logloss", nrounds = 5)
+xgb_full <- xgboost::xgboost(data = as.matrix(X_classif), weight = (1-ratio)*y_classif + ratio*(1-y_classif), label = y_classif, booster = "gbtree", objective = "binary:logistic", eval.metric = "logloss", nrounds = 20)
 
 
 saveRDS(glm_full, paste0(path_objects, "glm.rds"))

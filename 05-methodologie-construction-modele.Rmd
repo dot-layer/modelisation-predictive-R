@@ -5,7 +5,6 @@ library(sf)
 library(data.table)
 library(ggplot2)
 library(fst)
-library(rjson)
 
 library(glmnet)
 library(xgboost)
@@ -76,7 +75,7 @@ Il faut garder en tête que l'objectif est de prédire de **nouvelles** valeurs 
 Avec la quantité de données à notre disposition pour l'exemple BIXI, il est raisonnable de séparer nos données en trois partie.
 À la section \@ref(preprop), nous avions déjà séparé notre jeu en deux (entr/test), sortons un troisième jeu de nos données d'entraînement.
 ```{r, include = F}
-X_train <- read.fst("data/X_regression.fst")
+# X_train <- read.fst("data/X_regression.fst")
 ```
 ```{r, echo=T}
 # Nod données
@@ -84,9 +83,9 @@ X_train <- read.fst("data/X_regression.fst")
 
 # Enlevons-en masse, on est pas à plaindre
 # Sinon, des problèmes de mémoires pourraient être irritants.
-ind_val <- sample(nrow(X_regression), nrow(X_regression)/2)
-X_val <- X_train[ind_val,]
-X_train <- X_train[-ind_val,]
+# ind_val <- sample(nrow(X_regression), nrow(X_regression)/2)
+# X_val <- X_train[ind_val,]
+# X_train <- X_train[-ind_val,]
 # On s'occupera du test en temps et lieu.
 ```
 Pour automatiser le processus, la fonction `caret::createDataPartition` est une option intéressante.
