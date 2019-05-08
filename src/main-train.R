@@ -26,9 +26,7 @@ library(glmnet)
 source("src/extraction/load-historical-data.R")
 source("src/extraction/load-merging-data.R")
 source("src/extraction/merge-data.R")
-source("src/preprocessing/preprocessing.R")
-source("src/preprocessing/preprocessing_classif.R")
-source("src/preprocessing/preprocessing_regression.R")
+source("src/preprocessing/preprocessing_main.R")
 
 
 # Output les objets -------------------------------------------------------
@@ -56,46 +54,37 @@ saveRDS(ind_test, paste0(path_objects, "ind_test.rds"))
 
 # Preprocessing -----------------------------------------------------------
 
-preprocessed_objects <- preprocessing(data_bixi[-ind_test,], train_mode = TRUE)
-# preprocessed_objects <- preprocessing(data_bixi[ind_train,], train_mode = TRUE)
-classif_objects <- preprocessing_classif(copy(preprocessed_objects$data_preprocess), train_mode = TRUE)
-regression_objects <- preprocessing_regression(copy(preprocessed_objects$data_preprocess), train_mode = TRUE)
+preprocessed_objects <- preprocessing_main(data_bixi[-ind_test,], train_mode = TRUE)
 
 # Saver les objets
 # Objects communs au 2 modeles
 write(jsonlite::toJSON(preprocessed_objects$variables_a_imputer, pretty = TRUE), paste0(path_objects, "valeurs_imputations.json"))
 # Objets du modele classif
-saveRDS(classif_objects$objet_un_chaud, paste0(path_objects, "objet_un_chaud_classif.rds"))
+saveRDS(preprocessed_objects$objet_un_chaud, paste0(path_objects, "objet_un_chaud.rds"))
 # write(jsonlite::toJSON(preprocessed_objects$valeurs_normalisation, pretty = TRUE), paste0(path_objects, "valeurs_normalisation.json"))
-write(jsonlite::toJSON(classif_objects$vars_to_keep, pretty = TRUE), paste0(path_objects, "variables_a_conserver_classif.json"))
+write(jsonlite::toJSON(preprocessed_objects$vars_to_keep_classif, pretty = TRUE), paste0(path_objects, "variables_a_conserver_classif.json"))
 # Objets du modele regression
-write(jsonlite::toJSON(regression_objects$vars_to_keep, pretty = TRUE), paste0(path_objects, "variables_a_conserver_regression.json"))
-
-
-# write.fst(X, "data/data_preprocess.fst")
+write(jsonlite::toJSON(preprocessed_objects$vars_to_keep_regression, pretty = TRUE), paste0(path_objects, "variables_a_conserver_regression.json"))
 
 # Setter les tables pour le modeling
-X_classif <- copy(classif_objects$data_preprocess)[, target_meme_station := NULL]
-X_regression <- copy(regression_objects$data_preprocess)[, target_duree := NULL]
+X_regression <- copy(preprocessed_objects$data_regression)[, target_duree := NULL]
+X_classif <- copy(preprocessed_objects$data_classif)[, target_meme_station := NULL]
 
-y_classif <- classif_objects$data_preprocess$target_meme_station
-y_regression <- regression_objects$data_preprocess$target_duree
+y_regression <- preprocessed_objects$data_regression$target_duree
+y_classif <- preprocessed_objects$data_classif$target_meme_station
 
 
 # Modeling ----------------------------------------------------------------
 
-# La formule pour créer notre régression.
-# Elle ne fait que one-hot encode là, mais on pourrait ajouter des intéractions.
-f <- as.formula(paste("y_regression", " ~ ", paste(names(X_regression), collapse = " + ")))
-sub_sample <- sample(nrow(X_regression),1e+6)
+sub_sample <- sample(nrow(X_regression), 1e+6)
 
-glm_full <- glmnet::cv.glmnet(x = model.matrix(f, X_regression)[sub_sample,-1],
+glm_full <- glmnet::cv.glmnet(x = as.matrix(X_regression)[sub_sample,],
                               y = y_regression[sub_sample],
                               family = "gaussian",
                               nfolds = 5)
 
 ratio <- mean(y_classif == 1)
-xgb_full <- xgboost::xgboost(data = as.matrix(X_classif), weight = (1-ratio)*y_classif + ratio*(1-y_classif), label = y_classif, booster = "gbtree", objective = "binary:logistic", eval.metric = "logloss", nrounds = 15)
+xgb_full <- xgboost::xgboost(data = as.matrix(X_classif), weight = (1-ratio)*y_classif + ratio*(1-y_classif), label = y_classif, booster = "gbtree", objective = "binary:logistic", eval.metric = "logloss", nrounds = 20)
 
 
 saveRDS(glm_full, paste0(path_objects, "glm.rds"))

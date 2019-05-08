@@ -11,7 +11,7 @@ init <- function(path) {
   merging_data <- load_merging_data("data/")
   
   variables_a_imputer <- jsonlite::fromJSON(paste0(path, "valeurs_imputations.json"))
-  objet_un_chaud_classif <- readRDS(paste0(path, "objet_un_chaud_classif.rds"))
+  objet_un_chaud <- readRDS(paste0(path, "objet_un_chaud.rds"))
   # valeurs_normalisation <- jsonlite::fromJSON(paste0(path, "valeurs_normalisation.json"))
   vars_classif <- jsonlite::fromJSON(paste0(path, "variables_a_conserver_classif.json"))
   vars_regression <- jsonlite::fromJSON(paste0(path, "variables_a_conserver_regression.json"))
@@ -22,7 +22,7 @@ init <- function(path) {
   list(
     merging_data = merging_data,
     variables_a_imputer = variables_a_imputer,
-    objet_un_chaud_classif = objet_un_chaud_classif,
+    objet_un_chaud = objet_un_chaud,
     # valeurs_normalisation = valeurs_normalisation,
     vars_to_keep_classif = vars_classif,
     vars_to_keep_regression = vars_regression,

@@ -19,9 +19,7 @@ library(glmnet)
 source("src/extraction/load-historical-data.R")
 source("src/extraction/load-merging-data.R")
 source("src/extraction/merge-data.R")
-source("src/preprocessing/preprocessing.R")
-source("src/preprocessing/preprocessing_classif.R")
-source("src/preprocessing/preprocessing_regression.R")
+source("src/preprocessing/preprocessing_main.R")
 
 
 # A lancer au debut du server ---------------------------------------------
@@ -43,9 +41,10 @@ data_test <- data_bixi
 
 # Preprocessing -----------------------------------------------------------
 
-data_pred <- preprocessing(data_test, train_mode = FALSE, list_objects = init_objects)
-data_pred_regression <- preprocessing_regression(copy(data_pred), train_mode = FALSE, list_objects = init_objects)
-data_pred_classif <- preprocessing_classif(copy(data_pred), train_mode = FALSE, list_objects = init_objects)
+data_pred <- preprocessing_main(copy(data_test), train_mode = FALSE, list_objects = init_objects)
+
+data_pred_regression <- data_pred$data_regression
+data_pred_classif <- data_pred$data_classif
 
 
 # Prediction --------------------------------------------------------------
@@ -53,7 +52,7 @@ data_pred_classif <- preprocessing_classif(copy(data_pred), train_mode = FALSE, 
 # Penser a avoir un fichier de configs maybe? (threshold, lambda dans glmnet, etc)
 list(
   # Gerer le lambda dans glmnet
-  duree = predict(init_objects$model_glm, as.matrix(data_pred_regression), s = rev(init_objects$model_glm$lambda)[1]),
+  duree = predict(init_objects$model_glm, as.matrix(data_pred_regression), s = "lambda.min"),
   # Gerer le threshold différement
   meme_station = predict(init_objects$model_xgb, as.matrix(data_pred_classif)) > 0.5
 )
