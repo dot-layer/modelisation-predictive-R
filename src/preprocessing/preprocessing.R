@@ -5,14 +5,14 @@ preprocessing <- function(data, train_mode=TRUE, list_objects=NULL) {
   
   # Features engineering
   data[, `:=`(start_quartier = tolower(stri_replace_all_regex(start_quartier, "-| ", "")),
-                   end_quartier = tolower(stri_replace_all_regex(end_quartier, "-| ", "")))]
+              end_quartier = tolower(stri_replace_all_regex(end_quartier, "-| ", "")))]
   
   data[, `:=`(start_quartier = factor(gsub("[[:punct:]]", "", iconv(start_quartier, from="UTF-8", to="ASCII//TRANSLIT"))),
-                   end_quartier = factor(gsub("[[:punct:]]", "", iconv(end_quartier, from="UTF-8", to="ASCII//TRANSLIT"))))]
+              end_quartier = factor(gsub("[[:punct:]]", "", iconv(end_quartier, from="UTF-8", to="ASCII//TRANSLIT"))))]
   
   # week_start: 1=Lundi 7=Dimanche
   data[, `:=`(start_wday = wday(start_date, week_start = 1),
-                        start_hour = hour(start_date_time))]
+              start_hour = hour(start_date_time))]
   
   data[, weekend_flag := as.integer(start_wday >= 6)]
   

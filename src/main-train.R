@@ -38,14 +38,7 @@ saveRDS(ind_train, paste0(path_objects, "ind_train.rds"))
 
 # Preprocessing -----------------------------------------------------------
 
-preprocessed_objects <- preprocessing(data_bixi[ind_train,], train_mode = TRUE)
-# Saver les objets
-write(jsonlite::toJSON(preprocessed_objects$variables_a_imputer, pretty = TRUE), paste0(path_objects, "valeurs_imputations.json"))
-saveRDS(preprocessed_objects$objet_un_chaud, paste0(path_objects, "objet_un-chaud.rds"))
-write(jsonlite::toJSON(preprocessed_objects$valeurs_normalisation, pretty = TRUE), paste0(path_objects, "valeurs_normalisation.json"))
-write(jsonlite::toJSON(preprocessed_objects$vars_to_keep, pretty = TRUE), paste0(path_objects, "variables_a_conserver.json"))
-
-X <- preprocessed_objects$data_preprocess
+X <- preprocessing(data = data_bixi[ind_train,], path_objects = "data/models/", train = TRUE)
 
 y_duree <- X$target_duree
 y_meme <- X$target_meme_station
