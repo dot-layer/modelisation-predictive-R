@@ -11,6 +11,7 @@ Pour faire de la modélisation prédictive, il est généralement inévitable de
 library(sf)
 library(data.table)
 library(lubridate)
+library(scales)
 library(ggplot2)
 
 source("src/extraction/load-data.R")
@@ -34,7 +35,7 @@ La première étape du prétraitement de données consite à nettoyer les donné
 La majorité des jeux de données réels sont témoins de données manquantes. Certains algorithmes ne sont pas en mesure de gérer les données manquantes par eux-mêmes. Cela nous oblige donc à traiter celles-ci et imputer le jeu de données. Les causes d'absence de données peuvent être relativement variées: bris de système, abstention, perte de données, etc. Il est généralement difficile de connaître la raison exacte, ce qui rend le traitement de données manquantes une étape importante. Avant même de trouver une méthode pour imputer ces données manquantes, il faut d'abord évaluer la quantité de données manquantes (voir fig \@ref(fig:missing)) et tenter de comprendre le mécanisme expliquant la non-réponse d'une donnée. 
 
 ```{r missing, echo=FALSE, fig.align='center', fig.cap="Pourcentage de données manquantes selon la variable du jeu de données BIXI."}
-library(scales)
+
 data.table(
   variable = names(data_bixi),
   missing_percentage = unlist(data_bixi[, lapply(.SD, function(x) sum(is.na(x))), .SDcols = 1:ncol(data_bixi)]/nrow(data_bixi))
@@ -233,6 +234,7 @@ lapply(list(data_bixi[ind_train,]$duration_sec, data_bixi[-ind_train,]$duration_
 Dans certaines situations, il peut être utile de faire une séparation qui permet de s'assurer de la présence de certaines données dans chaque jeu de données. Pour faire ce genre de séparation, il est possible de faire un échantilloannage stratifiée sur certaines variables, ce qui assure la cohérence entre les deux jeux de données vis-à-vis ces variables. Cela peut être notamment utile dans un contexte de données débanlancées. Pour faciliter la mise en place de ce genre de séparation, il est possible d'utiliser la fonction `createDataPartition` du package `caret`:
 
 ```{r, echo=TRUE}
+library(caret)
 ind_train <- createDataPartition(y = data_bixi$duration_sec, times = 1, p = 0.9, list = FALSE)
 head(sort(ind_train), 10)
 lapply(list(data_bixi[ind_train,]$duration_sec, data_bixi[-ind_train,]$duration_sec), mean)
