@@ -11,7 +11,7 @@ preprocessing <- function(data, train_mode=TRUE, list_objects=NULL) {
               end_quartier = factor(gsub("[[:punct:]]", "", iconv(end_quartier, from="UTF-8", to="ASCII//TRANSLIT"))))]
   
   # week_start: 1=Lundi 7=Dimanche
-  data[, `:=`(start_wday = wday(start_date, week_start = 1),
+  data[, `:=`(start_wday = lubridate::wday(start_date, week_start = 1),
               start_hour = hour(start_date_time))]
   
   data[, weekend_flag := as.integer(start_wday >= 6)]
