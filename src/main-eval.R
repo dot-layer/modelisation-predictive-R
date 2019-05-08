@@ -17,9 +17,7 @@ library(glmnet)
 # Source les fonctions ----------------------------------------------------
 
 source("src/extraction/load-data.R")
-source("src/preprocessing/preprocessing.R")
-source("src/preprocessing/preprocessing_classif.R")
-source("src/preprocessing/preprocessing_regression.R")
+source("src/preprocessing/preprocessing_main.R")
 
 
 # A lancer au debut du server ---------------------------------------------
@@ -39,9 +37,10 @@ data_test <- data_bixi[sample(1:nrow(data_bixi), 1),]
 
 # Preprocessing -----------------------------------------------------------
 
-data_pred <- preprocessing(data_test, train_mode = FALSE, list_objects = init_objects)
-data_pred_regression <- preprocessing_regression(copy(data_pred), train_mode = FALSE, list_objects = init_objects)
-data_pred_classif <- preprocessing_classif(copy(data_pred), train_mode = FALSE, list_objects = init_objects)
+data_pred <- preprocessing_main(copy(data_test), train_mode = FALSE, list_objects = init_objects)
+
+data_pred_regression <- data_pred$data_regression
+data_pred_classif <- data_pred$data_classif
 
 
 # Prediction --------------------------------------------------------------

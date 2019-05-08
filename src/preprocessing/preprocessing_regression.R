@@ -12,7 +12,7 @@ preprocessing_regression <- function(data, train_mode=TRUE, list_objects=NULL) {
     # Enlever les outliers
     valeur_max_outlier <- mean(data$target_duree) + 3 * sd(data$target_duree)
     print(paste(length(which(data$target_duree >= valeur_max_outlier | data$target_duree <= 0)), 
-                "outliers ont été enlevés du jeu de données."))
+                "outliers ont été enlevés du jeu de données de régression."))
     data <- data[which(data$target_duree <= valeur_max_outlier | data$target_duree >= 0)]
     
     # Conserver les variables pertinentes à la modélisation

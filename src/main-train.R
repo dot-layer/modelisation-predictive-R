@@ -24,9 +24,7 @@ library(glmnet)
 # Source les fonctions ----------------------------------------------------
 
 source("src/extraction/load-data.R")
-source("src/preprocessing/preprocessing.R")
-source("src/preprocessing/preprocessing_classif.R")
-source("src/preprocessing/preprocessing_regression.R")
+source("src/preprocessing/preprocessing_main.R")
 
 
 # Output les objets -------------------------------------------------------
@@ -49,27 +47,25 @@ saveRDS(ind_train, paste0(path_objects, "ind_train.rds"))
 
 # Preprocessing -----------------------------------------------------------
 
-preprocessed_objects <- preprocessing(data_bixi[ind_train,], train_mode = TRUE)
-classif_objects <- preprocessing_classif(copy(preprocessed_objects$data_preprocess), train_mode = TRUE)
-regression_objects <- preprocessing_regression(copy(preprocessed_objects$data_preprocess), train_mode = TRUE)
+preprocessed_objects <- preprocessing_main(data_bixi[ind_train,], train_mode = TRUE)
 
 # Saver les objets
 # Objects communs au 2 modeles
 write(jsonlite::toJSON(preprocessed_objects$variables_a_imputer, pretty = TRUE), paste0(path_objects, "valeurs_imputations.json"))
 # Objets du modele classif
-saveRDS(classif_objects$objet_un_chaud, paste0(path_objects, "objet_un_chaud_classif.rds"))
+saveRDS(preprocessed_objects$objet_un_chaud_classif, paste0(path_objects, "objet_un_chaud_classif.rds"))
 # write(jsonlite::toJSON(preprocessed_objects$valeurs_normalisation, pretty = TRUE), paste0(path_objects, "valeurs_normalisation.json"))
-write(jsonlite::toJSON(classif_objects$vars_to_keep, pretty = TRUE), paste0(path_objects, "variables_a_conserver_classif.json"))
+write(jsonlite::toJSON(preprocessed_objects$vars_to_keep_classif, pretty = TRUE), paste0(path_objects, "variables_a_conserver_classif.json"))
 # Objets du modele regression
-write(jsonlite::toJSON(regression_objects$vars_to_keep, pretty = TRUE), paste0(path_objects, "variables_a_conserver_regression.json"))
+write(jsonlite::toJSON(preprocessed_objects$vars_to_keep_regression, pretty = TRUE), paste0(path_objects, "variables_a_conserver_regression.json"))
 
 
 # Setter les tables pour le modeling
-X_classif <- copy(classif_objects$data_preprocess)[, target_meme_station := NULL]
-X_regression <- copy(regression_objects$data_preprocess)[, target_duree := NULL]
+X_classif <- copy(preprocessed_objects$data_classif)[, target_meme_station := NULL]
+X_regression <- copy(preprocessed_objects$data_regression)[, target_duree := NULL]
 
-y_classif <- classif_objects$data_preprocess$target_meme_station
-y_regression <- regression_objects$data_preprocess$target_duree
+y_classif <- preprocessed_objects$data_classif$target_meme_station
+y_regression <- preprocessed_objects$data_regression$target_duree
 
 
 # Modeling ----------------------------------------------------------------
