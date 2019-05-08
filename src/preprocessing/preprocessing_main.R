@@ -25,7 +25,7 @@ preprocessing_main <- function(data, train_mode=TRUE, list_objects=NULL) {
     
     list_output = list(
       variables_a_imputer = preprocessed_objects$variables_a_imputer,
-      objet_un_chaud_classif = classif_objects$objet_un_chaud,
+      objet_un_chaud = preprocessed_objects$objet_un_chaud,
       vars_to_keep_classif = classif_objects$vars_to_keep,
       vars_to_keep_regression = regression_objects$vars_to_keep,
       data_classif = classif_objects$data_preprocess,

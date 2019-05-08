@@ -45,6 +45,14 @@ preprocessing <- function(data, train_mode=TRUE, list_objects=NULL) {
     for (col in names(variables_a_imputer)){
       data[is.na(get(col)), (col) := variables_a_imputer[[eval(col)]]]
     }
+    
+    # One-hot encoding (pour xgboost on doit faire cette transfo)
+    objet_un_chaud <- dummyVars(as.formula("~ start_quartier_group + moment_journee"), data, 
+                                fullRank = TRUE)
+    data <- cbind(
+      predict(objet_un_chaud, data),
+      copy(data)[, (c("start_quartier_group", "moment_journee")) := NULL]
+    )
 
     # Normalisation 
     # variables_a_normaliser <- list()
@@ -61,7 +69,8 @@ preprocessing <- function(data, train_mode=TRUE, list_objects=NULL) {
 
     list(
       data_preprocess = data,
-      variables_a_imputer = variables_a_imputer
+      variables_a_imputer = variables_a_imputer,
+      objet_un_chaud = objet_un_chaud
       # valeurs_normalisation = valeurs_normalisation
     )
     
@@ -72,6 +81,13 @@ preprocessing <- function(data, train_mode=TRUE, list_objects=NULL) {
     for (col in names(variables_a_imputer)){
       data[is.na(get(col)), (col) := variables_a_imputer[[eval(col)]]]
     }
+    
+    # One-hot encoding
+    objet_un_chaud <- list_objects$objet_un_chaud
+    data <- cbind(
+      predict(objet_un_chaud, data),
+      copy(data)[, (c("start_quartier_group", "moment_journee")) := NULL]
+    )
     
     # Normaliser les données
     # valeurs_normalisation <- list_objects$valeurs_normalisation

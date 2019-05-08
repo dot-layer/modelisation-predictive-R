@@ -48,7 +48,7 @@ data_pred_classif <- data_pred$data_classif
 # Penser a avoir un fichier de configs maybe? (threshold, lambda dans glmnet, etc)
 list(
   # Gerer le lambda dans glmnet
-  duree = predict(init_objects$model_glm, as.matrix(data_pred_regression), s = rev(init_objects$model_glm$lambda)[1]),
+  duree = predict(init_objects$model_glm, as.matrix(data_pred_regression), s = "lambda.min"),
   # Gerer le threshold différement
   meme_station = predict(init_objects$model_xgb, as.matrix(data_pred_classif)) > 0.5
 )
