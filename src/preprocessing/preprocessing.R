@@ -45,7 +45,7 @@ preprocessing <- function(data, train_mode=TRUE, list_objects=NULL) {
     for (col in names(variables_a_imputer)){
       data[is.na(get(col)), (col) := variables_a_imputer[[eval(col)]]]
     }
-                       
+
     # Normalisation 
     # variables_a_normaliser <- list()
     # moyennes <- apply(data[, (variables_a_normaliser), with = F], 2, mean)
@@ -58,7 +58,7 @@ preprocessing <- function(data, train_mode=TRUE, list_objects=NULL) {
     #   data[, (x) := (get(x) - valeurs_normalisation$moyennes[[eval(x)]])/valeurs_normalisation$ecarts_types[[eval(x)]]]
     # })[[2]]
     
-    
+
     list(
       data_preprocess = data,
       variables_a_imputer = variables_a_imputer

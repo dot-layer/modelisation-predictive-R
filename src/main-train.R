@@ -43,13 +43,17 @@ data_bixi <- load_data("data/")
 
 # Split data --------------------------------------------------------------
 
-ind_train <- c(caret::createDataPartition(y = data_bixi$start_station_code, times = 1, p = .75, list = FALSE))
-saveRDS(ind_train, paste0(path_objects, "ind_train.rds"))
+# ind_train <- c(caret::createDataPartition(y = data_bixi$start_station_code, times = 1, p = .75, list = FALSE))
+# saveRDS(ind_train, "data/models/ind_train.rds")
+
+ind_test <- sample(nrow(data_bixi), .25*nrow(data_bixi))
+saveRDS(ind_test, paste0(path_objects, "ind_test.rds"))
 
 
 # Preprocessing -----------------------------------------------------------
 
-preprocessed_objects <- preprocessing(data_bixi[ind_train,], train_mode = TRUE)
+preprocessed_objects <- preprocessing(data_bixi[-ind_test,], train_mode = TRUE)
+# preprocessed_objects <- preprocessing(data_bixi[ind_train,], train_mode = TRUE)
 classif_objects <- preprocessing_classif(copy(preprocessed_objects$data_preprocess), train_mode = TRUE)
 regression_objects <- preprocessing_regression(copy(preprocessed_objects$data_preprocess), train_mode = TRUE)
 
@@ -64,6 +68,8 @@ write(jsonlite::toJSON(classif_objects$vars_to_keep, pretty = TRUE), paste0(path
 write(jsonlite::toJSON(regression_objects$vars_to_keep, pretty = TRUE), paste0(path_objects, "variables_a_conserver_regression.json"))
 
 
+# write.fst(X, "data/data_preprocess.fst")
+
 # Setter les tables pour le modeling
 X_classif <- copy(classif_objects$data_preprocess)[, target_meme_station := NULL]
 X_regression <- copy(regression_objects$data_preprocess)[, target_duree := NULL]
@@ -74,10 +80,19 @@ y_regression <- regression_objects$data_preprocess$target_duree
 
 # Modeling ----------------------------------------------------------------
 
-glm_full <- glmnet::glmnet(x = as.matrix(X_regression), y = y_regression, family = "gaussian")
+# La formule pour créer notre régression.
+# Elle ne fait que one-hot encode là, mais on pourrait ajouter des intéractions.
+f <- as.formula(paste("y_regression", " ~ ", paste(names(X_regression), collapse = " + ")))
+sub_sample <- sample(nrow(X_regression),1e+6)
+
+glm_full <- glmnet::cv.glmnet(x = model.matrix(f, X_regression)[sub_sample,-1],
+                              y = y_regression[sub_sample],
+                              family = "gaussian",
+                              nfolds = 5)
 
 ratio <- mean(y_classif == 1)
 xgb_full <- xgboost::xgboost(data = as.matrix(X_classif), weight = (1-ratio)*y_classif + ratio*(1-y_classif), label = y_classif, booster = "gbtree", objective = "binary:logistic", eval.metric = "logloss", nrounds = 15)
+
 
 saveRDS(glm_full, paste0(path_objects, "glm.rds"))
 saveRDS(xgb_full, paste0(path_objects, "xgb.rds"))

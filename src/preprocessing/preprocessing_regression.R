@@ -16,7 +16,7 @@ preprocessing_regression <- function(data, train_mode=TRUE, list_objects=NULL) {
     data <- data[which(data$target_duree <= valeur_max_outlier | data$target_duree >= 0)]
     
     # Conserver les variables pertinentes à la modélisation
-    vars <- c("target_duree", "is_member", "weekend_flag", "moment_journee", "start_station_code", "start_quartier_group")
+    vars <- c("target_duree", "is_member", "weekend_flag", "moment_journee", "start_quartier", "start_quartier_group")
 
     list(
       data_preprocess = data[, ..vars],
