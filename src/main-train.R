@@ -67,15 +67,16 @@ write(jsonlite::toJSON(classif_objects$vars_to_keep, pretty = TRUE), paste0(path
 # Objets du modele regression
 write(jsonlite::toJSON(regression_objects$vars_to_keep, pretty = TRUE), paste0(path_objects, "variables_a_conserver_regression.json"))
 
-
-# write.fst(X, "data/data_preprocess.fst")
-
 # Setter les tables pour le modeling
-X_classif <- copy(classif_objects$data_preprocess)[, target_meme_station := NULL]
-X_regression <- copy(regression_objects$data_preprocess)[, target_duree := NULL]
+X_classif <- copy(classif_objects$data_preprocess)
+X_regression <- copy(regression_objects$data_preprocess)
+# write.fst(X_classif, "data/X_classif.fst")
+# write.fst(X_regression, "data/X_regression.fst")
 
-y_classif <- classif_objects$data_preprocess$target_meme_station
-y_regression <- regression_objects$data_preprocess$target_duree
+# X_classif <- copy(classif_objects$data_preprocess)[, target_meme_station := NULL]
+# X_regression <- copy(regression_objects$data_preprocess)[, target_duree := NULL]
+# y_classif <- classif_objects$data_preprocess$target_meme_station
+# y_regression <- regression_objects$data_preprocess$target_duree
 
 
 # Modeling ----------------------------------------------------------------
