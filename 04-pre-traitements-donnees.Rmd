@@ -14,8 +14,13 @@ library(lubridate)
 library(scales)
 library(ggplot2)
 
-source("src/extraction/load-data.R")
-data_bixi <- load_data("data/")
+source("src/collecte/load-historical-data.R")
+source("src/collecte/load-merging-data.R")
+source("src/collecte/merge-data.R")
+
+historical_data <- load_historical_data("data/")
+merging_data <- load_merging_data("data/")
+data_bixi <- merge_data(historical_data, merging_data$data_stations, merging_data$points_stations)
 ```
 
 ```{r, head_donnees}
@@ -288,7 +293,6 @@ Les fichiers JSON sont généralement faciles à traiter dans plusieurs logiciel
 Pour être en mesure de répliquer l'encodage de données catégoriques, le principal défi est faire l'encodage *un-chaud*. La fonction `dummyVars` du package `caret` permet de réaliser assez facilement ce genre de transformation:
 
 ```{r, eval=FALSE, echo=TRUE}
-library(caret)
 variables_un_chaud <- c("weekend_flag")
 # Il faut transformer les variables à encoder en factor d'abord
 lapply(variables_un_chaud, function(var) data_bixi[, (var) := factor(get(var))])

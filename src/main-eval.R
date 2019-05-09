@@ -16,7 +16,9 @@ library(glmnet)
 
 # Source les fonctions ----------------------------------------------------
 
-source("src/extraction/load-data.R")
+source("src/collecte/load-historical-data.R")
+source("src/collecte/load-merging-data.R")
+source("src/collecte/merge-data.R")
 source("src/preprocessing/preprocessing_main.R")
 
 
@@ -30,9 +32,11 @@ init_objects <- init("data/models/")
 
 # Doit avoir le fichier 'LIMADMIN.shp' dans le repertoire passer en argument
 # a la fonction load_data()
-data_bixi <- load_data("data/")
+sample_data <- load_historical_data("data/")[sample(1:500, 1),]
+data_bixi <- merge_data(sample_data, init_objects$merging_data$data_stations, init_objects$merging_data$points_stations)
+
 # TEST POUR LE MOMENT: ON VA AVOIR LES DONNÉES EN ENTRÉE DANS L'API
-data_test <- data_bixi[sample(1:nrow(data_bixi), 1),]
+data_test <- data_bixi
 
 
 # Preprocessing -----------------------------------------------------------

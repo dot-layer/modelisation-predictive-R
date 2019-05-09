@@ -4,14 +4,12 @@
 preprocessing <- function(data, train_mode=TRUE, list_objects=NULL) {
   
   # Features engineering
-  data[, `:=`(start_quartier = tolower(stri_replace_all_regex(start_quartier, "-| ", "")),
-              end_quartier = tolower(stri_replace_all_regex(end_quartier, "-| ", "")))]
+  data[, `:=`(start_quartier = tolower(stri_replace_all_regex(start_quartier, "-| ", "")))]
   
-  data[, `:=`(start_quartier = factor(gsub("[[:punct:]]", "", iconv(start_quartier, from="UTF-8", to="ASCII//TRANSLIT"))),
-              end_quartier = factor(gsub("[[:punct:]]", "", iconv(end_quartier, from="UTF-8", to="ASCII//TRANSLIT"))))]
+  data[, `:=`(start_quartier = factor(gsub("[[:punct:]]", "", iconv(start_quartier, from="UTF-8", to="ASCII//TRANSLIT"))))]
   
   # week_start: 1=Lundi 7=Dimanche
-  data[, `:=`(start_wday = wday(start_date, week_start = 1),
+  data[, `:=`(start_wday = lubridate::wday(start_date, week_start = 1),
               start_hour = hour(start_date_time))]
   
   data[, weekend_flag := as.integer(start_wday >= 6)]
@@ -28,17 +26,13 @@ preprocessing <- function(data, train_mode=TRUE, list_objects=NULL) {
   data[start_quartier %in% c("ahuntsiccartierville", "villeraysaintmichelparcextension", "mercierhochelagamaisonneuve", "rosemontlapetitepatrie"), start_quartier_group := "nord_est"]
   data[start_quartier %in% c("outremont", "cotedesneigesnotredamedegrace", "westmount", "lesudouest", "verdun", "lasalle"), start_quartier_group := "sud_ouest"]
   data[, start_quartier_group := factor(start_quartier_group)]
-  
-  # Créer des facteurs avec les stations
-  data[, `:=`(start_station_code = factor(start_station_code),
-              end_station_code = factor(end_station_code))]
+
   
   if (train_mode) {
     
     # Calculer les valeurs d'imputation
     variables_a_imputer <- list()
     variables_a_imputer["start_quartier"] <- "autre"
-    variables_a_imputer["end_quartier"] <- "autre"
     variables_a_imputer["start_quartier_group"] <- "autre"
     
     # Imputer les données manquantes
