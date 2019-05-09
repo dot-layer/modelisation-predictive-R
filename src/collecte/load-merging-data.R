@@ -14,18 +14,18 @@ load_merging_data <- function(path_save_data)
   
   # Merger de l'info sur les quartiers
   path_geo <- paste0(path_save_data, "LIMADMIN")
+  extension_list <- c(".shx", ".shp", ".prj", ".dbf")
   
-  if (!file.exists(path_geo)){
-    purrr::walk(c(".shx", ".shp", ".prj", ".dbf"),
+  if (! any(purrr::map_lgl(extension_list, ~ file.exists(paste0(path_geo, .x))))){
+    purrr::walk(extension_list,
                 ~ download.file(url = paste0(AWS_URL, "/LIMADMIN/LIMADMIN", .x),
                                 destfile = paste0(path_geo, .x),
                                 method = "auto",
                                 mode = "wb"))
-    shape_file <- read_sf(dsn=path.expand(paste0(path_geo, ".shp")))
-    write_sf(shape_file, path_geo)
-  } else {
-    shape_file <- read_sf(dsn=path.expand(paste0(path_geo, ".shp")))
+    
   }
+  
+  shape_file <- read_sf(dsn=path.expand(paste0(path_geo, ".shp")))
   
   points_stations <- data.frame(
     x = data_stations$longitude,
