@@ -13,6 +13,7 @@ library(mvtnorm)
 path_objects <- "data/models/"
 ```
 
+
 Nous avons maintenant à notre disposition deux jeux de données (entraînement/test) et nous sommes prêts pour construire le modèle prédictif.
 Évidemment, le choix des variables explicatives reste préliminaire : on peut réaliser, après avoir tenté plusieurs modèles, qu'elles ne sont pas assez informatives pour permettre des prédictions satisfaisantes.
 Il faudra alors considérer d'autres options; transformer nos variables, ou en en collecter de nouvelles.
@@ -78,7 +79,7 @@ Avec la quantité de données à notre disposition pour l'exemple BIXI, il est r
 # X_train <- read.fst("data/X_regression.fst")
 ```
 ```{r, echo=T}
-# Nod données
+# Nos données
 # X_regression
 
 # Enlevons-en masse, on est pas à plaindre
