@@ -8,25 +8,25 @@ library(fst)
 library(glmnet)
 library(xgboost)
 library(mvtnorm)
+library(class)
 
 path_objects <- "data/models/"
 ```
 
-Nous avons maintenant à notre disposition deux jeux de données (entraînement/test) et nous sommes prêts pour construire le modèle prédictif.
-Évidemment, le choix des variables explicatives reste préliminaire : on peut réaliser, après avoir tenté plusieurs modèles, qu'elles ne sont pas assez informatives pour permettre des prédictions satisfaisantes.
-Il faudra alors considérer d'autres options; transformer nos variables, ou en en collecter de nouvelles.
-
-Supposons pour l'instant que notre variable réponse $y$ est quantitative. En introduction du document, nous avons fait l'hypothèse qu'il existe une fonction $f$ connectant nos variables explicatives $\mathbf{x}$ à $y$ de telle sorte que
+En introduction du document, nous avons fait l'hypothèse qu'il existe une fonction $f$ connectant nos variables explicatives $\mathbf{x}$ à $y$ de telle sorte que
 \begin{equation} 
-  \mathbf{y} \approx f(\mathbf{X}). (\#eq:approx)
+  y \approx f(\mathbf{x}). (\#eq:approx)
 \end{equation}
-L'objectif principal, dans ce chapitre, est d'apprendre (ou plutôt d'approximer) la fonction $f$ à l'aide de la théorie de l'apprentissage statistique. Plusieurs éléments sont tirés des livres *An Introduction to Statistical Learning: with Application in R* de Gareth James, Daniela Witten, Trevor Hastie et Robert Tibshirani; *The Elements of Statistical Learning* de Trevor Hastie, Robert Tibshirani et Jerome H. Friedman. L'expression *apprentissage statstique* a été grandement popularisée par ces auteurs, qui donne la définition (traduction libre)
+L'objectif principal, dans ce chapitre, est d'apprendre (ou plutôt d'approximer) la fonction $f$ à l'aide de la théorie de l'apprentissage statistique. Plusieurs éléments sont tirés des livres *An Introduction to Statistical Learning: with Application in R* de Gareth James, Daniela Witten, Trevor Hastie et Robert Tibshirani [@James:2014:ISL:2517747]; *The Elements of Statistical Learning* de Trevor Hastie, Robert Tibshirani et Jerome H. Friedman [@Friedman:2001:ESL]. L'expression *apprentissage statstique* a été grandement popularisée par ces auteurs, qui donne la définition (traduction libre)
 
 >> L'apprentissage statistique fait référence à un ensemble d'outils pour modéliser et comprendre des jeux de données complexes. C'est une sous-discipline récente de la statistique qui se développe en parallèle avec les avancées en informatique et, plus particulièrement, en apprentissage automatique. [@James:2014:ISL:2517747]
 
-Nous supposons que le lecteur possède des connaissances de base en statistique (espérance, variance, etc).
+Après le nettoyage des données du chapitre \@ref(preprop), nous avons à notre disposition des données prêtes pour utilisation avec le modèle de notre choix.
+Évidemment, le choix des variables explicatives reste préliminaire : on peut réaliser, après avoir tenté plusieurs modèles, qu'elles ne sont pas assez informatives pour permettre des prédictions satisfaisantes.
+Il faudra alors considérer d'autres options; transformer nos variables, ou en en collecter de nouvelles.
 
-Les sujets suivants sont traités : l'identification de modèles adéquats; l'estimation de modèles (fonction de perte, compromis biais-variance); la sélection et l'évaluation d'un modèle (validation croisée, erreur de généralisation). 
+En supposant que le lecteur possède des connaissances de base en statistique,
+les sujets suivants sont traités : l'identification de modèles adéquats; l'estimation de modèles (fonction de perte, compromis biais-variance); l'évaluation d'un modèle (validation croisée, erreur de généralisation). 
 
 
 ## Gestion des données {#split}
@@ -55,7 +55,7 @@ $$
   \end{array}
 $$
 **Toutefois** --particulièrement quand les données manquent-- le jeu de validation est "éliminé" et intègré au jeu d'entraînement.
-L'étape de validation (décrite à la Section \@ref(selection)) est effectuée en divisant le jeu d'entraînement en deux à répétition (au lieu d'une seule fois comme avec l'approche classique).
+L'étape de validation (décrite à la Section \@ref(selection)) est alors effectuée en partitionnant le jeu d'entraînement pour créer plusieurs paires $(X_{\rm train},X_{\rm val})$, au lieu d'une seule comme avec l'approche classique.
 
 Selon la situation, on peut effectuer une permutation aléatoire de nos données, pour éviter que notre division du jeu de données ne soit pollué par des effets indésirables de l'ordre de collecte; ou s'assurer de garder un ordre chronologique des jeux de données, pour réellement prédire des données futures avec les jeux de validation et de test.
 
@@ -67,33 +67,36 @@ La différence entre les jeux de données se trouve essentiellement dans ce qu'o
 Dans la première c'est pour comparer des modèles (trouver les hyper-paramètres), la deuxième pour obtenir une estimation non biaisée de l'*erreur de généralisation*.
 Notez qu'on utilise souvent l'*erreur de généralisation*, l'*erreur test* et l'*erreur de validation* interchangeablement.
 
-**En bref** : Ce qui différencie l'erreur d'entraînement est qu'on quantifie la performance de notre modèle à prédire les données même sur lequel il est entraîné.
-Dans ce cas, l'erreur obtenue ne sera pas un bon indicateur de l'erreur de généralisation.
+L'erreur d'entraînement quantifie la performance de notre modèle à prédire les données même sur lequel il a été/est entraîné.
+Dans ce cas, l'erreur obtenue ne sera pas représentative de l'erreur de généralisation.
 Il faut garder en tête que l'objectif est de prédire de **nouvelles** valeurs $y$ à l'aide de **nouvelles** valeurs $\mathbf{x}$; l'*erreur de généralisation* est donc au coeur de nos préoccupations.
+**Ainsi, s'il y a normalisation à faire (voir Section \@ref(preprop)), on normalise le jeu d'entraînement sans utiliser les jeux de validation et de test.**
 
-Avec la quantité de données à notre disposition pour l'exemple BIXI, il est raisonnable de séparer nos données en trois partie.
+Avec la quantité de données à notre disposition pour l'exemple bixi, il est raisonnable de séparer nos données en trois partie.
 À la section \@ref(preprop), nous avions déjà séparé notre jeu en deux (entr/test), sortons un troisième jeu de nos données d'entraînement.
 ```{r, include = F}
-# X_train <- read.fst("data/X_regression.fst")
+X_reg <- read.fst("src/modelisation/X_regression.fst", as.data.table = T)
+y_reg <- readRDS("src/modelisation/y_regression.rds")
 ```
 ```{r, echo=T}
 # Nos données
-# X_regression
+# X_reg
 
-# Enlevons-en masse, on est pas à plaindre
+# Enlevons-en masse, nous ne sommes pas à plaindre
 # Sinon, des problèmes de mémoires pourraient être irritants.
-# ind_val <- sample(nrow(X_regression), nrow(X_regression)/2)
-# X_val <- X_train[ind_val,]
-# X_train <- X_train[-ind_val,]
+ind_val <- sample(nrow(X_reg), nrow(X_reg)/2)
+X_val <- X_reg[ind_val,]
+X_train <- X_reg[-ind_val,]
+y_val <- y_reg[ind_val]
+y_train <- y_reg[-ind_val]
+rm(X_reg)
+rm(y_reg)
 # On s'occupera du test en temps et lieu.
 ```
 Pour automatiser le processus, la fonction `caret::createDataPartition` est une option intéressante.
 
-Encore une fois, notez que **la séparation du jeu de données précède le prétraitement**.
-au sens où s'il y a normalisation à faire (voir Section \@(preprop)), on normalise le jeu d'entraînement sans utiliser les jeux de validation et de test.
 
-
-## Description d'un modèle {#description}
+## Description classique {#description}
 
 <span style="color:fuchsia">**Concepts clefs : régression vs. classification**</span>
 
@@ -136,33 +139,31 @@ L'utilisation d'un modèle $f$ qui ne permet pas de capturer l'essentiel de la r
 Ce qui est en notre pouvoir (du moins, si on exclut la re-collecte de données) concerne la fonction $f$.
 Il est donc important de choisir une famille de modèles appropriée pour le problème qui nous intéresse.
 
-Comme mentionné en introduction du livre(?), on divise généralement les problèmes en deux grandes catégories : la régression et la classification.
-La régression sous-entend une variable réponse continue, *e.g.* la grandeur d'une individue ; la classification sous-entend une variable réponse catégorique (une classe), *e.g.* chat ou chien.
-Avec nos données bixi, nous ferons une régression pour prédire la durée d'un trajet et une classification binaire pour prédire si un utilisateur terminera sa course dans le même arondissement ou non.
-La régression, une régression linéaire, sera effectuée avec la librairie `glmnet`(vignette : [glmnet](https://web.stanford.edu/~hastie/glmnet/glmnet_alpha.html)), est intégrée au texte.
-La classification est effectuée à l'aide de la librairie `xgboost` (vignette : [XGBoost](https://xgboost.readthedocs.io/en/release_0.72/R-package/xgboostPresentation.html)), qui permet de faire du *boosting* d'arbres de décision; elle est reléguée à la fin du chapitre.
-On pourrait argumenter (avec raison) que ces modèles sont peut-être des *overkill* pour leur tâche respective, mais leur présentation en vaut la peine.
-D'autres librairies intéressantes (et nous passons à côté de beaucoup d'autres!) sont `mxnet` (deep learning, on prêche pour la paroisse!), `keras` (deep learning), `randomForest` (*random forests*) et `e1071` (*support vecteur machines*).
 
-Notez que pour classifier des observations/exemples, on modélise généralement la probabilité qu'une observation appartienne à certaine une classe, ce qui revient en quelque sorte à modéliser une variable réponse continue (une fréquence).
-On assigne ensuite l'observation à la classe la plus probable.
-
-
-## Choix d'un modèle {#choix}
+## Familles de modèles {#famille}
 
 Le choix d'une famille de modèles est intimement lié à la tâche qu'on souhaite résoudre et aux données à disposition.
 En se restreignant à une certaine famille, on impose un ensemble de contraintes à la fonction $f$ de l'équation \@ref(eq:equal), ce qui limite le type de relation entre $Y$ et $\mathbf{X}$ qu'il sera possible d'apprendre ; paradoxalement, c'est aussi ce qui permet l'apprentissage.
+On divise généralement les problèmes en deux grandes catégories : la régression et la classification.
+La régression sous-entend une variable réponse continue, *e.g.* la grandeur d'une individue ; la classification sous-entend une variable réponse catégorique (une classe), *e.g.* chat ou chien.
+La différence entre les deux tâches est évidente, mais parfois la ligne peut être mince : par exemple pour classifier des observations/exemples, souvent on modélise la probabilité qu'une observation appartienne à certaine une classe, ce qui revient en quelque sorte à modéliser une variable réponse continue (une fréquence).
+On assigne ensuite l'observation à la classe la plus probable.
+
+
+### Régression
+
 Par exemple, la (populaire) régression linéaire sous-entend une relation linéaire entre la variable réponse et les facteur explicatifs :
 \begin{equation}
   y = \beta_0 + \beta_1 x_1 + \dots + \beta_d x_d + \varepsilon
   (\#eq:reg)
 \end{equation}
 Ici, les paramètres $\mathbf{\beta} = (\beta_0,\dots,\beta_d)$ déterminent comment un changement porté aux variables explicatrices influencera la prédiction.
-Nous utiliserons ce modèle pour prédire la durée station à station d'un trajet en bixi.
 
-La plupart du temps, les modèles plus contraignants sont favorisés lorsque peu d'observations sont disponibles pour prendre avantage d'une structure dans les données qui est connue (ou supposée) *à priori*.
-Certains modèles comme les réseaux de neurones profonds sont reconnus pour être efficaces dans des cas ou la relation entre les variables est très complexe, mais requierent généralement une grande quantité de données.
-Certains modèles plus simples, comme la régression linéaire, sont parfois choisient pour leur meilleure interprétabilité.
+Avec nos données bixi, faisons une régression linéaire pour prédire la durée d'un trajet et une classification binaire pour prédire si un utilisateur terminera sa course dans le même arondissement ou non.
+Nous l'effectuerons avec la librairie `glmnet`(vignette : [glmnet](https://web.stanford.edu/~hastie/glmnet/glmnet_alpha.html)).
+
+
+### Classification
 
 Pour une variable réponse catégorique (disons $K$ classes), la régression de \@ref(eq:reg) n'est pas conseillée.
 On peut toutefois la modifier légèrement pour trouver un modèle de classification très répandu : la régression logistique.
@@ -175,7 +176,23 @@ $$
 $$
 Ce modèle est généralisable pour un problème de classification multi-classes.
 
-Même lorsqu'on se limite à une famille de modèle, il reste à déterminer quelles variables seront incluses.
+En fin de chapitre, un modèle de classification est effectué à l'aide de la librairie `xgboost` (vignette : [XGBoost](https://xgboost.readthedocs.io/en/release_0.72/R-package/xgboostPresentation.html)), qui permet de faire du *boosting* d'arbres de décision.
+Le concept de *boosting* y est brièvement expliqué.
+
+
+### Complexité et disponibilité des données
+
+La plupart du temps, les modèles plus contraignants sont favorisés lorsque peu d'observations sont disponibles pour prendre avantage d'une structure dans les données qui est connue (ou supposée) *à priori*.
+Certains modèles comme les réseaux de neurones profonds sont reconnus pour être efficaces dans des cas ou la relation entre les variables est très complexe, mais requierent généralement une grande quantité de données.
+Certains modèles plus simples, comme la régression linéaire, sont parfois choisient pour leur interprétabilité.
+
+Certains pourraient dire (avec raison) que que les modèles choisis pour la régression et la classification avec nos données bixi sont des *overkill* pour leur tâche respective, mais leur présentation en vaut la peine.
+D'autres librairies intéressantes (et nous passons à côté de beaucoup d'autres!) sont `mxnet` (deep learning, on prêche pour la paroisse!), `keras` (deep learning), `randomForest` (*random forests*) et `e1071` (*support vecteur machines*).
+
+
+### Variables à inclure
+
+Même lorsqu'on se limite à une famille de modèles, il reste à déterminer quelles variables seront incluses.
 L'option simple : toutes les inclure.
 On verra plus tard que ce n'est pas toujours souhaitable, en particulier si certaines d'entre elles ne sont pas pertinentes.
 Des procédures existent pour sélectionner les variables incluses ; nous en verrons à la sous-section \@ref(regularisation).
@@ -185,7 +202,7 @@ Laissons ces considérations de côté pour le moment et concentrons-nous sur l'
 
 ## Estimation d'un modèle {#estimation}
 
-<span style="color:fuchsia">**Concept clef : fonction de perte**</span>
+<span style="color:fuchsia">**Concepts clefs : fonction de perte, `predict`, pénalités ridge et lasso, sur-apprentissage, hyper-paramètre, compromis biais-variance**</span>
 
 Estimer un modèle consiste à déterminer la valeur "optimale" de ses paramètres.
 On cherche donc à minimiser l'erreur d'entraîenement, qu'on quantifie à l'aide d'une fonction de perte $L(y,\hat{y}) = L(y,f(x))$.
@@ -209,54 +226,57 @@ appelé l'estimateur des moindres carrées.
 Plusieurs librairies R permettent l'ajustement de modèles linéaires généralisés.
 La méthode du maximum de vraisemblance, qui coincide avec la méthodes des moindres carrées pour la régression linéaire, est souvent utilisée pour l'estimation des paramètres (voir *e.g.* [@Friedman:2001:ESL] pour plus de détails).
 Nous utilisons ici `glmnet` pour modéliser la durée d'un trajet. 
-Tout d'abord, définissons une formule.
 ```{r, echo=T}
-# rhs <- paste0(names(X_train)[-c(1,2)], collapse=" + ")
-# f <- as.formula(paste("target_duree", rhs, sep=" ~ "))
-# class(f)
-# f
-```
-Cette classe permet par exemple de définir des intéractions avec `:`,
-```
-as.formula(paste(target_d ))
-```
-
-Contentons-nous pour l'instant d'un modèle sans intéractions (voir sous-section \@ref(regularisation)).
-La fonction `model.matrix` permet de créer la matrice $\mathbf{X}$ qu'on doit fournir à la fonction `glmnet`.
-```{r, echo=T}
-# glm00 <- glmnet::glmnet(x = model.matrix(f, data)[,-1], y = as.matrix(data$target_duree,ncol=1), family = "gaussian", standardize = F, lambda=0) # On reviendra sur lambda...
+glm_basic <- glmnet(x = as.matrix(X_train), y = y_train, family = "gaussian", lambda=0) # On reviendra sur lambda...
 ```
 L'option `family` sert à choisir une distribution pour l'erreur irréductible $\varepsilon$.
-Le distribution normale est de loin la plus populaire à ce titre.
+La distribution normale est l'option par défaut.
+Évidemment, on peut toujours ajouter des intéractions entre nos variables (*i.e.* ajouter à notre régression des termes $\beta_{ij} x_i x_j$).
+Par exemple pour faire intéragir les zones de départ et moment de la journées :
+```{r, echo = T}
+cols_moment <- grep(pattern = "moment", names(X_train)) # en numéro de colone
+cols_sqg <- grep(pattern = "start_quartier_group", names(X_train))
 
-Pour une petite idée de la fidélité des prédictions
+cols_pair <- cbind(rep(cols_sqg,length(cols_moment)),
+                   rep(cols_moment,length(cols_sqg)))
+
+new_names <- apply(matrix(names(X_train)[c(cols_pair)], ncol = 2),
+                   1,
+                   paste0, collapse = ":::")
+
+# Nouveau dataset avec les intéractions seulement -- à cbind(X_train,X_new)
+X_new <- X_train
+for(r in 1:nrow(cols_pair)){
+  i <- cols_pair[r,1]
+  j <- cols_pair[r,2]
+  X_new[, (new_names[r]) := X_train[,i,with=F]*X_train[,j,with=F]]
+}
+```
+Tenons-nous en au modèle sans intéractions.
+Pour faire des prédictions avec nos modèles, la fonction `predict` est toute désignée.
+Il faut simplement lui fournir les données explicatives concernées.
+Pour une petite idée de la diversité de nos prédictions par rapport aux réponses :
 ```{r, echo=T, out.width = "50%",fig.align='center'}
-# data[,glm00_pred := predict(object = glm00, newx = model.matrix(f, data)[,-1])]
-# ggplot(data) +
-#   geom_density(aes(x=target_duree), fill="green") +
-#   geom_density(aes(x=glm00_pred), fill="blue", alpha = .5) + theme_minimal()
+y_pred <- predict(object = glm_basic, newx = as.matrix(X_train))
+
+ggplot(data.table(y = c(y_train,y_pred),
+                  type=c(rep("true",length(y_train)), rep("pred",nrow(y_pred)))),
+       aes(x=y, fill=type)) +
+  geom_density(alpha = .5) + theme_minimal()
 ```
 Évidemment, plus de variables explicatives sont nécessaires pour prédire les valeurs extrêmes.
+Aussi, il semble que les grandes valeurs (en réponse) influencent nos prédictions à la hausse.
+Un peu trop peut-être?
 Le modèle fait tout de même des prédictions personnalisées.
 ```{r, echo=T}
-# coef.glmnet(glm00)
+# permet de voir la valeur des paramètres
+coef.glmnet(glm_basic)
 ```
+
+
 
 ### Un mot sur la régularisation {#regularisation}
 
-<span style="color:fuchsia">**Concepts clefs : pénalités ridge et lasso, sur-apprentissage **</span>
-
-Utilisons maintenant des intéractions entre le moment de la journée et les quartiers de départ (que nous avons encodés dans `cols`).
-Pour ce faire, il suffit de coller les nombre des variables qu'on veut faire intéragir avec les deux-points `:` et de les insérer dans notre formule.
-```{r, echo=T}
-
-# grep("moment_journee", names(data), value=T)
-# 
-# rhs <- paste0(rhs, " + ",
-#               paste0("moment_journee:", grep("start_quartier", names(data), value=T), collapse=" + "))
-# f <- as.formula(paste("target_duree", rhs, sep=" ~ "))
-# f
-```
 Lorsque beaucoup de variables explicatives (ou des fonctions de celles-ci) sont considérées simultanément, il est possible qu'un sous-ensemble d'entre elles ne soit pas pertinent pour la tâche à effectuer.
 Plus généralement, lorsqu'un modèle est sur-paramétrisé par rapport à la quantité d'observations disponible, les techniques classiques d'estimation doivent être revues pour éviter le sur-apprentissage (*overfit*).
 Le danger est que le modèle apprenne (en quelque sorte par coeur) le jeu de données d'entraînement, ce qui diminue son pouvoir de généralisation.
@@ -269,7 +289,7 @@ $$
 $$
 Le coefficient $\lambda$ est un *hyper-paramètre* controlant le degré de régularisation que nous souhaitons appliquer.
 La plupart du temps (par choix), la fonction $P$ pénalise davantage les vecteurs $\boldsymbol{\beta}$ avec de grandes valeurs.
-Encore une fois, la norme euclidienne (carrée) qu'on utilise pour la fonction de perte est très populaire. 
+Encore une fois, la norme euclidienne (carrée) qu'on utilise aussi pour la fonction de perte est très populaire. 
 $$
   P(\boldsymbol{\hat\beta}) = ||\boldsymbol{\hat\beta}||_2^2 = \sum_{j=1}^p \hat\beta_j^2.
 $$
@@ -278,9 +298,10 @@ On l'utilise pour atténuer l'impact du bruit (la variance introduite par les va
 Intuitiviment, si certains coeficients $\beta_j$ sont artificiellement gonflés, alors on devrait obtenir une meilleure erreur de généralization lorsque ces derniers sont réduits.
 La librairie `glmnet` permet la régression ridge avec le paramètre `lambda` avec *e.g.*
 ```
-glmnet::glmnet(x = model.matrix(f, data), y = as.matrix(data$target_duree,ncol=1), family = "gaussian", lambda=1)
+glmnet::glmnet(x = as.matrix(X_train), y = y_train, family = "gaussian", lambda=1, alpha = 0) # alpha = 0 est necessaire
 ```
 Pour des raisons computationelles (et de convergence), il n'est toutefois pas conseillé de fournir une valeur unique pour `lambda` à la fonction `glmnet`, mais plutôt un ensemble de valeurs pour chacunes desquelles l'algorithme ajustera un modèle.
+Si aucune valeur n'est fournie, la fonction en choisiera automatiquement 100 (ou moins).
 
 Une deuxième pénalité très populaire est la somme des valeurs absolues des paramètres (la méthode *lasso*) :
 $$
@@ -292,16 +313,17 @@ La fonction `glmnet` applique cette pénalité par défault avec `alpha = 1`.
 En fait, `alpha` permet de pondérer les pénalités *ridge* et *lasso*, et donc d'utiliser les deux à la fois (la technique *elastic net*).
 Notez que `lambda` est encore utilisé avec le *lasso*.
 
-D'une certaine façon, la méthode *lasso* généralise donc une autre méthode bien connue pour déterminer les variables à intégrer au modèle : la régression *step-wise* (*forward/backward selection*).
-Par exemple, avec la *forward selection*, on intègre une à une les variables en commençant par les plus significatives (selon un test statistique choisi).
+D'une certaine façon, la méthode *lasso* généralise donc les méthodes de sélection de variables classique (*step-wise/forward/backward selection*).
+Par exemple, avec la *forward selection*, on commence avec $\beta_0$ seulement et on intègre une à une les variables en commençant par les plus significatives (selon un test statistique choisi).
+\begin{equation}
+  f_1(\mathbf{x}) = \beta0 \quad \rightarrow \quad f_2(\mathbf{x}) = \beta0 + \beta_7 x_7  \quad \rightarrow \dots \quad f_3(\mathbf{x}) = \beta0 + \beta_7 x_7  + \beta_2 x_2   \quad \rightarrow \dots
+\end{equation}
 La *backward selection* est définie similairement, mais en partant du modèle complet et en éliminant des variables non-significatives.
 Finalement, ces dernières peuvent être combinées en une méthode qui, à chaque étape, peut entrer et/ou sortir des variables du modèle.
 Comme le nombre de variables incluses dans le modèle n'est pas directement un paramètre du modèle lui-même, on peut le considérer comme un hyper-paramètre, équivalent au $\lambda$ du *lasso*.
 
 
 ### Les hyper-paramètres et le compromis biais-variance
-
-<span style="color:fuchsia">**Concepts clefs : hyper-paramètre, compromis biais-variance (lolk)**</span>
 
 Pour comprendre pourquoi l'inclusion de toutes les variables n'est pas toujours avantageuse, ou plus généralement la pertinence de la régularisation, il faut s'attarder au concept de *compromis biais-variance*.
 Dans le cas de la régression linéaire, la fonction $f(\cdot| \boldsymbol{\hat\beta})$ estimée dépend des données par l'entremise de $\boldsymbol{\hat\beta}$, c'est donc dire qu'avec un autre jeu de données (provenant de la même distribution) on obtiendrait un modèle différent.
@@ -313,38 +335,38 @@ L'erreur de généralisation au point $\mathbf{x}_0$ est donnée par
 \end{equation}
 Le dernier terme est l'erreur irréductible, sur laquelle (par définition) on n'a pas de contrôle.
 Les deux premiers termes sont le biais (au carré) et la variance de l'estimateur $\hat{f}$ de $f$ (*e.g.* l'estimateur $f(\cdot | \hat\beta)$ de $f(\cdot | \beta)$).
-L'introduction d'une pénalité augmente le biais : certains paramètres se voient réduits injustement.
+L'introduction d'une pénalité augmente le biais : certains paramètres se voient réduits injustement et on s'éloigne de leur vraie valeur.
 Par contre, l'effet sur la variance va dans l'autre sens : les modèles plus pénalisés auront tendance à moins changer lorsqu'entraînés sur de nouvelles données.
 
 Pour illustrer l'idée, considérons des données qui proviennet d'un mélange de deux populations normales avec des moyennes différentes.
 ```{r, echo=T, out.width = "60%", fig.align='center'}
-# train_dummy <- data.table(y = sample(0:1, 50, replace = T))
-# train_dummy[, x1 := rnorm(n=50, mean=y, sd=1/2)]
-# train_dummy[, x2 := x1 + rnorm(n=50, mean=y, sd=1/4)]
-# g <- ggplot(train_dummy, aes(x=x1, y=x2, col=factor(y))) + geom_point(size=2) +
-#   theme_minimal() + labs(col = "classe")
-# g
+train_dummy <- data.table(y = sample(0:1, 50, replace = T))
+train_dummy[, x1 := rnorm(n=50, mean=y, sd=1/2)]
+train_dummy[, x2 := x1 + rnorm(n=50, mean=y, sd=1/4)]
+g <- ggplot(train_dummy, aes(x=x1, y=x2, col=factor(y))) + geom_point(size=2) +
+  theme_minimal() + labs(col = "classe")
+g
 ```
-On peut utiliser ces données pour prédire la classe associée à un nouveau point $x_0$ en fonction des (disons) 3 points $x_j$ dans `data_dummy` les plus près de $x_0$.
+On peut utiliser ces données pour prédire la classe associée à un nouveau point $x_0$ en fonction des (disons) 3 points $x_j$ dans `data_dummy` les plus près de $x_0$. C'est une méthode bien connue qui porte le nom de *k-nn* (*k nearest neighbours*, k plus proches voisins),
 ```{r, echo=T, out.width = "60%", fig.align='center'}
-# test_dummy <- data.table(y = sample(0:1, 100, replace = T))
-# test_dummy[, x1 := rnorm(n=100, mean=y, sd=1/2)]
-# test_dummy[, x2 := x1 + rnorm(n=100, mean=y, sd=1/4)]
-# 
+test_dummy <- data.table(y = sample(0:1, 100, replace = T))
+test_dummy[, x1 := rnorm(n=100, mean=y, sd=1/2)]
+test_dummy[, x2 := x1 + rnorm(n=100, mean=y, sd=1/4)]
+
 # new_y_pred <- class::knn(train = matrix(c(train_dummy$x1,train_dummy$x2),ncol=2),
 #                          test = matrix(c(test_dummy$x1,test_dummy$x2),ncol=2),
 #                          cl = train_dummy$y, # vraie classes du data d'ent.
 #                          k = 3) # nombre de voisins utilisé
-# 
+
 # test_dummy[, pred := new_y_pred]
 # test_dummy[, succes := new_y_pred == y]
 # 
 # g + geom_point(data = test_dummy, aes(x=x1, y=x2, colour=factor(y), shape = factor(succes, labels = c("non","oui"))), size=2) +
-#   scale_shape_manual(values=c(4,0)) + 
+#   scale_shape_manual(values=c(4,0)) +
 #   theme_minimal() + labs(col = "classe", shape = "bonne prédiction")
 ```
-Dans ce cas, `k` est l'hyper-paramètre.
-Comme plusieurs hyper-paramètres, il sert à lisser nos prédictions.
+Ici, `k` est l'hyper-paramètre.
+Comme plusieurs hyper-paramètres, il sert à "lisser" nos prédictions.
 Plus $k$ est grand, plus on aggrège d'information pour faire notre prédiction.
 Par exemple lorsque $k = n$, le nombre d'observations dans le jeu d'entraînement, on obtient toujours la même prédiction (la classe avec le plus de représentants, très embettant quand les classes sont de mêmes tailles).
 Approximons l'erreur de généralisation pour chaque valeur de $k$ au point $x_0 = .75$.
@@ -357,33 +379,25 @@ Notons que $\mathbb{E}[Y|X_1 = .5, X_2 = 1]$ est donné par
 ```
 En générant des données d'entraînement, on peut estimer l'erreur au carré, la variance, et donc l'erreur de généralisation.
 Voici ce que ça donne en fonction de $k$ (2000 répétitions pour chaque valeur de $k$).
-```{r, visible = F}
+```{r, include = FALSE}
 # createMseFig()
-
 ```
 <center>
 ![](static-files/dummy-mse.png){ width=50% }
 </center>
 
-<span style="color:red">**Particularité des hyper-paramètres :**</span> Les hyper-paramètres comme $\alpha$, $\lambda$ et $k$ ne peuvent être estimés de façon traditionnelle.
+**Particularité des hyper-paramètres :** Les hyper-paramètres comme $\alpha$, $\lambda$ et $k$ ne peuvent être estimés de façon traditionnelle.
 On détermine souvent leurs valeurs en faisant une recherche en grille (*grid search*).
-Ceci veut dire que, dans notre cas, nous tenterions plusieurs combinaisons de `alpha` et `lambda` et sélectionneront la *meilleure* paire.
-Puisque que notre objectif ultime est de minimiser l'erreur de généralisation, on utilise sur celle-ci pour comparer les différents modèles.
-
-Avec `glmnet`, l'algorithme détermine les valeurs de `lambda` automatiquement (par défaut 100 valeurs).
-Il ne nous reste donc qu'à s'occuper de `alpha`.
-```{r, echo=T}
-# alpha_seq <- seq(0,1,.25)
-# glm_list <- lapply(alpha_seq, function(alpha){
-#   glmnet(x = model.matrix(f, data)[,-1], y = as.matrix(data$target_duree,ncol=1),
-#                  family = "gaussian", alpha = alpha, standardize = F)
-# })
+Ceci veut dire que, dans notre cas, nous tenterions plusieurs combinaisons de `alpha` et `lambda` pour trouver la *meilleure* paire.
+Fixons `alpha=1` et penchons-nous sur `lambda`.
+```{r, echo = T}
+glms <- glmnet(x = as.matrix(X_train), y = y_train, family = "gaussian")
 ```
-Lorsque `alpha` est positif, les modèles associés aux plus fortes valeur de `lambda` feront usage de moins de variables pour expliquer la réponse; à l'opposé, `lambda = 0` produira un modèle les incluant toutes.
+Puisque que notre objectif ultime est de minimiser l'erreur de généralisation, on utilise sur celle-ci pour comparer les différents modèles : c'est l'étape de validation des modèles.
 
 
 
-## Validation/sélection d'un modèle et son évaluation {#sélection}
+## Sélection du modèle final (validation) et évaluation {#selection}
 
 <span style="color:fuchsia">**Concepts clefs : erreur de généralisation, validation croisée, matrice de confusion, fonction `predict`**</span>
 
@@ -394,34 +408,29 @@ La sélection du modèle finale, ayant comme but de minimiser l'erreur, passe g�
 La méthode la plus simple consiste à utiliser nos données de validation (si disponibles!)
 À moins qu'une autre fonction de perte ne se présente comme naturelle pour le problème en question, on calcule l'erreur de généralisation de la même façon que l'erreur sur le jeu d'entraînement, c'est-à-dire avec la fonction $\boldsymbol{L}$ ; cette fois-ci en utilisant les données de validation.
 
-Notre objet `glm_list` contient $500$ modèles différents, pour chacun d'eux, estimons l'erreur de généralisation.
-L'outil R principal pour cette tâche est la fonction `predict`, qui nous permet de faire des prédictions à partir d'un modèle et de variables explicatrices.
+Notre objet `glms` contient $100$ modèles différents, pour chacun d'eux, estimons l'erreur de généralisation.
+Encore une fois, c'est la fonction `predict` qui nous permet de faire des prédictions à partir d'un modèle et de variables explicatrices.
 Elle peut être utilisée avec plusieurs types de modèles, à chaque fois avec ses particularités.
-À titre d'exemple, utilisons ici -- au lieu de l'erreur quadratique moyenne (*MSE*, $(y - f(x))^2$) -- l'erreur absolue moyenne (*MAE*, $|y - f(x)|$).
+À titre d'exemple, utilisons ici -- au lieu de l'erreur quadratique moyenne (*MSE*, $(y - f(x))^2$) -- l'erreur absolue moyenne (*MAE*, $|y - f(x)|$) pour quantifier la performance de nos modèles.
 ```{r, echo = T}
-# on a une liste, glm_list, contenant 5 objets glmnet : chacun contient 100 modeles!
-# erreur <- sapply(glm_list, function(mods){
-#   colMeans(abs(predict.glmnet(mods, newx = model.matrix(f, data_val)[,-1]) - data_val$target_duree))
-# })
-# 
-# dt <- data.table(alpha = factor(rep(alpha_seq, each = 100)), lambda_id = rep(100:1, times = 5), erreur = c(erreur))
-# 
-# ggplot(dt, aes(x=lambda_id, y=erreur, col=alpha)) + geom_line()
+erreur <- colMeans(abs(predict.glmnet(glms, newx = as.matrix(X_val)) - y_val)) # Avec val!
+
+ggplot(data.table(lambda = glms$lambda, erreur = c(erreur)),
+       aes(x=lambda, y=erreur)) +
+  geom_line()
 ```
 Sans surprise, la régularisation n'est pas particulièrement avantageuse pour notre problème.
-Les raisons principales sont que (1) nous avons amplement de données pour bien estimer chaque paramètres individuellement.
+Une raison plausible est que nous avons amplement de données pour bien estimer chaque paramètres individuellement.
 Choisissons donc la régression non-pénalisée comme modèle final.
-```{r, echo = T}
-# glm_final <- glmnet(x = model.matrix(f, data)[,-1], y = as.matrix(data$target_duree,ncol=1),
-#                  family = "gaussian", lambda = 0, standardize = F)
-# coef(glm_final)
+Pour faire une prédiction avec ce modèle en particulier, on spécifie notre choix de `lambda` avec le paramètre `s`.
 ```
-Nous aurions pu comparer ce modèle avec celui sans intéractions aussi.
+predict.glmnet(glms, newx = as.matrix(X_val[1,]), s = 0)
+```
 
 Un point laisser de côté jusqu'à présent est qu'on peut choisir comme modèle final non pas celui qui minimise l'erreur, mais le modèle le plus simple qui se trouve à une distance raisonnable (en termes d'erreur) du meilleur modèle.
 Pour ce faire, on doit avoir une idée de ce qui est *raisonnable*.
 Plusieurs librairies en R offrent cette possibilité.
-`glmnet` le permet avec la validation croisée, voir la section en question.
+`glmnet` le permet avec la validation croisée, voir la Section \@ref(validation).
 
 
 ### Critères classiques
@@ -441,7 +450,7 @@ Ces méthodes, quoique très simples, reposent en général sur certaines hypoth
 Pour notre application, nous utilisons la validation croisée.
 
 
-### Validation croisée
+### Validation croisée {#validation}
 
 La validation croisée permet d'estimer l'erreur de généralisation à même le jeu de données d'entraînement.
 Pour ce faire, on se crée artificiellement des pairs $(\mathbf{X}_{\rm train},\mathbf{X}_{\rm val})$ est divisant le jeu d'entraîenement $\mathbf{X}$ en (disons) $K = 10$ partie de même taille.
@@ -467,43 +476,53 @@ Pour chaque valeur de $k \in \{1,\dots,10\}$, l'idée est d'entraîner nos modè
 Le but est de prédire, avec ces modèles, les réponses $\mathbf{y}_{\rm train}^{k}$ laissées de côté pour l'entraînement à partir des variables explicatrices $\mathbf{X}^{k}$.
 
 Comme précédemment, utilisons $f(\mathbf{x})$ pour référer au modèle théorique et $f^{(-k)}(\mathbf{x})$ pour les modèles estimés sur $(\mathbf{X}^{-k}|\mathbf{y}^{-k})$.
-L'erreur de généralisation (calculée sur $n(1-K^{-1})$ observations!) de $f(\mathbf{x})$ est estimée par
+L'erreur de généralisation de $f(\mathbf{x})$ est estimée par la moyenne obtenue des erreurs obtenues sur les $K$ *folds* :
 \begin{equation}
   \frac{1}{K} \sum_{k=1}^K \mathbf{L}(f^{(-k)}(\mathbf{x}_i^k), \mathbf{y}^k).
 \end{equation}
 
 L'élément essentiel de la procédure est qu'en aucun cas les observations "à prédire" ne doivent être utilisées pour l'estimation.
-C'est là que l'erreur la plus commune est commise.
+C'est l'erreur la plus commune est commise.
 Les méthodes comme *lasso* et les régressions *step-wise*, en combinant la sélection de variables avec l'estimation, utilisent le jeu de données d'entraînement.
 **L'étape de sélection doit donc faire partie de la routine de validation croisée.**
-Ce n'est donc pas seulement les modèles que nous évaluons, mais la procédure d'estimation.
-Pour notre exemple principal avec la libraire `glmnet`, cela signifie q'on doit donc appliquer la fonction glmnet` à chaque jeu d'entraînement $(\mathbf{X}^{-k}|\mathbf{y}^{-k})$.
-**Subtilité :** Il est difficile de choisir les valeurs de `lambda` à priori -- et laisser la fonction les choisir produira des `lambda` hétérogènes de *fold* en *fold*.
-Heureusement, une fonction existe pour nous éviter ce problème, `cv.glmnet`.
-Pour l'exemple, utilisons seulement $50,000$ observations et `alpha=1`.
-```{r, echo = T, out.width = "60%",fig.align='center'}
-# data_sub <- data[sample(nrow(data), 50000)]
-# fold <- sample(1:10, size = nrow(data_sub), replace=T) # On assigne chaque obs. à un fold.
+Ce n'est donc pas seulement les modèles que nous évaluons, mais les procédures d'estimation.
+Pour notre exemple principal avec la libraire `glmnet`, cela signifie q'on doit donc appliquer la fonction `glmnet` à chaque jeu d'entraînement $(\mathbf{X}^{-k}|\mathbf{y}^{-k})$.
 
-# Pour un alpha donné, on sélectionne le lambda optimal
-# glm0_cv <- cv.glmnet(x = model.matrix(f, data_sub)[,-1],
-#           y = matrix(data_sub$target_duree, ncol=1),
-#           type.measure = "mae", # utilisons l'erreur absolue moyenne
-#           foldid = fold,
-#           alpha = 1)
-# plot(glm0_cv)
+Il peut être difficile de choisir les valeurs à tester.
+Par exemple pour `lambda` dans notre modèle pour bixi, on peut simplement prendre les valeurs présentes dans `glms`.
+Toutefois, il est plus facile d'utiliser la fonction *built-in* de la librairie pour faire la validation croisée en entier : `cv.glmnet`.
+Pour l'exemple, utilisons "seulement" $500,000$ observations et faisons un 5-fold.
+```{r, echo = T, out.width = "60%",fig.align='center'}
+ind_sub <- sample(nrow(X_train), 500000)
+
+X_sub <- X_train[ind_sub,]
+y_sub <- y_train[ind_sub]
+
+glms_cv <- cv.glmnet(x = as.matrix(X_sub),
+                     y = y_sub,
+                     type.measure = "mae", # utilisons l'erreur absolue moyenne
+                     alpha = 1)
+plot(glms_cv)
 ```
 Des intervalles de confiances sont fournies, ce qui permet non seulement d'identifier la valeur de lambda qui minimise l'erreur, mais aussi la plus grande valeur pour laquelle l'erreur se trouve à moins d'un écart-type du minimum.
 Ces valeurs sont indiquées par les traits verticaux et s'obtiennent avec
 ```{r, echo = T}
-# log(glm0_cv$lambda.min)
-# log(glm0_cv$lambda.1se)
+glms_cv$lambda.min
+glms_cv$lambda.1se
 ```
 
-Si on voulait appliquer la procédure pour d'autres valeurs de `alpha` (ce qu'on aurait à faire manuellement), il serait important d'utiliser les même *folds*.
-Sinon les comparaisons perdront de leur signification.
-La fonction `caret::createFolds` peut être utile dans ce cas.
+Si on voulait appliquer la procédure pour d'autres valeurs de `alpha` (ce qu'on aurait à faire manuellement), il serait important d'utiliser les même *folds*, c'est-à-dire de garder la même partition du jeu d'entraînement pour chaque valeur de `alpha`.
+```
+nfolds <- 5
+foldid <- sample(length(y_train), nfolds)
 
+glms_cv <- cv.glmnet(x = as.matrix(X_train),
+                     y = y_train,
+                     type.measure = "mae", # utilisons l'erreur absolue moyenne
+                     lambda = des_valeurs,
+                     alpha = une_valeur,  
+                     foldid = foldid)
+```
 
 ### Évaluation finale
 
@@ -517,60 +536,64 @@ où $x_1,\dots,x_5,\varepsilon \stackrel{\rm iid}{\sim} U(0,1)$. (Les variables 
 Supposons que, pour une raison quelconque, nous puissions seulement utiliser une variable pour faire nos prédictions.
 Les modèles en compétitions (en supposant en plus que nous sachions que les coefficients sont égaux à $1$ dans \@ref(eq:reg-dummy) -- aucune estimation requise!) seraient donc, pour $k=1,\dots,5$,
 \begin{equation}
-  y \approx 5 x_k.
+  f(\mathbf{x}) = x_k + 2.5 = \mathbb{E}[y|x_k].
 \end{equation}
 Évidemment, on doit s'attendre à ce que tous nos modèles soient équivalents.
 Estimons leur erreur de généralisation (sur des données simulées).
 ```{r, echo = T}
-# set.seed(666)
-# X_test <- matrix(runif(10*6), 10, 6)
-# y_test <- rowSums(X)
-# 
-# colSums((y_test - 5*X_test[,-6])^2)
+set.seed(666)
+X_test <- matrix(runif(10*6), 10, 6)
+y_test <- rowSums(X_test)
+
+colMeans(( y_test - (X_test[,-6]+2.5) )^2)
 ```
-Selon nos estimations, le modèle utilisant $x_4$ est clairement meilleur que les autres.
+Selon nos estimations, le modèle utilisant $x_2$ est clairement meilleur que les autres.
 Refaisons le test.
 ```{r, echo = T}
-# set.seed(667)
-# X_test <- matrix(runif(10*6), 10, 6)
-# y_test <- rowSums(X_test)
+set.seed(667)
+X_test <- matrix(runif(10*6), 10, 6)
+y_test <- rowSums(X_test)
 
-# colSums((y_test - 5*X_test[,-6])^2)
+colMeans(( y_test - (X_test[,-6]+2.5) )^2)
 ```
-Maintenant les modèles 2 et 3 semblent bien meilleurs!
+Maintenant, le modèle 4 qui semble bien meilleur!
 Au fond, puisque dans ce cas nous savons que tous les modèles sont équivalent, on peut obtenir une meilleure estimation de l'erreur de généralisation en moyennant celles de chacun des modèles.
 On obtient
 ```{r, echo = T}
-# mean(colSums((y_test - 5*X_test[,-6])^2))
+mean(colMeans(( y_test - (X_test[,-6]+2.5) )^2))
 ```
-qui est vraiment au-dessus de notre estimation.
+qui est vraiment au-dessus de nos estimations pour les meilleurs modèles.
 La morale de ces petits tests est la suivante : si nos modèles sont équivalents, on va nécéssairement sélectionner le modèle qui performe le mieux sur nos données de validation.
 La supériorité du modèle choisit est illusoire et on risque donc de sous-estimer l'erreur de généralisation.
 C'est pourquoi il est plus sage de faire une évaluation finale de notre modèle gagnant après l'étape de sélection.
 
 Avec nos données bixi, on ne devrait pas voir trop de différence toutefois.
 L'étape est très simple :
-```{r, echo = T}
-# data_test[,glm_pred := predict(object = glm_final, newx = model.matrix(f, data_test)[,-1])]
-# data_test[,glm_error := abs(target_duree - glm_pred)]
-# mean(data_test$target_duree)
+```{r, include = F}
+X_test <- read.fst("src/modelisation/X_regression_test.fst", as.data.table = T)
+y_test <- readRDS("src/modelisation/y_regression_test.rds")
 ```
-Ce chiffre nous donne idée de l'erreur moyenne qu'on fera (en secondes) sur la durée d'un trajet lorsqu'on mettra notre modèle en production.
+```{r, echo = T}
+X_test[,glm_pred := predict(object = glms, newx = as.matrix(X_test), s=0)]
+X_test[,glm_error := abs(y_test - glm_pred)]
+mean(X_test$glm_error)/60 # (en minutes)
+```
+Ce chiffre nous donne idée de l'erreur moyenne qu'on fera (en minutes) sur la durée d'un trajet lorsqu'on mettra notre modèle en production.
 
 Pour une analyse plus détaillée, on peut se pencher sur l'erreur par quartier de départ.
 ```{r, echo = T}
-# data_test_long <- melt(data_test, measure.vars = grep("start_q", colnames(data_test)),
-#                                   variable.name = "start_quartier",
-#                                   value.name = "ind_quartier")
-# 
-# data_test_long <- data_test_long[ind_quartier == 1,]
-# data_test_long[,mean(target_duree), .(start_quartier)]
+X_test_long <- melt(X_test, measure.vars = grep("start_quartier", names(X_test)),
+                                  variable.name = "start_quartier",
+                                  value.name = "ind_quartier")
+
+X_test_long <- X_test_long[ind_quartier == 1,]
+
+X_test_long[, mean(glm_error)/60, .(start_quartier)]
 ```
-On voit que c'est très inégal.
+La plus grande variabilité des durées dans les quartiers "autre" se fait ressentir.
 
-
-Pour les modèles de classification, un des outils les plus utiles est la matrice de confusion, qui nous permet de visualiser les différents type d'erreurs que notre modèle fait.
-Elle est présentée dans l'exemple avec `xgboost`
+Pour les modèles de classification binaires, un des outils les plus utiles est la matrice de confusion, qui nous permet de visualiser nos performances par classe (0 et 1).
+On l'utilise dans l'exemple avec `xgboost` qui suit.
 
 
 

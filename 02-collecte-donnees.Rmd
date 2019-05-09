@@ -2,6 +2,7 @@
 # Collecte de données
 
 ``` {r, echo = FALSE}
+library(sf)
 library(magrittr)
 ```
 

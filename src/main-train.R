@@ -56,6 +56,12 @@ saveRDS(ind_test, paste0(path_objects, "ind_test.rds"))
 
 preprocessed_objects <- preprocessing_main(data_bixi[-ind_test,], train_mode = TRUE)
 
+# preprocessed_objects_test <- preprocessing_main(data_bixi[ind_test,], train_mode = TRUE)
+# preprocessed_objects_test$data_regression$target_duree
+# write.fst(X_regression, "src/modelisation/X_regression_test.fst")
+# saveRDS(y_regression, "src/modelisation/y_regression_test.rds")
+
+
 # Saver les objets
 # Objects communs au 2 modeles
 write(jsonlite::toJSON(preprocessed_objects$variables_a_imputer, pretty = TRUE), paste0(path_objects, "valeurs_imputations.json"))
@@ -73,6 +79,11 @@ X_classif <- copy(preprocessed_objects$data_classif)[, target_meme_station := NU
 y_regression <- preprocessed_objects$data_regression$target_duree
 y_classif <- preprocessed_objects$data_classif$target_meme_station
 
+
+# write.fst(X_regression, "src/modelisation/X_regression.fst")
+# write.fst(X_classif, "src/modelisation/X_classif.fst")
+# saveRDS(y_regression, "src/modelisation/y_regression.rds")
+# saveRDS(y_classif, "src/modelisation/y_classif.rds")
 
 # Modeling ----------------------------------------------------------------
 
