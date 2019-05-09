@@ -16,7 +16,7 @@ load_merging_data <- function(path_save_data)
   path_geo <- paste0(path_save_data, "LIMADMIN")
   extension_list <- c(".shx", ".shp", ".prj", ".dbf")
   
-  if (! any(purrr::map_lgl(extension_list, ~ file.exists(paste0(path_geo, .x))))){
+  if (! all(purrr::map_lgl(extension_list, ~ file.exists(paste0(path_geo, .x))))){
     purrr::walk(extension_list,
                 ~ download.file(url = paste0(AWS_URL, "/LIMADMIN/LIMADMIN", .x),
                                 destfile = paste0(path_geo, .x),
