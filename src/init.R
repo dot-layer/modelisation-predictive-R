@@ -24,7 +24,6 @@ init <- function(path_data, path_objects) {
     merging_data = merging_data,
     variables_a_imputer = variables_a_imputer,
     objet_un_chaud = objet_un_chaud,
-    # valeurs_normalisation = valeurs_normalisation,
     vars_to_keep_classif = vars_classif,
     vars_to_keep_regression = vars_regression,
     model_glm = model_glm,
