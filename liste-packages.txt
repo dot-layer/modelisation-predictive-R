@@ -1,0 +1,21 @@
+
+Liste de packages:
+
+- sf
+- data.table
+- lubridate
+- scales
+- ggplot2
+- knitr
+- caret
+- jsonlite
+- glmnet
+- xgboost
+- magrittr
+- dplyr
+- kableExtra
+- tibble
+- rgdal
+- leaflet
+- stringi
+

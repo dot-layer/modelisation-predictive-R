@@ -9,6 +9,13 @@ load_merging_data <- function(path_save_data)
   
   # Merger de l'info sur les quartiers
   path_geo <- paste0(path_save_data, "LIMADMIN.shp")
+  if (!file.exists(path_geo)){
+    url <- "https://s3.ca-central-1.amazonaws.com/jeremiedb/share/dot-layer/R-Quebec/LIMADMIN/LIMADMIN.shp"
+    download.file(url, path_geo)
+    shape_file <- read_sf(dsn=path.expand(path_geo))
+  } else {
+    shape_file <- read_sf(dsn=path.expand(path_geo))
+  }
   shape_file <- read_sf(dsn=path.expand(path_geo))
   
   points_stations <- data.frame(
