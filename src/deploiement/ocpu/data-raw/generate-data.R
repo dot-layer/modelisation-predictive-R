@@ -3,7 +3,8 @@
 
 library(usethis)
 library(xgboost)
-
+library(data.table)
+library(sf)
 
 ########################
 # demo Iris
@@ -26,12 +27,10 @@ model_iris <- xgboost::xgb.train(params = param, data = dtrain, nrounds = 400, w
 ########################
 # Bixi
 ########################
+source("src/collecte/load-merging-data.R")
+source("src/collecte/merge-data.R")
+source("src/preprocessing/preprocessing_main.R")
+source("src/init.R")
+init_objects <- init("data/models/")
 
-# preprocessing
-source("../../preprocessing/preprocessing.R")
-
-# modeles
-model_glm <- readRDS(file = "../../../data/models/glm.rds")
-model_xgb <- readRDS(file = "../../../data/models/xgb.rds")
-
-usethis::use_data(model_iris, iris_levels, preprocessing, model_glm, model_xgb, internal = T, overwrite = T)
+usethis::use_data(model_iris, iris_levels, preprocessing_main, model_glm, model_xgb, internal = T, overwrite = T)
