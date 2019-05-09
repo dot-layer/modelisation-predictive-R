@@ -232,7 +232,6 @@ oneway_map <- leaflet() %>%
     lng = ~longitude,
     lat = ~latitude,
     radius = ~4+rides_nb/3000,
-    #stroke = FALSE,
     color = "black",
     weight = 1,
     fillColor = ~oneway_pal(rides_capped_mean),
