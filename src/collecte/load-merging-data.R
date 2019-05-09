@@ -16,7 +16,6 @@ load_merging_data <- function(path_save_data)
   } else {
     shape_file <- read_sf(dsn=path.expand(path_geo))
   }
-  shape_file <- read_sf(dsn=path.expand(path_geo))
   
   points_stations <- data.frame(
     x = data_stations$longitude,
