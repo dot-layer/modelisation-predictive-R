@@ -3,6 +3,7 @@
 
 ``` {r, echo = FALSE}
 library(magrittr)
+library(sf)
 ```
 
 La collecte de données est le point de départ de la chaîne. Les données étant quelque peu la matière première du produit que nous nous apprêtons à bâtir, plusieurs considérations influenceront leur collecte.
