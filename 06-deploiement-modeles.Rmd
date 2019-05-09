@@ -9,7 +9,6 @@ De par la diversité des cas de consommation des modèles, il n'existe pas de so
 En présence de contraintes importantes sur les précédents facteurs, il peut être préférable d'avoir recours à des langages compilés ou encore plus près du matériel qu'un langage dynamique dynamique tel que R. Il n'en reste pas moins que pour un large éventail de contextes, une capacité de développement rapide combinée à des options de déploiement simples font de R une option intéressante pour le déploiement de modèle. 
 
 
-
 Il existe différentes manières d'y arriver, dépendemment du cas d'utilisation du modèle. 
 
 Ce qu'on chercher à accomplir: 
@@ -172,7 +171,7 @@ curl -X GET --data '{"input":[1.1,2.2,3.3,4]}' "http://localhost:8985/xgbvector"
 ```
 
 ```
-pr <- plumber::plumb("src/deploiement/plumber/pred_bixi.R")
+pr <- plumber::plumb("src/deploiement/plumber/assets/pred_bixi.R")
 pr$run(port = 8985)
 ```
 
@@ -182,16 +181,12 @@ Passer un fichier json en argument.
 curl -X GET --data @src/deploiement/data_test.json "http://localhost:8985/bixidata"
 curl -X GET --data '{"data":[
   {
-    "start_date": "2017-04-17",
-    "start_station_code": 6079,
-    "end_date": "2017-04-17",
-    "end_station_code": 6073,
+    "start_date": "2017-04-15 00:48",
+    "start_station_code": 6114,
+    "end_date": "2017-04-15 01:03",
+    "end_station_code": 6114,
     "duration_sec": 298,
-    "is_member": 1,
-    "start_date_time": "2017-04-17 18:03:00",
-    "end_date_time": "2017-04-17 18:08:00",
-    "start_quartier": "Le Plateau-Mont-Royal",
-    "end_quartier": "Ville-Marie"
+    "is_member": 1
   }
 ]}' "http://localhost:8985/bixidata"
 
@@ -202,11 +197,7 @@ curl -X GET --data '{"data":[
     "end_date": "2017-04-17",
     "end_station_code": 6073,
     "duration_sec": 298,
-    "is_member": 1,
-    "start_date_time": "2017-04-17 18:03:00",
-    "end_date_time": "2017-04-17 18:08:00",
-    "start_quartier": "Le Plateau-Mont-Royal",
-    "end_quartier": "Ville-Marie"
+    "is_member": 1
   }
 ]}' "35.203.20.124:8080/bixidata"
 ```

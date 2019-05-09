@@ -1,0 +1,20 @@
+Package: model.ocpu
+Title: What the Package Does (One Line, Title Case)
+Version: 0.1.0
+Authors@R: 
+    person(given = "First",
+           family = "Last",
+           role = c("aut", "cre"),
+           email = "first.last@example.com")
+Description: What the package does (one paragraph).
+License: What license it uses
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+Imports: 
+  xgboost (>= 0.82),
+  data.table (>= 1.12.0),
+  magrittr (>= 1.5),
+  stringi (>= 0.5.2),
+  sf (>= 0.5.2),
+  caret (>= 6.0)
