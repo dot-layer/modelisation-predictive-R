@@ -8,6 +8,8 @@
 
 init <- function(path) {
   
+  merging_data <- load_merging_data("data/")
+  
   variables_a_imputer <- jsonlite::fromJSON(paste0(path, "valeurs_imputations.json"))
   objet_un_chaud <- readRDS(paste0(path, "objet_un_chaud.rds"))
   # valeurs_normalisation <- jsonlite::fromJSON(paste0(path, "valeurs_normalisation.json"))
@@ -18,6 +20,7 @@ init <- function(path) {
   model_xgb <- readRDS(file = paste0(path, "xgb.rds"))
   
   list(
+    merging_data = merging_data,
     variables_a_imputer = variables_a_imputer,
     objet_un_chaud = objet_un_chaud,
     # valeurs_normalisation = valeurs_normalisation,
