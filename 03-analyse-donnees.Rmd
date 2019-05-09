@@ -98,13 +98,20 @@ data_stations_rides <- data[, .(
   start_quartier = NULL
 )]
 
+# Limiter moyenne des temps de trajet
+limits <- c(650, 1150)
+data_stations_rides[, capped_mean:=mean]
+data_stations_rides[mean<limits[1], capped_mean:=limits[1]]
+data_stations_rides[mean>limits[2], capped_mean:=limits[2]]
+
 # Agréger sommaire par station
 setkey(data_stations_rides, code)
 setkey(data_stations, code)
 data_stations[data_stations_rides, `:=`(
   quartier = quartier,
   rides_nb = nb,
-  rides_mean = mean
+  rides_mean = mean,
+  rides_capped_mean = capped_mean
 )]
 
 # Sommaire par quartier
@@ -116,7 +123,6 @@ data_quartiers_rides <- data_stations[!is.na(quartier), .(
 ), quartier][, quartier:=NULL]
 
 # Limiter moyenne des temps de trajet
-limits <- c(700, 1000)
 data_quartiers_rides[, rides_capped_mean:=rides_mean]
 data_quartiers_rides[rides_mean<limits[1], rides_capped_mean:=limits[1]]
 data_quartiers_rides[rides_mean>limits[2], rides_capped_mean:=limits[2]]
@@ -130,7 +136,8 @@ setkey(data_quartiers@data, NOM)
 data_quartiers@data[data_quartiers_rides, `:=`(
   stations_nb = stations_nb,
   rides_nb = rides_nb,
-  rides_mean = rides_mean
+  rides_mean = rides_mean,
+  rides_capped_mean = rides_capped_mean
 )]
 setorder(data_quartiers@data, ID)[, ID:=NULL]
 
@@ -156,7 +163,6 @@ exposure_map <- leaflet() %>%
     popup = ~paste(
       paste0("<b>", name, "</b>"),
       paste0("Nombre de trajets : ", format(rides_nb, big.mark=" ")),
-      #paste0("Durée moyenne : ", format(rides_mean, digits=0, big.mark=" "), " sec"),
       sep = "<br/>"
     ),
     label = ~name
@@ -167,35 +173,41 @@ exposure_map <- leaflet() %>%
     color = "black",
     weight = 2,
     fillColor = ~categorical_pal(NOM),
-    #fillOpacity = 0.5,
+    fillOpacity = 0.35,
     dashArray = "2 4",
     popup = ~paste(
       paste0("<b>", NOM, "</b>"),
       paste0("Nombre de stations : ", format(stations_nb, big.mark=" ")),
       paste0("Nombre de trajets : ", format(rides_nb, big.mark=" ")),
-      #paste0("Durée moyenne : ", format(rides_mean, digits=0, big.mark=" "), " sec"),
       sep = "<br/>"
     ),
     highlightOptions = highlightOptions(
       weight = 3,
       opacity = 1,
-      dashArray = FALSE,
-      bringToFront = TRUE
+      dashArray = FALSE
     )
   ) %>%
-  # addLegend(
-  #   data = data_quartiers@data[!is.na(stations_nb)],
-  #   position = "bottomright",
-  #   pal = categorical_pal,
-  #   values = ~NOM,
-  #   opacity = 1,
-  #   title = "Quartiers",
-  #   group = "Quartiers"
-  # ) %>%
+  addLegend(
+    data = data_quartiers@data[!is.na(stations_nb)],
+    position = "bottomright",
+    pal = categorical_pal,
+    values = ~NOM,
+    opacity = 1,
+    labFormat = labelFormat(
+      transform = function(values){lapply(values, function(value){
+        data_quartiers@data[NOM==value, as.character(ABREV)]
+      })}
+    ),
+    title = "Quartiers",
+    group = "Quartiers"
+  ) %>%
   addLayersControl(
     overlayGroups = c("Stations", "Quartiers"),
-    options = layersControlOptions(collapsed = FALSE)
-  )
+    options = layersControlOptions(
+      collapsed = FALSE
+    )
+  ) %>%
+  hideGroup("Quartiers")
 
 # Affichage de la carte
 exposure_map
@@ -205,10 +217,77 @@ exposure_map
 
 ```{r, spatial_one_way}
 
+# Création de la palette de couleur pour les one way
+oneway_pal <- colorNumeric(
+  palette = "YlGnBu",
+  domain = limits
+)
 
+# Création de la carte
+oneway_map <- leaflet() %>%
+  addTiles() %>%
+  addCircleMarkers(
+    data = data_stations,
+    group = "Stations",
+    lng = ~longitude,
+    lat = ~latitude,
+    radius = ~4+rides_nb/3000,
+    #stroke = FALSE,
+    color = "black",
+    weight = 1,
+    fillColor = ~oneway_pal(rides_capped_mean),
+    fillOpacity = 0.5,
+    popup = ~paste(
+      paste0("<b>", name, "</b>"),
+      paste0("Nombre de trajets : ", format(rides_nb, big.mark=" ")),
+      paste0("Durée moyenne : ", format(rides_mean, digits=0, big.mark=" "), " sec"),
+      sep = "<br/>"
+    ),
+    label = ~name
+  ) %>%
+  addPolygons(
+    data = data_quartiers,
+    group = "Quartiers",
+    color = "black",
+    weight = 2,
+    fillColor = ~oneway_pal(rides_capped_mean),
+    fillOpacity = 0.5,
+    dashArray = "2 4",
+    popup = ~paste(
+      paste0("<b>", NOM, "</b>"),
+      paste0("Nombre de stations : ", format(stations_nb, big.mark=" ")),
+      paste0("Nombre de trajets : ", format(rides_nb, big.mark=" ")),
+      paste0("Durée moyenne : ", format(rides_mean, digits=0, big.mark=" "), " sec"),
+      sep = "<br/>"
+    ),
+    highlightOptions = highlightOptions(
+      weight = 3,
+      opacity = 1,
+      dashArray = FALSE
+    )
+  ) %>%
+  addLegend(
+    data = data_stations,
+    position = "bottomright",
+    pal = oneway_pal,
+    values = ~rides_capped_mean,
+    opacity = 1,
+    labFormat = labelFormat(
+      suffix = " sec",
+      big.mark = " "
+    ),
+    title = "Durée moyenne"
+  ) %>%
+  addLayersControl(
+    overlayGroups = c("Stations", "Quartiers"),
+    options = layersControlOptions(
+      collapsed = FALSE
+    )
+  ) %>%
+  hideGroup("Quartiers")
 
-
-
+# Affichage de la carte
+oneway_map
 ```
 
 
