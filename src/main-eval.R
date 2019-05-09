@@ -17,7 +17,6 @@ library(glmnet)
 # Source les fonctions ----------------------------------------------------
 
 source("src/collecte/load-historical-data.R")
-source("src/collecte/load-merging-data.R")
 source("src/collecte/merge-data.R")
 source("src/preprocessing/preprocessing_main.R")
 
@@ -25,7 +24,7 @@ source("src/preprocessing/preprocessing_main.R")
 # A lancer au debut du server ---------------------------------------------
 
 source("src/init.R")
-init_objects <- init("data/models/")
+init_objects <- init(path_data = "data/", path_objects = "data/models/")
 
 
 # Importer les données ----------------------------------------------------
