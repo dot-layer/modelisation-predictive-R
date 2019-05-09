@@ -6,6 +6,10 @@ preprocessing_classif <- function(data, train_mode=TRUE, list_objects=NULL) {
   
   if (train_mode) {
     
+    # Créer des facteurs avec les stations
+    data[, `:=`(start_station_code = factor(start_station_code),
+                end_station_code = factor(end_station_code))]
+    
     # On crée la variable réponse
     data[, target_meme_station := as.integer(start_station_code == end_station_code)]
     

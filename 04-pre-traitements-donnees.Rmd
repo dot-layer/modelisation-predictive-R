@@ -14,9 +14,9 @@ library(lubridate)
 library(scales)
 library(ggplot2)
 
-source("src/extraction/load-historical-data.R")
-source("src/extraction/load-merging-data.R")
-source("src/extraction/merge-data.R")
+source("src/collecte/load-historical-data.R")
+source("src/collecte/load-merging-data.R")
+source("src/collecte/merge-data.R")
 
 historical_data <- load_historical_data("data/")
 merging_data <- load_merging_data("data/")
