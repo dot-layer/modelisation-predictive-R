@@ -11,15 +11,18 @@
 #' @importFrom data.table rbindlist
 #' @importFrom data.table setkey
 #' @importFrom data.table setkeyv
+#' @importFrom data.table copy
 #' @importFrom data.table setnames
+#' @importFrom lubridate wday
+#' @importFrom lubridate hour
 #' @importFrom magrittr %>%
 #' @importFrom stringi stri_replace_all_regex
 #'
 #' @export
-bixikwargs <- function(start_date, start_station_code, end_date, end_station_code, duration_sec, is_member) {
+bixikwargs <- function(start_date, start_station_code, is_member) {
 
   # arranger en un data.table
-  dt_pred <- data.table(start_date, start_station_code, end_date, end_station_code, duration_sec, is_member)
+  dt_pred <- data.table(start_date, start_station_code, is_member)
 
   dt_pred <- merge_data(dt_pred, init_objects$merging_data$data_stations, init_objects$merging_data$points_stations)
   data_pred <- preprocessing_main(copy(dt_pred), train_mode = FALSE, list_objects = init_objects)

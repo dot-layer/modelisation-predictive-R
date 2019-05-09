@@ -59,17 +59,12 @@ RUN R -e "install.packages(c('glmnet'), repos='http://cran.rstudio.com/')"
 EXPOSE 8080
 
 # RUN mkdir dotlayer
-COPY plumber /dotlayer
+COPY assets /dotlayer
 
 WORKDIR /dotlayer
 
 RUN ls
 
 ENTRYPOINT ["R", "-e", "pr <- plumber::plumb('/dotlayer/pred_bixi.R'); pr$run(host='0.0.0.0', port=8080)"]
-
-#docker run --rm -p 8000:8000 trestletech/plumber \
-#  /usr/local/lib/R/site-library/plumber/examples/04-mean-sum/plumber.R
- 
-# ENTRYPOINT ["R", "-e", "pr <- plumber::plumb('/usr/local/lib/R/site-library/plumber/examples/04-mean-sum/plumber.R'); pr$run(host='0.0.0.0', port=8080)"]
-# CMD ["/usr/local/lib/R/site-library/plumber/examples/04-mean-sum/plumber.R"]
+ # CMD ["/usr/local/lib/R/site-library/plumber/examples/04-mean-sum/plumber.R"]
 

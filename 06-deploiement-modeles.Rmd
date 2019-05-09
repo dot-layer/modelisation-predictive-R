@@ -122,13 +122,36 @@ pred_xgboost_vector <- function(input = c(0,0,0,0)) {
 }
 ```
 
+### Appels à l'API
+
+```
+curl http://localhost:80/ocpu/library/model.ocpu/R/salut/json -d ""
+```
+
+```
+curl http://localhost:80/ocpu/library/model.ocpu/R/bixikwargs/json -d "start_date='2017-04-15 00:48'&start_station_code=6079&is_member=1"
+```
+
  - Ajouter des fonctions et dépendances
  
  - Déploiement sur server
 
  - Intégration avec webhook
  
- - Déploiement sur Docker
+
+### Déploiement sur Docker
+
+Construire une image. Requiert un fichier Dockerfile. 
+
+```
+docker build ./src/deploiement/ocpu/ -t jeremiedb/dot-layer:ocpu
+```
+
+Lancer une image. 
+
+```
+docker run --rm -p 8080:8080 jeremiedb/dot-layer:ocpu
+```
 
 
 ## Plumber
@@ -182,58 +205,38 @@ curl -X GET --data @src/deploiement/data_test.json "http://localhost:8985/bixida
 curl -X GET --data '{"data":[
   {
     "start_date": "2017-04-15 00:48",
-    "start_station_code": 6114,
-    "end_date": "2017-04-15 01:03",
-    "end_station_code": 6114,
-    "duration_sec": 298,
+    "start_station_code": 6079,
     "is_member": 1
   }
 ]}' "http://localhost:8985/bixidata"
 
 curl -X GET --data '{"data":[
   {
-    "start_date": "2017-04-17",
+    "start_date": "2017-04-15 00:48",
     "start_station_code": 6079,
-    "end_date": "2017-04-17",
-    "end_station_code": 6073,
-    "duration_sec": 298,
     "is_member": 1
   }
-]}' "35.203.20.124:8080/bixidata"
+]}' "35.203.105.200:8080/bixidata"
 ```
 
-Passer les paramètres indimiduellement.
+Passer les paramètres individuellement: 
 
 ```
 curl -X GET --data @src/deploiement/data_test_elements.json "35.203.20.124:8080/bixikwargs"
 curl -X GET --data @src/deploiement/data_test_elements.json "http://localhost:8080/bixikwargs"
 
 curl -X GET --data '{
-    "start_date": "2017-04-17",
+    "start_date": "2017-04-15 00:48",
     "start_station_code": 6079,
-    "end_date": "2017-04-17",
-    "end_station_code": 6073,
-    "duration_sec": 298,
-    "is_member": 1,
-    "start_date_time": "2017-04-17 18:03:00",
-    "end_date_time": "2017-04-17 18:08:00",
-    "start_quartier": "Le Plateau-Mont-Royal",
-    "end_quartier": "Ville-Marie"
+    "is_member": 1
   }' "http://localhost:8985/bixikwargs"
-  
+
   
 curl -X GET --data '{
-    "start_date": "2017-04-17",
+    "start_date": "2017-04-15 00:48",
     "start_station_code": 6079,
-    "end_date": "2017-04-17",
-    "end_station_code": 6073,
-    "duration_sec": 298,
-    "is_member": 1,
-    "start_date_time": "2017-04-17 18:03:00",
-    "end_date_time": "2017-04-17 18:08:00",
-    "start_quartier": "Le Plateau-Mont-Royal",
-    "end_quartier": "Ville-Marie"
-  }' "35.203.20.124:8080/bixikwargs"
+    "is_member": 1
+  }' "35.203.105.200:8080/bixikwargs"
 ```
 
 
@@ -248,12 +251,11 @@ La commande `-X` est utilisée pour forcer le remplacement des instructions par 
 Construire une image. Requiert un fichier Dockerfile. 
 
 ```
-docker build ./plumber/ -t jeremiedb/dot-layer:plumber
+docker build ./src/deploiement/plumber/ -t jeremiedb/dot-layer:plumber
 ```
-
 
 Lancer une image. 
 
 ```
-docker run --rm -p 8080:8080 -v D:\Github\modelisation-predictive-R\src\deploiement\plumber\:/dotlayer jeremiedb/dot-layer:plumber
+docker run --rm -p 8080:8080 jeremiedb/dot-layer:plumber
 ```

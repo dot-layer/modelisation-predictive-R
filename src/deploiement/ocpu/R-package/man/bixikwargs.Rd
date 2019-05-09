@@ -4,8 +4,7 @@
 \alias{bixikwargs}
 \title{Classification from individually specified features}
 \usage{
-bixikwargs(start_date, start_station_code, end_date, end_station_code,
-  duration_sec, is_member)
+bixikwargs(start_date, start_station_code, is_member)
 }
 \description{
 Classification from individually specified features

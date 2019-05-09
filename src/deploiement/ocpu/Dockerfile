@@ -77,11 +77,15 @@ RUN ln -sf /proc/self/fd/1 /var/log/apache2/access.log && \
 # Set opencpu password so that we can login
 RUN echo "opencpu:opencpu" | chpasswd
 
-# Custom server.conf for pre-loading specific packages in ocpu
-#COPY server.conf /etc/opencpu/server.conf
-
 # R packages
-RUN R -e "install.packages(c('plotly', 'aws.s3'), repos='http://cran.rstudio.com/')"
+RUN R -e "install.packages(c('plotly', 'aws.s3', 'caret', 'glmnet'), repos='http://cran.rstudio.com/')"
+
+# model.ocpu package
+COPY R-package /R-package
+RUN R CMD INSTALL /R-package
+
+# Custom server.conf for pre-loading specific packages in ocpu
+COPY server.conf /etc/opencpu/server.conf
 
 EXPOSE 80
 EXPOSE 443
@@ -89,4 +93,6 @@ EXPOSE 8004
 EXPOSE 8787
 
 # Start non-daemonized webserver
-CMD /usr/lib/rstudio-server/bin/rserver && apachectl -DFOREGROUND
+CMD service cron start && apachectl -DFOREGROUND
+#CMD service cron start && a2ensite opencpu && apachectl restart && apachectl -DFOREGROUND
+#CMD /usr/lib/rstudio-server/bin/rserver && apachectl -DFOREGROUND
