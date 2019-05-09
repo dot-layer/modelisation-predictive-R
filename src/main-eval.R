@@ -17,6 +17,7 @@ library(glmnet)
 # Source les fonctions ----------------------------------------------------
 
 source("src/collecte/load-historical-data.R")
+source("src/collecte/load-merging-data.R")
 source("src/collecte/merge-data.R")
 source("src/preprocessing/preprocessing_main.R")
 

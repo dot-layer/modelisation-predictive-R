@@ -3,9 +3,7 @@
 #' Fonction qui permet l'initialisation de l'env pour l'inférence
 #' Cette fonction recoit en argument un path pour loader les différents objets/tables
 #' 
-#' 
-
-source("src/collecte/load-merging-data.R")
+#'
 
 
 init <- function(path_data, path_objects) {
