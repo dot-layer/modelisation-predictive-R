@@ -5,17 +5,84 @@
 library(magrittr)
 ```
 
-La collecte de données est le point de départ de la chaîne. Les données étant quelque peu la matière première du produit que nous nous apprêtons à bâtir, plusieurs considérations influenceront leur collecte.
+L'étape initiale de tout projet de modélisation prédictive est la collecte des données. Sans données, le modèle apprendra... rien!
 
-Les premières considérations qui viennent à l'esprit dans le cas des matières premières sont évidemment la quantité, la qualité et le prix. Toutefois, d'autres facteurs influencent le choix de matière première comme la provenance, le processus de récolte ou de transformation, la constance de l'approvisionnement, l'entreposage et la sécurité.
+Cette section sera découpée comme suit :
 
-Les mêmes considérations peuvent s'appliquer dans notre contexte. La section suivante aura donc pour objectif d'aborder ces considérations, tout en exposant à celles-ci une liste de données potentielles pour l'atelier.
+1. Description de l'approche pour la collecte
+2. Liste potentielle de sources de données pour la tâche à accomplir
+3. Considérations
+
+## Description de l'approche pour la collecte
+
+Les étapes sont : obtenir les données étiquettées, obtenir les données de [*jointure*](https://fr.wikipedia.org/wiki/Jointure_(informatique)) (traduction libre) et effectuer la jointure. Nous verrons également que la collecte se produit souvent différemment lors de la modélisation et lors de la prédiction en production.
+
+### Obtenir les données étiquettées
+
+Pour chaque observation, les données étiquettées contiennent au minimum l'étiquette, aussi appelée variable réponse. Autrement dit, c'est la valeur que nous voulons prédire. Dans notre cas, une observation sera un trajet. Pour chaque observation, nous devrons avoir 2 étiquettes : la durée du trajet et le statut de membre du client. Sans information supplémentaire pour chacune des observations, nous serions en présence d'un simple échantillon aléatoire grâce auquel nous pourrions simplement prédire un estimateur comme la moyenne ou le mode pour tous les trajets. C'est pourquoi nous nécessiterons également au moins une information supplémentaire nous permettant de segmenter nos prédictions d'une observation à l'autre. Nous appellerons ces informations supplémentaires les prédicteurs. Par exemple, le jour et l'heure de départ pourraient nous donner de l'information prédictive sur la durée du trajet et sur le statut de membre du client. Voici de quoi pourrait avoir l'air notre jeu de données étiquettées :
+
+```{r, echo = FALSE}
+etiquettees <- tibble::data_frame(temps_depart = c("2017-05-07 17:00:02", "2017-05-29 18:50:11", "2017-10-12 22:56:46"),
+                                  `duree_trajet (sec)` = c(25*60 + 5, 2*60, 11 * 60 + 47))
+
+etiquettees %>% 
+  knitr::kable()
+```
+
+
+### Obtenir les données de *jointure*.
+
+Après avoir trouvé nos données étiquettées contenant les étiquettes et les prédicteurs, nous sommes rarement satisfaits de la quantité de prédicteurs que nous pouvons y trouver. En effet, il arrive souvent dans les premiers instants d'un projet de prononcer une phrase du genre : "Imaginez si nous avions accès au prédicteur XYZ, qui malheureusement est absent des données étiquettées". Nous pouvons alors augmenter le jeu de données à l'aide de ce que nous appellerons les données de *jointure*. Nous les appellerons ainsi car nous devrons effectuer une opération de jointure entre notre jeu de données étiquettées et notre source de données additionnelle. Par exemple, si nous reprenons les données étiquettées précédentes, une source de données de jointure pourrait par exemple nous renseigner sur les heures de lever et de coucher du soleil pour chaque journée. En supposant que la noirceur décourage les cyclistes, cela pourrait aider à prédire la durée du trajet :
+
+```{r, echo = FALSE}
+jointure <- tibble::data_frame(date = c("2017-05-07", "2017-05-29", "2017-10-12"),
+                               `heure lever` = c("06:35:00", "06:00:00", "07:30:00"),
+                               `heure coucher` = c("20:10:00", "20:45:00", "17:55:00"))
+jointure %>% 
+  knitr::kable()
+```
+
+### Effectuer la *jointure*
+
+Nous devrons ensuite effectuer une jointure à partir des informations présentes dans le(s) jeu(x) de données de *jointure* et dans le jeu de données étiquettées. Dans notre cas, la vie est belle : on joindrait les variables lever et coucher à l'aide de la date présente dans nos 2 jeux de données :
+
+```{r}
+
+etiquettees %>% 
+    dplyr::mutate(date = stringr::str_extract(temps_depart, "\\d{4}-\\d{2}-\\d{2}")) %>% 
+    dplyr::left_join(jointure, by = "date")
+
+```
+
+Par contre, dans la *vraie* vie, les opérations de jointure peuvent parfois s'avérer périlleuses. En effet, les informations de part et d'autres peuvent être manquantes ou insuffisantes, de sorte que la jointure sera effectuée avec un faible niveau de confiance dans sa qualité. Par exemple, si nos données de *jointure* avaient plutôt eu l'allure suivante, nos nouveaux prédicteurs auraient un pouvoir prédictif plus faible :
+
+```{r}
+jointure <- tibble::data_frame(mois = c("2017-05", "2017-10"),
+                               `heure lever moyenne` = c("06:17:00", "07:25:00"),
+                               `heure coucher moyenne` = c("20:27:00", "17:50:00"))
+jointure %>% 
+  knitr::kable()
+```
+
+```{r}
+etiquettees %>% 
+    dplyr::mutate(mois = stringr::str_extract(temps_depart, "\\d{4}-\\d{2}")) %>% 
+    dplyr::left_join(jointure, by = "mois")
+```
+
+
+### Collecte historique vs. collecte en production
+
+Dans les projets de modélisation prédictive, il existe généralement un fossé entre la modélisation, qui nécessite une collecte de données historiques, et la prédiction en production, qui nécessite une collecte de données en temps réel. Selon la configuration des systèmes en place et la nature de la problématique, le fossé peut être microscopique, et passer inaperçu, ou astronomique, et poser de sérieux ennuis pouvant même compromettre la faisabilité du projet. En effet, les natures différentes de ces 2 contextes peuvent parfois être irréconciliables : l'entraînement de modèles sur des données historiques exige un entreposage adéquat des données, mais les données historiques ont rarement été collectées dans l'optique de servire à entraîner des modèles. Il faudra donc distinguer la collecte des données selon si elle est faite dans l'optique de modélisation ou de prédiction.
+
 
 ## Liste des données potentielles pour notre atelier
 
-La première étape d'un déploiement de modèle prédictif est de dresser la liste des sources de données potentielles.
+Dans le but d'identifier les données étiquettées et de *jointure*, dressons d'abord une liste des données disponibles et potentiellement utiles.
 
-Les plus expérimentés auront déjà en tête la majorité des considérations couvertes dans ce chapitre au moment de dresser leur liste. Dans notre cas, permettons-nous de lister naïvement un grand nombre de sources. Chaque considération à venir nous permettra de distiller notre sélection.
+Les plus expérimentés auront déjà en tête la majorité des considérations couvertes plus tard dans ce chapitre au moment de dresser leur liste. Dans notre cas, permettons-nous de lister naïvement un grand nombre de sources. Chaque considération à venir nous permettra ensuite d'invalider certaines sources et de distiller notre sélection.
+
+### Données Étiquettées
 
 Tout d'abord, une simple recherche des mots-clés *données historiques BIXI* dans votre moteur de recherche favori devrait vous mener à la page du site web de BIXI réservée à [l'historique des déplacements](https://bixi.com/fr/donnees-ouvertes).
 
@@ -28,19 +95,16 @@ data_2017_04 %>%
   knitr::kable()
 ```
 
-Voilà qui devrait nous fournir les éléments les plus précieux : nos 2 variables réponses, ou *étiquettes*. En effet, pour chacun des trajets, nous pourrons déterminer la durée avec la colonne *duration_sec* et si le cycliste était membre à l'aide de la colonne *is_member*. Ces données renferment aussi d'autres éléments intéressants. Nous pourrons notamment utiliser le jour de la semaine, l'heure et la station de départ pour tenter de prédire les variables réponses.
+>[STOP] data_bixi n'existe pas nécessairement quand on load le projet sans appeler laod_historical_data(). Ajouter un paramètre nrows? Recoder?
 
-En général, dans un contexte de modélisation prédictive, nous avons sous la main une source de données *étiquettée* comme la nôtre,
+Voilà qui devrait nous fournir les éléments les plus précieux : nos 2 étiquettes. En effet, pour chacun des trajets, nous pourrons déterminer la durée avec la colonne *duration_sec* et le statut de membre du client à l'aide de la colonne *is_member*. Ces données renferment aussi d'autres éléments intéressants pouvant servir de prédicteurs. Nous pourrons notamment utiliser le jour de la semaine, l'heure et la station de départ pour tenter de prédire les variables réponses.
 
-```{r, echo = FALSE}
-data_2017_04 %>% 
-  dplyr::select(start_station_code, duration_sec) %>% 
-  knitr::kable()
-```
+Dans ce jeu de données, ```duration_sec``` et ```is_member``` sont les étiquettes. Les prédicteurs sont la station de départ, l'heure de la journée, le jour de la semaine, et le mois, qui peuvent tous fournir davantage de précision à nos prédictions.
 
-où ```start_station_code``` est un code unique représentant une entité unique/récurrente/identifiable (souvent appelé ID), et où ```duration_sec``` est l'étiquette, soit la valeur que nous voulons prédire. Souvent, quelques variables accompagnent ces champs et peuvent nous aider à prédire les étiquettes. Dans nos données historiques de BIXI, c'est le cas notamment de l'heure de la journée, du jour de la semaine, et du mois, qui peuvent tous fournir davantage de précision à nos prédictions.
 
-Or, notre travail de collecte ne s'arrête pas là. Il est souvent possible de joindre des données supplémentaires, entre autres via les IDs. Par exemple, dans notre cas, le code de station est une porte d'entrée vers l'information spécifique aux stations ou à leur emplacement géographique. Nous pouvons dès lors utiliser n'importe quelle information reliée à la station ou son emplacement et susceptible de raffiner les prédictions. Par exemple, si nous connaissions l'altitude de chaque station et croyions qu'une station de départ plus élevée produit en général des trajets plus longs, nous pourrions procéder ainsi :
+### Données de *jointure*
+
+La station de départ est représentée par un code unique représentant une entité unique/récurrente/identifiable (souvent appelé ID). Cela fait non seulement d'elle un bon prédicteur, mais également une bonne clé pour amener des données de *jointures*. Par exemple, dans notre cas, le code de station est une porte d'entrée vers l'information spécifique aux stations ou à leur emplacement géographique. Nous pouvons dès lors utiliser n'importe quelle information reliée à la station ou son emplacement et susceptible de raffiner les prédictions. Par exemple, si nous connaissions l'altitude de chaque station et croyions qu'une station de départ plus élevée produit en général des trajets plus longs, nous pourrions procéder ainsi :
 
 ```{r, echo = FALSE}
 A <- data_2017_04 %>% 
@@ -70,8 +134,9 @@ dplyr::left_join(A, B, by = c("start_station_code" = "station_ID")) %>%
   kableExtra::kable_styling(full_width = FALSE, position = "float_right")
 ```
 
-Nous entreprenons donc une revue des sources de données additionnelles disponibles pour nous aider à prédire les étiquettes. Une recherche plus approfondie des mots-clés précédents devrait vous mener à la page du Portail données ouvertes de la Ville de Montréal réservée elle aussi à [l'historique des déplacements](http://donnees.ville.montreal.qc.ca/dataset/bixi-historique-des-deplacements). A priori, c'est simplement un lien vers les données précédentes. Un clic sur le bouton *Vélo* de la section Mots-clés nous ouvre toutefois une [boîte de Pandore](http://donnees.ville.montreal.qc.ca/dataset?q=velo) : L'[État en temps réel des stations BIXI](http://donnees.ville.montreal.qc.ca/dataset/bixi-etat-des-stations), la [Géolocalisation des arceaux à vélos](http://donnees.ville.montreal.qc.ca/dataset/arceaux-velos), la [cartographie du réseau cyclable](http://donnees.ville.montreal.qc.ca/dataset/pistes-cyclables) et le [nombre de passages quotidiens sur les pistes cyclables](http://donnees.ville.montreal.qc.ca/dataset/velos-comptage) sur le territoire de la Ville de Montréal.
+Le jour de la semaine pourrait aussi servir à faire des jointures, par exemple avec une liste des jours fériés ou avec une table des heures de lever et de coucher du soleil. La liste des jointures possibles ne s'arrête pas là; allons passer en revue toutes les données de jointure potentiellement à notre disposition.
 
+Une recherche plus approfondie des mots-clés précédents devrait vous mener à la page du Portail données ouvertes de la Ville de Montréal réservée elle aussi à [l'historique des déplacements](http://donnees.ville.montreal.qc.ca/dataset/bixi-historique-des-deplacements). A priori, c'est simplement un lien vers les données précédentes. Un clic sur le bouton *Vélo* de la section Mots-clés nous ouvre toutefois une [boîte de Pandore](http://donnees.ville.montreal.qc.ca/dataset?q=velo) : L'[État en temps réel des stations BIXI](http://donnees.ville.montreal.qc.ca/dataset/bixi-etat-des-stations), la [Géolocalisation des arceaux à vélos](http://donnees.ville.montreal.qc.ca/dataset/arceaux-velos), la [cartographie du réseau cyclable](http://donnees.ville.montreal.qc.ca/dataset/pistes-cyclables) et le [nombre de passages quotidiens sur les pistes cyclables](http://donnees.ville.montreal.qc.ca/dataset/velos-comptage) sur le territoire de la Ville de Montréal.
 
 > [STOP] premier exercice soft et pour s'assurer que tout le monde est bien set up : on load les données BIXI!
 
@@ -104,6 +169,10 @@ Tel que mentionné en introduction, notre ouvrage est linéaire, donc le process
 
 ## Considérations {#considerations}
 
+La collecte de données est le point de départ de la chaîne. Les données étant quelque peu la matière première du produit que nous nous apprêtons à bâtir, plusieurs considérations influenceront leur collecte.
+
+Les premières considérations qui viennent à l'esprit dans le cas des matières premières sont évidemment la quantité, la qualité et le prix. Toutefois, d'autres facteurs influencent le choix de matière première comme la provenance, le processus de récolte ou de transformation, la constance de l'approvisionnement, l'entreposage et la sécurité. Les mêmes considérations peuvent s'appliquer dans notre contexte. Nous devrons donc être vigilents dans la sélection de sources de données. La section suivante aura donc pour objectif d'aborder ces considérations, tout en exposant à celles-ci une liste de données potentielles pour l'atelier.
+
 Comme nous pouvons le constater, la liste de données potentielles est sans limites. Les considérations qui suivent auront pour objectif de nous exposer les limites de certaines sources, pour ensuite identifier celle(s) qui sont le plus adaptées à notre problématique.
 
 ### Volume
@@ -132,7 +201,7 @@ JSON
 XML
 
 #### Aggrégation
-À la section précédente, nous avons pris la peine de préciser que ce sont les données étiquettées qui ne peuvent pas être trop nombreuses. Par contre, pour toutes les données additionnelles à joindre à nos données étiquettées, il est possible que le... Par exemple, si le taux d'échantillonnage est trop grand pour nos besoins ... Le choix d'aggrégation des données sera alors capital. Nous préférerons tout de même toujours une source la plus granulaire possible, car en aggrégant nous même, nous évitons la perte potentielle d'information prédictive pour notre modèle
+À la section précédente, nous avons pris la peine de préciser que ce sont les données étiquettées qui ne peuvent pas être trop nombreuses. Par contre, pour toutes les données de jointure, il est possible que les clés de jointure ne soient pas tout à fait alignées. Par exemple, si le taux d'échantillonnage des données de jointure n'est pas aussi précis que le permet la clé dans les données étiquettées, nous devrons nous contenter d'une valeur aggrégée, par exemple la moyenne sur une plus longue période. Nous préférerons presque toujours une source la plus granulaire possible, avec comme possibilité de faire l'aggrégation nous-même. Nous évitons ainsi la perte potentielle d'information prédictive pour notre modèle
 
 base / dplyr / data.table [autre section?](https://stackoverflow.com/questions/21435339/data-table-vs-dplyr-can-one-do-something-well-the-other-cant-or-does-poorly)
 
@@ -232,6 +301,13 @@ haven
 https://db.rstudio.com/
 
 #### Web Scraping (légalité/api/service/timeouts)
+
+http://www.omdbapi.com
+&apikey=9927136f
+
+https://api.citybik.es/v2/
+https://api.citybik.es/v2/networks/bixi-montreal
+
 XML
 xml2
 curl
