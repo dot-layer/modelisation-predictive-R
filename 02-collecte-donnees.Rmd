@@ -9,11 +9,11 @@ L'étape initiale de tout projet de modélisation prédictive est la collecte de
 
 Cette section sera découpée comme suit :
 
-1. Description de l'approche pour la collecte
+1. Description de l'approche
 2. Liste potentielle de sources de données pour la tâche à accomplir
 3. Considérations
 
-## Description de l'approche pour la collecte
+## Description de l'approche
 
 Les étapes sont : obtenir les données étiquettées, obtenir les données de [*jointure*](https://fr.wikipedia.org/wiki/Jointure_(informatique)) (traduction libre) et effectuer la jointure. Nous verrons également que la collecte se produit souvent différemment lors de la modélisation et lors de la prédiction en production.
 
