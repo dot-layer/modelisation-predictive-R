@@ -56,10 +56,20 @@ saveRDS(ind_test, paste0(path_objects, "ind_test.rds"))
 
 preprocessed_objects <- preprocessing_main(data_bixi[-ind_test,], train_mode = TRUE)
 
-# preprocessed_objects_test <- preprocessing_main(data_bixi[ind_test,], train_mode = TRUE)
-# preprocessed_objects_test$data_regression$target_duree
-# write.fst(X_regression, "src/modelisation/X_regression_test.fst")
-# saveRDS(y_regression, "src/modelisation/y_regression_test.rds")
+
+
+# Création test -----------------------------------------------------------
+preprocessed_objects_test <- preprocessing_main(data_bixi[ind_test,], train_mode = TRUE)
+
+# X_regression_test <- copy(preprocessed_objects_test$data_regression)[, target_duree := NULL]
+# X_classif_test <- copy(preprocessed_objects_test$data_classif)[, target_meme_station := NULL]
+# y_regression_test <- preprocessed_objects_test$data_regression$target_duree
+# y_classif_test <- preprocessed_objects_test$data_classif$target_meme_station
+# 
+# write.fst(X_regression_test, "src/modelisation/X_regression_test.fst")
+# saveRDS(y_regression_test, "src/modelisation/y_regression_test.rds")
+# write.fst(X_classif_test, "src/modelisation/X_classif_test.fst")
+# saveRDS(y_classif_test, "src/modelisation/y_classif_test.rds")
 
 
 # Saver les objets
@@ -75,7 +85,6 @@ write(jsonlite::toJSON(preprocessed_objects$vars_to_keep_regression, pretty = TR
 # Setter les tables pour le modeling
 X_regression <- copy(preprocessed_objects$data_regression)[, target_duree := NULL]
 X_classif <- copy(preprocessed_objects$data_classif)[, target_meme_station := NULL]
-
 y_regression <- preprocessed_objects$data_regression$target_duree
 y_classif <- preprocessed_objects$data_classif$target_meme_station
 
