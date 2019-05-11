@@ -76,7 +76,7 @@ preprocessing <- function(data, train_mode=TRUE, list_objects=NULL) {
       data[is.na(get(col)), (col) := variables_a_imputer[[eval(col)]]]
     }
     
-    # Sauvegarde avant 
+    # Sauvegarde avant un-chaud -- jamais utilisée
     # fst::write.fst(data, "data/models/data_no_chaud.fst")
     
     # One-hot encoding
