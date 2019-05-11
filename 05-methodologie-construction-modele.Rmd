@@ -28,10 +28,14 @@ Il faudra alors considérer d'autres options; transformer nos variables, ou en e
 En supposant que le lecteur possède des connaissances de base en statistique,
 les sujets suivants sont traités : l'identification de modèles adéquats; l'estimation de modèles (fonction de perte, compromis biais-variance); l'évaluation d'un modèle (validation croisée, erreur de généralisation). 
 
+Finalement, nous pointerons quelques fois vers la librairie (`caret`)[https://topepo.github.io/caret/index.html], qui contient plusieurs fonctions permettant une modélisation fluide.
+
 
 ## Gestion des données {#split}
 
 <span style="color:fuchsia">**Concepts clefs : entraînement/validation/test**</span>
+
+### Divisions entraînement/validation/test
 
 Pour plusieurs raisons, il est conseillé, avant même le pré-traitement des données de la Section \@ref(preprop), de séparer aléatoirement son jeu de données en deux (ou trois) partie distinctes : les jeux de données d'entraînement, (de validation) et de test.
 Chacune des trois parties est associées à une étape de la construction du modèle, qu'on effectue dans l'ordre mentionné.
@@ -59,6 +63,17 @@ L'étape de validation (décrite à la Section \@ref(selection)) est alors effec
 
 Selon la situation, on peut effectuer une permutation aléatoire de nos données, pour éviter que notre division du jeu de données ne soit pollué par des effets indésirables de l'ordre de collecte; ou s'assurer de garder un ordre chronologique des jeux de données, pour réellement prédire des données futures avec les jeux de validation et de test.
 
+Finalement, `caret` permet de préserver la proportion des différentes réponses dans les jeux d'entraînement et de test avec `createDataPartition`.
+```
+ind_train <- caret::createDataPartition(y_train, p = .8, # split 80/20, classique
+                                  list = FALSE, 
+                                  times = 1)
+```
+La fonction `caret::createResample` permet de faire des échantillons [*bootstrap*](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)), tandis que la fonction `caret::createFolds` permet de créer des échantillons pour la validation croisée.
+
+
+### Utilité des différents jeux
+
 La différence entre les jeux de données se trouve essentiellement dans ce qu'on calcule avec ceux-ci.
 
 - On associe au jeu d'entraînement l'*erreur d'entrainement*, qui quantifie la performance de notre modèle sur... les données d'entraînement!
@@ -71,6 +86,9 @@ L'erreur d'entraînement quantifie la performance de notre modèle à prédire l
 Dans ce cas, l'erreur obtenue ne sera pas représentative de l'erreur de généralisation.
 Il faut garder en tête que l'objectif est de prédire de **nouvelles** valeurs $y$ à l'aide de **nouvelles** valeurs $\mathbf{x}$; l'*erreur de généralisation* est donc au coeur de nos préoccupations.
 **Ainsi, s'il y a normalisation à faire (voir Section \@ref(preprop)), on normalise le jeu d'entraînement sans utiliser les jeux de validation et de test.**
+
+
+### Exemple bixi
 
 Avec la quantité de données à notre disposition pour l'exemple bixi, il est raisonnable de séparer nos données en trois partie.
 À la section \@ref(preprop), nous avions déjà séparé notre jeu en deux (entr/test), sortons un troisième jeu de nos données d'entraînement.
@@ -93,7 +111,6 @@ rm(X_reg)
 rm(y_reg)
 # On s'occupera du test en temps et lieu.
 ```
-Pour automatiser le processus, la fonction `caret::createDataPartition` est une option intéressante.
 
 
 ## Description classique {#description}
@@ -234,18 +251,19 @@ La distribution normale est l'option par défaut.
 Évidemment, on peut toujours ajouter des intéractions entre nos variables (*i.e.* ajouter à notre régression des termes $\beta_{ij} x_i x_j$).
 Par exemple pour faire intéragir les zones de départ et moment de la journées :
 ```{r, echo = T}
-cols_moment <- grep(pattern = "moment", names(X_train)) # en numéro de colone
-cols_sqg <- grep(pattern = "start_quartier_group", names(X_train))
+cols_moment <- grep(pattern = "moment", names(X_train)) # les nums de colones moment
+cols_sqg <- grep(pattern = "start_quartier_group", names(X_train)) #les nums de colones
 
 cols_pair <- cbind(rep(cols_sqg,length(cols_moment)),
-                   rep(cols_moment,length(cols_sqg)))
+                   rep(cols_moment,length(cols_sqg))) # toutes les paires
 
+# on get back les noms de colonnes et on les colle
 new_names <- apply(matrix(names(X_train)[c(cols_pair)], ncol = 2),
                    1,
                    paste0, collapse = ":::")
 
-# Nouveau dataset avec les intéractions seulement -- à cbind(X_train,X_new)
-X_new <- X_train
+# Nouveau dataset avec intéractions
+X_new <- copy(X_train)
 for(r in 1:nrow(cols_pair)){
   i <- cols_pair[r,1]
   j <- cols_pair[r,2]
@@ -254,13 +272,14 @@ for(r in 1:nrow(cols_pair)){
 ```
 Tenons-nous en au modèle sans intéractions.
 Pour faire des prédictions avec nos modèles, la fonction `predict` est toute désignée.
-Il faut simplement lui fournir les données explicatives concernées.
+Il faut simplement lui fournir le modèle et les données explicatives concernées.
 Pour une petite idée de la diversité de nos prédictions par rapport aux réponses :
 ```{r, echo=T, out.width = "50%",fig.align='center'}
 y_pred <- predict(object = glm_basic, newx = as.matrix(X_train))
 
 ggplot(data.table(y = c(y_train,y_pred),
-                  type=c(rep("true",length(y_train)), rep("pred",nrow(y_pred)))),
+                  type=c(rep("true",length(y_train)),
+                         rep("pred",nrow(y_pred)))),
        aes(x=y, fill=type)) +
   geom_density(alpha = .5) + theme_minimal()
 ```
@@ -273,7 +292,17 @@ Le modèle fait tout de même des prédictions personnalisées.
 coef.glmnet(glm_basic)
 ```
 
+#### Option `caret`
 
+```
+on_y_reviendra <- trainControl(method="none")
+glm_basic <- train(X_train, y_train,
+                    method = "glmnet", 
+                    trControl = on_y_reviendra,
+                    metric = "RMSE", # Peut-être aimerions-nous "MAE" ici?
+                    lambda = 0)
+
+```
 
 ### Un mot sur la régularisation {#regularisation}
 
@@ -353,17 +382,17 @@ test_dummy <- data.table(y = sample(0:1, 100, replace = T))
 test_dummy[, x1 := rnorm(n=100, mean=y, sd=1/2)]
 test_dummy[, x2 := x1 + rnorm(n=100, mean=y, sd=1/4)]
 
-# new_y_pred <- class::knn(train = matrix(c(train_dummy$x1,train_dummy$x2),ncol=2),
-#                          test = matrix(c(test_dummy$x1,test_dummy$x2),ncol=2),
-#                          cl = train_dummy$y, # vraie classes du data d'ent.
-#                          k = 3) # nombre de voisins utilisé
+new_y_pred <- class::knn(train = matrix(c(train_dummy$x1,train_dummy$x2),ncol=2),
+                         test = matrix(c(test_dummy$x1,test_dummy$x2),ncol=2),
+                         cl = train_dummy$y, # vraie classes du data d'ent.
+                         k = 3) # nombre de voisins utilisé
 
-# test_dummy[, pred := new_y_pred]
-# test_dummy[, succes := new_y_pred == y]
-# 
-# g + geom_point(data = test_dummy, aes(x=x1, y=x2, colour=factor(y), shape = factor(succes, labels = c("non","oui"))), size=2) +
-#   scale_shape_manual(values=c(4,0)) +
-#   theme_minimal() + labs(col = "classe", shape = "bonne prédiction")
+test_dummy[, pred := new_y_pred]
+test_dummy[, succes := new_y_pred == y]
+
+g + geom_point(data = test_dummy, aes(x=x1, y=x2, colour=factor(y), shape = factor(succes, labels = c("non","oui"))), size=2) +
+  scale_shape_manual(values=c(4,0)) +
+  theme_minimal() + labs(col = "classe", shape = "bonne prédiction")
 ```
 Ici, `k` est l'hyper-paramètre.
 Comme plusieurs hyper-paramètres, il sert à "lisser" nos prédictions.
@@ -372,10 +401,10 @@ Par exemple lorsque $k = n$, le nombre d'observations dans le jeu d'entraînemen
 Approximons l'erreur de généralisation pour chaque valeur de $k$ au point $x_0 = .75$.
 Notons que $\mathbb{E}[Y|X_1 = .5, X_2 = 1]$ est donné par
 ```{r, echo=T}
-# x0 <- c(.75,.75)
-# Sig <- matrix(1/2^2,2,2) # la matrice de variance-covariance pour la classe 1
-# Sig[2,2] <- Sig[2,2] + 1/4^2 # la variance de x2
-# Ex0 <- dmvnorm(x0, mean = c(1,1), sigma = Sig)/(dmvnorm(x0, mean = c(0,0), sigma = Sig) + dmvnorm(x0, mean = c(1,1), sigma = Sig)) # la prob conditionnelle que x0 = 1
+x0 <- c(.75,.75)
+Sig <- matrix(1/2^2,2,2) # la matrice de variance-covariance pour la classe 1
+Sig[2,2] <- Sig[2,2] + 1/4^2 # la variance de x2
+Ex0 <- dmvnorm(x0, mean = c(1,1), sigma = Sig)/(dmvnorm(x0, mean = c(0,0), sigma = Sig) + dmvnorm(x0, mean = c(1,1), sigma = Sig)) # la prob conditionnelle que x0 = 1
 ```
 En générant des données d'entraînement, on peut estimer l'erreur au carré, la variance, et donc l'erreur de généralisation.
 Voici ce que ça donne en fonction de $k$ (2000 répétitions pour chaque valeur de $k$).
@@ -399,7 +428,7 @@ Puisque que notre objectif ultime est de minimiser l'erreur de généralisation,
 
 ## Sélection du modèle final (validation) et évaluation {#selection}
 
-<span style="color:fuchsia">**Concepts clefs : erreur de généralisation, validation croisée, matrice de confusion, fonction `predict`**</span>
+<span style="color:fuchsia">**Concepts clefs : erreur de généralisation, validation croisée, fonction `predict`**</span>
 
 La sélection du modèle finale, ayant comme but de minimiser l'erreur, passe généralement par un compromis entre le nombre de paramètres et la qualité de l'ajustement du modèle, ou directement par l'estimation de l'erreur de généralisation.
 
@@ -413,7 +442,8 @@ Encore une fois, c'est la fonction `predict` qui nous permet de faire des prédi
 Elle peut être utilisée avec plusieurs types de modèles, à chaque fois avec ses particularités.
 À titre d'exemple, utilisons ici -- au lieu de l'erreur quadratique moyenne (*MSE*, $(y - f(x))^2$) -- l'erreur absolue moyenne (*MAE*, $|y - f(x)|$) pour quantifier la performance de nos modèles.
 ```{r, echo = T}
-erreur <- colMeans(abs(predict.glmnet(glms, newx = as.matrix(X_val)) - y_val)) # Avec val!
+pred <- predict.glmnet(glms, newx = as.matrix(X_val)) # avec le jeu de validation
+erreur <- colMeans(abs(pred - y_val))
 
 ggplot(data.table(lambda = glms$lambda, erreur = c(erreur)),
        aes(x=lambda, y=erreur)) +
@@ -523,6 +553,24 @@ glms_cv <- cv.glmnet(x = as.matrix(X_train),
                      alpha = une_valeur,  
                      foldid = foldid)
 ```
+#### Option `caret`
+
+La dernière étape, l'ajustement de `alpha`, implique un peu plus de travail.
+La librairie `caret` peut nous faciliter la vie : 
+```
+# 5-fold
+val_setup <- trainControl(method="cv", number=5, returnResamp="all")
+hparam_grid <- expand.grid(alpha = c(0,.5,1),
+                          lambda = seq(0.001, 0.1, 0.001))
+                          
+# Attention, avec trop de données ça peut être long (voir impossible)
+glm_cv <- train(X_train, y_train,
+                method = "glmnet", 
+                trControl = val_setup,
+                metric = "MAE",
+                tuneGrid = hparam_grid)
+```
+
 
 ### Évaluation finale
 
@@ -600,87 +648,172 @@ On l'utilise dans l'exemple avec `xgboost` qui suit.
 
 
 
-## Exemple 2 : classification avec xgboost
+## Exemple 2 : classification avec xgboost (en construction)
 
-Pour faire la classification, utilisons la librairie `xgboost` (pour *eXtreme Gradient Boosting*), qui permet d'ajuster un modèle construit à partir d'arbres de décisions.
-C'est clairement un *overkill* pour notre tâche, mais ça donne une idée du potentiel de R.
+<span style="color:fuchsia">**Concepts clefs : *boosting*, *early stopping*, matrice de confusion**</span>
+
+
+Utilisons la librairie `xgboost` (*eXtreme Gradient Boosting*) pour faire un modèle de classification : déterminer si un utilisateur reviendra à la même station.
+Elle permet d'ajuster un modèle ("boosté") construit à partir d'arbres de décisions.
+C'est clairement un *overkill* pour notre tâche, mais ça donne une idée du potentiel.
+Avec nos données, il y a peu (pas) de chances qu'on ait assez de signal pour clairement détecter qui reviendra à la station, mais il reste tout de même intéressant de quantitifer la possibilité.
+
+### Split train/val
+
+Comme nous avons beaucoup de données par rapport à la tâche à effectuer, permettons-nous un (énorme!) jeu de validation.
+
+```{r, include = F}
+X_classif <- read.fst("src/modelisation/X_classif.fst", as.data.table = T)
+y_classif <- readRDS("src/modelisation/y_classif.rds")
+
+```
+```{r, echo = T}
+ind_val <- sample(nrow(X_classif),nrow(X_classif)/2)
+
+X_val <- X_classif[ind_val,]
+y_val <- y_classif[ind_val]
+
+X_classif <- X_classif[-ind_val,]
+y_classif <- y_classif[-ind_val]
+```
 
 ### Le modèle en bref
 Ce modèle est l'un des plus populaires auprès des participants des concours [Kaggle](https://www.kaggle.com/).
 L'idée (très générale) est de créer des [arbres de décisions](https://en.wikipedia.org/wiki/Decision_tree_learning), qui forment un bassin de *weak learners*, et d'effectuer un vote pondéré en tant que prédiction.
-On peut percevoir les *boosted trees* comme un modèle additif ; une sorte de régression linéaire, mais avec des fonctions plus complexes que l'identité :
-\[
-  y^* = \sum_{m=1}^M \beta_m f_m(\mathbf{x})
-\]
+Un *weak learners* est un algorithme de classification qui performe légèrement mieux que le hasard.
+Le *boosting*, dans notre cas, fait référence à la méthode employée pour créer les arbres ; nous y reviendrons brièvement à l'étape d'estimation.
+
+On peut percevoir les modèle de *boosted trees* comme un modèle additif ; une sorte de modèle linéaire généralisée, mais avec des fonctions plus complexes insérées dans la formule.
+Pour notre cas,
+\begin{equation}
+  g(y^*) = f(\mathbf{x}) = \sum_{m=1}^M \beta_m f_m(\mathbf{x}) (\#eq:boosted-trees)
+\end{equation}
 ou les fonctions $f_m$ sont des arbres de décisions qui retournent soit $0$ soit $1$.
-Dans notre cas, la prédiction finale sera $\mathbb{1}(y^* > .5)$.
-Les paramètres $\beta_m$ permettent de donner plus d'importances aux arbres qui sont plus performants.
-Notez que cette formulation doit être modifiées pour une classification à plusieurs classes.
+Nous utiliserons la fonction *logit* pour $g$.
+La prédiction finale (l'utilisateur reviendra oui (1) ou non (0)) sera $\mathbb{1}(f(\mathbf{x}) > .5)$.
+En fait, on peut vouloir jouer avec le seuil de décision, disons $\alpha$ (un hyper-paramètre), et donc considérer $\mathbb{1}(f(\mathbf{x}) > \alpha)$.
+Les paramètres $\beta_m$ permettent de donner plus d'importances (un vote qui pèse plus) aux arbres qui sont plus performants.
+
 
 ### Estimation
 
 Pour certain, l'estimation du modèle peut paraître un peu non-conventionelle.
-On ajuste d'abord un arbre de décision et identifions les observations pour lesquelles nos prédictions sont mauvaises.
-On met ensuite plus de poids sur ces dernières pour forcer le prochain arbre construit à les considérer plus sérieusement.
+On ajuste d'abord un seul arbre de décision et identifions les observations pour lesquelles nos prédictions sont mauvaises.
+Lors de la construction du deuxième arbre, on met l'emphase (plus de poids) sur ces observations "problématiques" pour forcer l'arbre à les considérer plus sérieusement.
 On répète la procédure un nombre déterminé de fois, disons $M$.
-Évidemment, une fonction effectue la procédure pour nous  : la fonction `xgboost`.
-Ajustons un modèle pour des valeurs de $M=25$.
-```{r, echo = T}
-# xgbs <- xgboost(data = as.matrix(data[, -c(1,2)]), label = data$target_meme_station, objective = "binary:logistic", eval.metric = "logloss", nrounds = 25, verbose = F)
+La procédure est automatisée par la fonction `xgboost`.
+Pour ajuster un modèle avec disons $M=15$ (voir \@ref(eq:boosted-trees)) :
 ```
-Plusieurs options ici laissées de côté existent : `eta` (entre 0 et 1) qui est le paramètre de *learning rate* peut être très utile pour éviter le sur-entraînement.
-Brièvement, des petites valeurs de `eta` empêche l'algorithme de construire des arbres avec trop de poids (et donc ralenti son apprentissage).
-En contrepartie, il faudra utiliser une valeur de $M$ plus élevée, *i.e.* intégrer plus d'arbres au modèle.
-`maxdepth` (profondeur maximale des arbres) et `subsample` (utilisation d'un sous-ensemble des données pour créer les arbres) sont deux autres options qui valent la peine d'être considérées.
+xgb_naive <- xgboost(data = as.matrix(X_classif), label = y_classif,
+                     booster = "gbtree",
+                     objective = "binary:logistic",
+                     nrounds = 15, verbose = F)
+```
+```{r, include = F}
+# saveRDS(xgb_naive, "src/modelisation/xgb_naive.rds")
+# xgb_naive <- readRDS("src/modelisation/xgb_naive.rds")
+```
+Les fonctions de pertes classiques (*mse*, *mae*) peuvent être utilisées en classification, surtout que notre prédiction est (en quelque sorte) une probabilité et est donc "continue".
+Toutefois, il est possible d'utiliser des mesures plus "discrètes" comme l'erreur de classification :
+\begin{equation}
+  L(y,f(\mathbf{x})) = 1 - \mathbb{1}\{f(\mathbf{x}) = y\}
+\end{equation}
+C'est l'erreur utilisé par `xgboost` avec `binary:logistic`.
 
-Abordons plutôt une option plus universelle (aussi disponible avec `glmnet`), intéressante pour les jeux de données débalancés (nous avons beaucoup plus de `target_meme_station == 0` que de `target_meme_station == 1`), ce qui est particulièrement pertinent pour la détection de fraudes.
+Plusieurs autres options existent : `eta` (entre 0 et 1) qui est le paramètre de *learning rate* peut être très utile pour éviter le sur-entraînement.
+Brièvement, des petites valeurs de `eta` empêche l'algorithme de construire des arbres avec trop de poids (et donc ralenti son apprentissage).
+En contrepartie, il faudra utiliser une valeur de $M$ plus grande, *i.e.* intégrer plus d'arbres au modèle.
+`maxdepth` (profondeur maximale des arbres) et `subsample` (utilisation d'un sous-ensemble des données pour créer les arbres) sont deux autres options qui valent la peine d'être considérées.
+`verbose = TRUE` permet d'avoir un suivi en continue (des *prints*) de l'estimation.
+
+Abordons plutôt une option générale (aussi disponible avec `glmnet`), intéressante pour les jeux de données débalancés (nous avons beaucoup plus de `y_classif == 0` que de `y_classif == 1`), ce qui est particulièrement pertinent pour la détection de fraudes.
 L'option `weight` nous permet de donner plus d'importance à certaines observations dans la fonction de perte (à ne pas confondre avec ce qui est fait pour construire les arbres de décision, quoique l'idée est en fait très similaire).
 Concrètement, on définit des poids $w_i$ qu'on introduit comme suit dans la fonction de perte
 \begin{equation}
   \boldsymbol{L}(\mathbf{y},\mathbf{X}) = \sum_{i=1}^n w_i L(y_i, \mathbf{x}_i)
 \end{equation}
 où $L(y_i, \mathbf{x}_i)$ est la perte calculée pour l'observation $i$.
-Donnons des poids totaux égaux pour nos deux classes. 
-```{r, echo = T}
-# ratio <- mean(data$target_meme_station == 1)
-# xgb_w <- xgboost(data = as.matrix(data[, -c(1,2)]), label = data$target_meme_station, objective = "binary:logistic",
-#           eval.metric = "logloss", nrounds = 25, verbose = F,
-#           weight = (1-ratio)*data$target_meme_station + ratio*(1-data$target_meme_station))
+Pour donner des poids totaux égaux pour les deux classes : 
 ```
+prop_1 <- mean(y_classif == 1) # proportion de 1
+poids <- (1-prop_1)*y_classif + prop_1*(1-y_classif)
 
+xgb_w <- xgboost(data = as.matrix(X_classif), label = y_classif,
+                 booster = "gbtree",
+                 objective = "binary:logistic",
+                 nrounds = 15, verbose = F,
+                 weight = poids)
+
+```
+```{r, include = F}
+# saveRDS(xgb_w, "src/modelisation/xgb_w.rds")
+prop_1 <- mean(y_classif == 1) # proportion de 1
+poids <- (1-prop_1)*y_classif + prop_1*(1-y_classif)
+# xgb_w <- readRDS("src/modelisation/xgb_w.rds")
+```
 
 ### Validation
-Nous n'avons que deux modèles, mais nous aurions pu en ajuster beaucoup plus.
 Avec beaucoup de temps, nous pourrions faire une recherche en grille du style :
-```{r, echo = T}
-# param_grid <- expand.grid(eta = seq(.1,1,.15), nrounds = 10:100, maxdepth = 5:20)
-# rbind(head(param_grid),
-# tail(param_grid))
+```
+param_grid <- expand.grid(eta = seq(.1,1,.15), nrounds = 10:100, maxdepth = 5:20)
 ```
 soit en utilisant le jeu de données de validation ou la validation croisée.
-Il est évident qu'une meilleure grille peut être définit : la plupart des combinaisons présentées ci-haut produiraient des modèles médiocres, en particulier quand `eta` et `nrounds` seraient tous les deux petits.
-Note : encore une fois, une fonction existe pour faire la validation croisée, `xgb.cv`.
+(**Note** : encore une fois, une fonction existe pour faire la validation croisée, `xgb.cv`, voir le *help*.)
+Il est évident qu'une meilleure grille peut être définie : la plupart des combinaisons présentées ci-haut produiraient des modèles médiocres, en particulier quand `eta` et `nrounds` seraient tous les deux petits.
+Nous contournerons ce problème en gérant `nrounds` avec du *early stopping*.
 
-Comparant nos deux modèles avec le jeu de données de validation.
-```{r, echo = T}
-# preds <- as.numeric(predict(xgb, as.matrix(data_val[,-c(1,2)])) > .5)
-# preds_w <- as.numeric(predict(xgb_w, as.matrix(data_val[,-c(1,2)])) > .5)
-# 
-# colMeans(abs(
-#   cbind(preds,preds_w) != data_val$target_meme_station
-# ))
+Si on possède un jeu de validation, on peut le fournir à `xgboost` pour garder un oeil sur l'erreur de généralisation pendant l'entraînement.
+La méthode du *early stopping* consiste à arrêter l'entraînement quand l'erreur de validation ne s'améliore plus.
+Nous n'avons donc pas à gérer `nrounds`, mais il nous faut une perte pour la validation...
+Au lieu de prendre une des pertes par défault, tentons quelque chose mieux aligné avec notre objectif "détection de fraude".
 ```
-Évidemment, le modèle qui utilise `weight` fait moins bien en terme d'erreur de classification, toutefois cette mesure n'est peut-être pas la bonne à utiliser ici.
+# Pour utiliser xgb.train, on doit se créer un data de la classe xgb.DMatrix
+dtrain <- xgb.DMatrix(as.matrix(X_classif), label = y_classif)
+dval <- xgb.DMatrix(as.matrix(X_val), label = y_val)
+
+# Elle fait quoi cette perte?
+perte_val <- function(y_pred, dtrain){
+  # On get les réponses dans dtrain
+  y_true <- getinfo(dval, "label")
+
+  err <- ( 1 + sum(y_pred*(1-y_true)) ) / ( 1 + sum(y_pred*y_true) )
+
+  return(list(metric = "gérabilité", value = err))
+}
+
+# Allons-y avec les paramètres par défaut.. sinon, voir xgb.cv !!
+# ou utiliser caret
+xgb <- xgb.train(data = dtrain,
+                booster = "gbtree",
+                objective = "binary:logistic",
+                nrounds = 100, # On se rendra pas là...
+                early_stopping_rounds = 3,
+                maximize = FALSE,
+                watchlist = list(test=dval),
+                feval = perte_val)
+
+```
+```{r, include = F}
+# saveRDS(xgb, "src/modelisation/xgb.rds")
+xgb <- readRDS("src/modelisation/xgb.rds")
+```
+
 La matrice de confusion nous donne une meilleure idée de ce qui se passe :
 ```{r, echo = T}
-# cm <- caret::confusionMatrix(as.factor(preds),as.factor(data_val$target_meme_station))
-# cm$table
+pred <- predict(xgb, newdata = as.matrix(X_val))
+
+# Encore caret! Notez que le treshold 
+caret::confusionMatrix(as.factor(as.numeric(pred > .1)),as.factor(y_val))
 ```
-Comme on peut voir, le modèle sans `weight` ne fait que prédire la valeur $0$ à chaque fois, ce qui est loin de nous être utile.
-Le modèle avec `weight` fait beaucoup d'erreur, mais au moins il identifie certain client qui sont revenus.
+Les valeurs "sensitivity", "specificity", etc. sont toutes récupérables à partir de la matrice.
+
+Ça fonctionne sur notre test aussi?
+```{r, include = F}
+X_test <- read.fst("src/modelisation/X_classif_test.fst", as.data.table = T)
+y_test <- readRDS("src/modelisation/y_classif_test.rds")
+```
 ```{r, echo = T}
-# confusionMatrix(as.factor(preds_w),as.factor(data_val$target_meme_station))
-# cm_w <- caret::confusionMatrix(as.factor(preds_w),as.factor(data_val$target_meme_station))
-# cm_w$table
+pred <- predict(xgb, newdata = as.matrix(X_test))
+caret::confusionMatrix(as.factor(as.numeric(pred > .1)),as.factor(y_test))
 ```
-Si c'était un problème de détection de fraudes, le nombre de faux positifs seraient encore trop gros pour que le modèle soit utile.
+Il ne reste qu'à jouer avec le seuil (ici $.1$).
