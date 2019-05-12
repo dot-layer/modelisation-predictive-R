@@ -40,8 +40,9 @@ path_objects <- "data/models/"
 # a la fonction load_data()
 historical_data <- load_historical_data("data/")
 merging_data <- load_merging_data("data/")
-data_bixi <- merge_data(historical_data, merging_data$data_stations, merging_data$points_stations)
+merge_data(historical_data, merging_data$data_stations)
 
+data_bixi <- copy(historical_data)
 
 # Split data --------------------------------------------------------------
 

@@ -45,7 +45,13 @@ load_merging_data <- function(path_save_data)
                                         NA_character_
                                       }
                                     })
+  
+  points_stations <- as.data.table(points_stations)
+  setnames(points_stations, old = c("x", "y"), new = c("longitude", "latitude"))
+  setkeyv(points_stations, c("longitude", "latitude"))
+  setkeyv(data_stations, c("longitude", "latitude"))
+  data_stations <- points_stations[data_stations]
+  setkey(data_stations, code)
 
-  list(points_stations = points_stations,
-       data_stations = data_stations)
+  return(list(data_stations = data_stations))
 }
