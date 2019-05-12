@@ -29,7 +29,7 @@ Dans le premier cas (MCAR), l'absence d'une donnée ne dépend pas de sa vraie v
 
 Dans le deuxième cas (MAR), l'absence d'une donnée dépend uniquement de la valeur des variables qui ont été observées. Par exemple, des données ont été récoltées à partir de 2 systèmes différents et il est toujours connu de quel système les données proviennent. Pour un des deux systèmes, les données ont une plus grande probabilité d'être manquantes.
 
-Dans le troisième cas (NMAR), l'absence de donnée dépend également des données manquantes. La probabilité de non-réponse peut dépendre de la variable elle-même ou d'une autre variable. Par exemple, c'est le cas si les personnes ayant un salaire faible ont une probabilité plus faible de répondre à la question d'un sondage en lien avec le salaire gagné.
+Dans le troisième cas (NMAR), l'absence d'une donnée dépend également des données manquantes. La probabilité de non-réponse peut dépendre de la variable elle-même ou d'une autre variable. Par exemple, c'est le cas si les personnes ayant un salaire faible ont une probabilité plus faible de répondre à la question d'un sondage en lien avec le salaire gagné.
 
 Il existe différentes manières d'émettre une hypothèse quant au mécanisme de non-réponse. Certains tests [^tests] statistiques existent pour identifier un cas de MCAR. Cependant, il est difficile de différencier statistiquement MAR et NMAR. Pour se faire, on peut entres autres analyser le comportement des autres variables en fonction de l'absence ou la présence d'une donnée. Une connaissance du domaine d'affaire peut également être utile pour évaluer le mécanisme de non-réponse. Par la suite, il est possible de faire l'imputation selon différentes méthodes:
 
