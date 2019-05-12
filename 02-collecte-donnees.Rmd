@@ -3,6 +3,7 @@
 
 ``` {r, echo = FALSE}
 library(magrittr)
+library(sf)
 ```
 
 L'étape initiale de tout projet de modélisation prédictive est la collecte des données. Sans données, le modèle apprendra... rien!
