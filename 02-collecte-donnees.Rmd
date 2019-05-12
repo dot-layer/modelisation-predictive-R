@@ -1,5 +1,5 @@
 
-# Collecte de données
+# Collecte de données {#collecte}
 
 ``` {r, echo = FALSE}
 library(magrittr)
@@ -7,33 +7,32 @@ library(magrittr)
 
 L'étape initiale de tout projet de modélisation prédictive est la collecte des données. Sans données, le modèle apprendra... rien!
 
-Cette section sera découpée comme suit :
+La présente section aura donc pour but de couvrir la collecte de données. Nous décriverons d'abord l'approche générale pour la collecte. Ensuite, nous dresserons une liste potentielle de sources de données pour la tâche à accomplir. Puis, nous terminerons en dressant une liste de considérations, tout en soumettant la liste de sources à ces considérations.
 
-1. Description de l'approche
-2. Liste potentielle de sources de données pour la tâche à accomplir
-3. Considérations
+## Description de l'approche {#collecte}
 
-## Description de l'approche
+L'étape de collecte peut être subdivisée à son tour en 3 étapes : obtenir les données etiquetées, obtenir les données de [*jointure*](https://fr.wikipedia.org/wiki/Jointure_(informatique)) et effectuer la jointure. Nous verrons également que la collecte se produit souvent différemment lors de la modélisation et lors de la prédiction en production.
 
-Les étapes sont : obtenir les données étiquettées, obtenir les données de [*jointure*](https://fr.wikipedia.org/wiki/Jointure_(informatique)) et effectuer la jointure. Nous verrons également que la collecte se produit souvent différemment lors de la modélisation et lors de la prédiction en production.
+### Obtenir les données etiquetées 
 
-### Obtenir les données étiquettées
+Dans tout projet de modélisation prédictive, il faut obtenir des données etiquetées, de façon à ce que le modèle puisse apprendre à prédire cette étiquette. Ces données etiquetées sont de vrais exemples passés pour lesquels nous connaissons le résultat, et duquel le modèle pourra apprendre. Nous appellerons ces exemples des observations. 
 
-Pour chaque observation, les données étiquettées contiennent au minimum l'étiquette, aussi appelée variable réponse. Autrement dit, c'est la valeur que nous voulons prédire. Dans notre cas, une observation sera un trajet. Pour chaque observation, nous devrons avoir 2 étiquettes : la durée du trajet et le statut de membre du client. Sans information supplémentaire pour chacune des observations, nous serions en présence d'un simple échantillon aléatoire grâce auquel nous pourrions simplement prédire un estimateur comme la moyenne ou le mode pour tous les trajets. C'est pourquoi nous nécessiterons également au moins une information supplémentaire nous permettant de segmenter nos prédictions d'une observation à l'autre. Nous appellerons ces informations supplémentaires les prédicteurs. Par exemple, le jour et l'heure de départ pourraient nous donner de l'information prédictive sur la durée du trajet et sur le statut de membre du client. Voici de quoi pourrait avoir l'air notre jeu de données étiquettées :
+pour chaque observation, les données etiquetées contiennent au minimum l'étiquette, aussi appelée variable réponse. Autrement dit, c'est la valeur que nous voulons prédire. Dans notre cas, une observation sera un trajet. Pour chaque observation, nous devrons avoir 2 étiquettes : la durée du trajet et le statut de membre du client. Sans information supplémentaire pour chacune des observations, nous serions en présence d'un simple échantillon aléatoire grâce auquel nous pourrions simplement prédire un estimateur comme la moyenne ou le mode pour tous les trajets. C'est pourquoi nous nécessiterons également au moins une information supplémentaire nous permettant de segmenter nos prédictions d'une observation à l'autre. Nous appellerons ces informations supplémentaires les prédicteurs. Par exemple, le jour et l'heure de départ pourraient nous donner de l'information prédictive sur la durée du trajet et sur le statut de membre du client. Voici de quoi pourrait avoir l'air notre jeu de données etiquetées :
 
 ```{r, echo = FALSE, warning=FALSE}
-etiquettees <- tibble::data_frame(temps_depart = c("2017-05-07 17:00:02", "2017-05-29 18:50:11", "2017-10-12 22:56:46"),
+etiquetees <- tibble::data_frame(temps_depart = c("2017-05-07 17:00:02", "2017-05-29 18:50:11", "2017-10-12 22:56:46"),
                                   `duree_trajet` = c(25*60 + 5, 2*60, 11 * 60 + 47))
 
-etiquettees %>% 
+etiquetees %>% 
   knitr::kable() %>% 
   kableExtra::kable_styling(full_width = FALSE, position = "left")
 ```
 
+Ici, une ligne représente une observation ou un trajet, ```temps_depart``` est le prédicteur, et ```duree_trajet``` est l'étiquette.
 
-### Obtenir les données de *jointure*.
+### Obtenir les données de *jointure* {#obtenir-jointure}
 
-Après avoir trouvé nos données étiquettées contenant les étiquettes et les prédicteurs, nous sommes rarement satisfaits de la quantité de prédicteurs que nous pouvons y trouver. En effet, il arrive souvent dans les premiers instants d'un projet de prononcer une phrase du genre : "Imaginez si nous avions accès au prédicteur XYZ, qui malheureusement est absent des données étiquettées". Nous pouvons alors augmenter le jeu de données à l'aide de ce que nous appellerons les données de *jointure*. Nous les appellerons ainsi car nous devrons effectuer une opération de jointure entre notre jeu de données étiquettées et notre source de données additionnelle. Par exemple, si nous reprenons les données étiquettées précédentes, une source de données de jointure pourrait par exemple nous renseigner sur les heures de lever et de coucher du soleil pour chaque journée. En supposant que la noirceur décourage les cyclistes, cela pourrait aider à prédire la durée du trajet :
+Après avoir trouvé nos données etiquetées contenant les étiquettes et les prédicteurs, nous sommes rarement satisfaits de la quantité de prédicteurs que nous pouvons y trouver. En effet, il arrive souvent dans les premiers instants d'un projet de prononcer une phrase du genre : "Imaginez si nous avions accès à telle ou telle donnée (qui malheureusement est absente des données etiquetées)". Nous pouvons alors augmenter le jeu de données à l'aide de ce que nous appellerons les données de *jointure*. Nous les appellerons ainsi car nous devrons effectuer une opération de jointure entre notre jeu de données etiquetées et notre source de données additionnelle. Par exemple, si nous reprenons les données etiquetées précédentes, une source de données de jointure pourrait nous renseigner sur les heures de lever et de coucher du soleil pour chaque journée. En supposant que la noirceur décourage les cyclistes, cela pourrait aider à prédire la durée du trajet :
 
 ```{r, echo = FALSE}
 jointure <- tibble::data_frame(date = c("2017-05-07", "2017-05-29", "2017-10-12"),
@@ -44,13 +43,15 @@ jointure %>%
   kableExtra::kable_styling(full_width = FALSE, position = "left")
 ```
 
-### Effectuer la *jointure*
+Ici, la variable ```date``` nous permettrait d'effectuer une jointure entre ces données et les données etiquetées.
 
-Nous devrons ensuite effectuer une jointure à partir des informations présentes dans le(s) jeu(x) de données de *jointure* et dans le jeu de données étiquettées. Dans notre cas, la vie est belle : on joindrait les variables lever et coucher à l'aide de la date présente dans nos 2 jeux de données :
+### Effectuer la *jointure* {#effectuer-jointure}
+
+Maintenant que nous avons les données de *jointure* et les données etiquetées, nous pouvons effectuer une jointure à partir des informations présentes dans les 2 jeux de données, soit la variable ```date``` :
 
 ```{r, echo = FALSE}
 
-etiquettees %>% 
+etiquetees %>% 
   dplyr::mutate(date = stringr::str_extract(temps_depart, "\\d{4}-\\d{2}-\\d{2}")) %>% 
   dplyr::left_join(jointure, by = "date") %>% 
   knitr::kable() %>% 
@@ -58,33 +59,35 @@ etiquettees %>%
 
 ```
 
+Le jeu de données serait alors prêt à passer à l'étape de prétraitement \@ref(preprop), où nous pourrions par exemple créer une variable indicatrice ```noirceur``` qui indiquerait s'il fait noir ou non au début du trajet.
+
 ### Collecte historique vs. collecte en production
 
 Dans les projets de modélisation prédictive, il existe généralement un fossé entre la modélisation, qui nécessite une collecte de données historiques, et la prédiction en production, qui nécessite une collecte de données en temps réel. Selon la configuration des systèmes en place et la nature de la problématique, le fossé peut être microscopique, et passer inaperçu, ou astronomique, et poser de sérieux ennuis pouvant même compromettre la faisabilité du projet. En effet, les natures différentes de ces 2 contextes peuvent parfois être irréconciliables : l'entraînement de modèles sur des données historiques exige un entreposage adéquat des données, mais les données historiques ont rarement été collectées dans l'optique de servire à entraîner des modèles. Ainsi, nous pouvons généralement reconnaître 3 situations : 
 
-- une source de données disponible à l'entraînement mais indisponible en production en temps réel est inutile. Par exemple, disposer d'instruments météorologiques qui nécessitent une récolte manuelle mensuelle des données serait bénéfique à l'entraînement, mais inutilisable en production
-- une source de données disponible en production en temps réel mais indisponible à l'entraînement peut être utile à condition de faire certaines hypothèses au jugement avant, pendant ou après l'entraînement. Par exemple, si nous pouvons effectuer une lecture en temps réel de nos instruments météorologiques mais que ces données ne sont pas déversées dans une base de données à intervalle régulier, nous devrons poser une hypothèse : introduire l'opinion d'experts ou le résultat d'analyses simplifiées dans le modèle de façon manuelle. Attention toutefois : le modèle devient sensible à notre hypothèse, et nous introduisons potentiellement du biais ou de l'incertitude indésirables dans notre modèle.
-- entre les 2 situations précédentes se trouve le cas où les données d'entraînement sont différentes de celles de production. C'est notamment le cas quand une source de données fournit les données historiques, et une autre fournit les données en temps réel. Encore une fois il faudra poser une hypothèse, le modèle devient sensible à cette hypothèse et nous introduisons potentiellement du biais et de l'incertitude. Selon les différences entre les 2 sources, le biais et l'incertitude peuvent varier d'imperceptibles à nuisants.
+- une source de données disponible à l'entraînement mais indisponible en production en temps réel est inutile. Par exemple, disposer d'instruments météorologiques qui nécessitent une récolte manuelle mensuelle des données serait bénéfique à l'entraînement, mais inutilisable en production.
+- une source de données disponible en production en temps réel mais indisponible à l'entraînement peut être utile à condition de faire certaines hypothèses au jugement avant, pendant ou après l'entraînement. Par exemple, si nous pouvons effectuer une lecture en temps réel de nos instruments météorologiques mais que ces données ne sont pas déversées dans une base de données, nous devrons poser une hypothèse : introduire l'opinion d'experts ou le résultat d'analyses simplifiées dans le modèle de façon manuelle. Attention toutefois : le modèle devient sensible à notre hypothèse, et nous introduisons potentiellement du biais ou de l'incertitude indésirables dans notre modèle.
+- entre les 2 situations précédentes se trouve le cas où les données d'entraînement sont différentes de celles de production. C'est notamment le cas quand une source de données fournit les données historiques, et une autre fournit les données en temps réel. L'hypothèse par défaut serait que les sources produisent la même distribution de données. Une autre hypothèse pourrait être par exemple que la source de production sous-estime systématiquement de 2 unités, et nous apporterions des corrections manuelles à la source de production. Peu importe la complexité de l'hypothèse, encore une fois le modèle devient sensible à cette hypothèse et nous introduisons potentiellement du biais et de l'incertitude.
 
-Alors que la première situation est difficile à corriger tant que les données en temps réel sont indisponibles, les 2 suivantes permettent de continuer d'avancer, puis de commencer à entreposer les données de la source en temps réel pour fournir au modèle lors de son prochain réentrainement.
+Alors que la première situation est difficile à corriger tant que les données en temps réel sont indisponibles, les 2 suivantes permettent de continuer d'avancer, puis de commencer à entreposer les données de la source de production afin de fournir au modèle les données de production historiques lors de son prochain réentrainement.
 
 Également, les données de *jointure* peuvent représenter des concepts connus d'avance (ex. les heures de lever et coucher du soleil pour une journée donnée), ou d'autres devant être recalculés ou récupérés d'une source externe à chaque prédiction (ex. la température ambiante au moment de la prédiction). Alors que le premier type peut déjà être calculé et entreposé d'avance, puis récupéré rapidement lors de la prédiction, le deuxième doit nécessairement être calculé ou récupéré en temps réel à chaque prédiction, ce qui peut augmenter le temps de réponse.
 
 Pour des raisons de différence entre les sources et de rapidité des calculs, il faudra donc distinguer la collecte des données selon si elle est faite dans l'optique de modélisation, de prédiction, ou des 2.
 
-## Liste des données potentielles pour notre atelier
+## Liste des données potentielles {#liste}
 
-Dans le but d'identifier les données étiquettées et de *jointure*, dressons d'abord une liste des données disponibles et potentiellement utiles.
+Dans le but d'identifier les données étiquetées et de *jointure*, dressons d'abord une liste des données disponibles et potentiellement utiles.
 
 Les plus expérimentés auront déjà en tête la majorité des considérations couvertes plus tard dans ce chapitre au moment de dresser leur liste. Dans notre cas, permettons-nous de lister naïvement un grand nombre de sources. Chaque considération à venir nous permettra ensuite d'invalider certaines sources et de distiller notre sélection.
 
-### Données Étiquettées
+### Données étiquetées
 
 Tout d'abord, une simple recherche des mots-clés *données historiques BIXI* dans votre moteur de recherche favori devrait vous mener à la page du site web de BIXI réservée à [l'historique des déplacements](https://bixi.com/fr/donnees-ouvertes).
 
 Un coup d'oeil aux données disponibles permet de constater que, pour l'année 2017, nous avons accès, pour chacun des mois d'ouverture du service (avril à novembre), à des données tabulaires sous cette structure :
 
-``` {r, echo = FALSE}
+``` {r}
 data_2017_04 <- data.table::fread("data/data_bixi.csv", nrows = 5)
 
 data_2017_04 %>% 
@@ -92,11 +95,9 @@ data_2017_04 %>%
   kableExtra::kable_styling(full_width = FALSE, position = "left")
 ```
 
->[STOP] data_bixi n'existe pas nécessairement quand on load le projet sans appeler laod_historical_data(). Ajouter un paramètre nrows? Recoder?
+Voilà qui devrait nous fournir les éléments les plus précieux : nos 2 étiquetes. En effet, pour chacun des trajets, nous pourrons déterminer la durée avec la colonne *duration_sec* et le statut de membre du client à l'aide de la colonne *is_member*. Ces données renferment aussi d'autres éléments intéressants pouvant servir de prédicteurs. Nous pourrons notamment utiliser le jour de la semaine, l'heure et la station de départ pour tenter de prédire les variables réponses.
 
-Voilà qui devrait nous fournir les éléments les plus précieux : nos 2 étiquettes. En effet, pour chacun des trajets, nous pourrons déterminer la durée avec la colonne *duration_sec* et le statut de membre du client à l'aide de la colonne *is_member*. Ces données renferment aussi d'autres éléments intéressants pouvant servir de prédicteurs. Nous pourrons notamment utiliser le jour de la semaine, l'heure et la station de départ pour tenter de prédire les variables réponses.
-
-Dans ce jeu de données, ```duration_sec``` et ```is_member``` sont les étiquettes. Les prédicteurs sont la station de départ, l'heure de la journée, le jour de la semaine, et le mois, qui peuvent tous fournir davantage de précision à nos prédictions.
+Dans ce jeu de données, ```duration_sec``` et ```is_member``` sont les étiquetes. Les prédicteurs sont la station de départ, l'heure de la journée, le jour de la semaine, et le mois, qui peuvent tous fournir davantage de précision à nos prédictions.
 
 
 ### Données de *jointure*
@@ -162,27 +163,110 @@ Comme nous pouvons le constater, la liste de données potentielles est sans limi
 
 La collecte de données est le point de départ de la chaîne. Les données étant quelque peu la matière première du produit que nous nous apprêtons à bâtir, plusieurs considérations influenceront leur collecte.
 
-Les premières considérations qui viennent à l'esprit dans le cas des matières premières sont évidemment la quantité, la qualité et le prix. Toutefois, d'autres facteurs influencent le choix de matière première comme la provenance, le processus de récolte ou de transformation, la constance de l'approvisionnement, l'entreposage et la sécurité. Les mêmes considérations peuvent s'appliquer dans notre contexte et viendront influencer la colelcte des données.
+Les premières considérations qui viennent à l'esprit dans le cas des matières premières sont évidemment le prix, la qualité et la quantité. Toutefois, d'autres facteurs influencent le choix de matière première comme la provenance, le processus de récolte ou de transformation, la constance de l'approvisionnement, l'entreposage et la sécurité. Les mêmes considérations peuvent s'appliquer dans notre contexte et viendront influencer la collecte des données.
 
 La présente section aura pour objectif d'aborder ces considérations, tout en les appliquant sur les sources mentionnées et retenues précédemment.
 
-### Volume
-Dans le cas des données, on parlera de volume plutôt que de quantité. Nous définissons le volume comme l'espace occupé par un objet sur disque ou en mémoire. Le volume d'une source de données sera donc le produit du nombre d'observations et de la richesse de chaque observation. Si notre source de données contient beaucoup d'observations ou des observations riches, nous aurons des contraintes de rapidité de calcul, d'espace disque ou de mémoire au moment de l'entraînement, et potentiellement même au moment de la prédiction selon l'algorithme choisi.
 
-Si nous avons le *malheur* d'être ensevelis sous des observations en trop grand nombre ou d'une trop grande richesse, plusieurs options s'offrent à nous, qu'elles soient informatiques ou mathématiques/statistiques.
+### Accessibilité
+Pour une matière première, la première considération principale serait le coût. Dans le cas des données, nous allons plutôt parler d'accessibilité, dont le coût est une des composantes.
 
-Du point de vue informatique, R est parfois réputé lent et capricieux en termes de mémoire vive. Or, [il n'en est rien](http://adv-r.had.co.nz/Performance.html). En effet, il existe plusieurs stratégies simples pour optimiser une expression R : [profiler le code](http://adv-r.had.co.nz/Profiling.html), [comprendre la gestion de la mémoire](http://adv-r.had.co.nz/memory.html) ou des interfaces [C++](http://adv-r.had.co.nz/Rcpp.html) et [C](http://adv-r.had.co.nz/C-interface.html).
+#### Coût
+Si plusieurs tribunes s'entendent pour dire que le nouvel or noir est les données, cet engouement vient nécessairement avec un coût, dicté par l'offre et la demande. Certaines sources sont gratuites, alors que d'autres sont payantes. Plusieurs approches sont donc possibles pour maximiser les bénéfices d'un projet tout en limitant ses coûts.
 
-Du point de vue mathématique, il serait étonnant que la quantité d'observations *étiquettées* soit trop grande. Comme a déjà admis le Scientifique en Chef de Google : «Nous n'avons pas de meilleurs algorithmes que n'importe qui d'autre; nous avons seulement plus de données»[https://www.forbes.com/sites/scottcleland/2011/10/03/googles-infringenovation-secrets]. Pour contourner les problèmes de mémoire ou d'espace disque, il existe des algorithmes qui taitent les données par *batches*, c'est-à-dire par tranches de $n$ observations à la  fois, où $n$ devra être assez petit pour contourner les contraintes d'espace, mais assez grand pour que l'algorithme puisse généraliser son apprentissage. C'est le cas notamment des algorithmes d'apprentissage profond.
+##### Sources gratuites {#sources-gratuites}
+Outre l'approche par moteur de recherche effectuée ci-haut, un balayage des différentes sources gratuites peut révéler des trésors cachés. Parmi ces sources gratuites, notons les suivantes : 
 
-Pour les besoins de l'atelier, nous utiliserons seulement les données de 2017 pour entraîner le modèle, mais vous pouvez vous amuser à modéliser avec autant de données que vous le désirez!
+- [Kaggle](https://www.kaggle.com/datasets)
+- [Google Dataset Search](https://toolbox.google.com/datasetsearch)
+- [Données ouvertes de la Ville de montréal](http://donnees.ville.montreal.qc.ca/)
+- [Données ouvertes du Gouvernement du Canada](https://ouvert.canada.ca/fr/donnees-ouvertes)
+- [Statistiques Canada](https://www150.statcan.gc.ca/n1/fr/type/donnees?MM=1)
+- [UC Irvine](https://archive.ics.uci.edu/ml/datasets.php)
+- [et même Reddit!](https://www.reddit.com/r/datasets)
 
-#### Aggrégation
-À la section précédente, nous avons pris la peine de préciser que ce sont les données étiquettées qui ne peuvent pas être trop nombreuses. Par contre, pour toutes les données de jointure, il est possible que les clés de jointure ne soient pas tout à fait alignées avec leur correspondance dans les données étiquettées. Par exemple, si le taux d'échantillonnage des données de jointure n'est pas aussi précis que le permet la clé dans les données étiquettées, nous devrons nous contenter d'une valeur aggrégée, par exemple la moyenne sur une plus longue période. D'un point de vue mathématique, nous préférerons une source la plus granulaire possible, car nous aurions toujours la possibilité de faire l'aggrégation nous-même si nécessaire. Nous évitons ainsi la perte potentielle d'information prédictive pour notre modèle. Par contre, des contraintes de coûts ou d'entreposage pourraient nous forcer à entreposer des données aggrégées.
+##### Sources payantes {#sources-payantes}
+Les sources payantes sont aussi vastes. Parfois elles sont accessibles en ligne, mais bien souvent des tarifs sont offerts à la pièce. Les fournisseurs principaux de ce type de données sont les courtiers, les aggrégateurs, les entreprise technologiques et les entreprises qui ont beaucoup de données.
 
-Pour effectuer ces aggrégations, il existe plusieurs écoles de pensées en R. Les packages base, dplyr et data.table sont tous capables d'effectuer la majorité des opérations, mais avec des vitesses et des convivialités variables d'une tâche à l'autre. Plutôt que choisir un camp, nous nous contenterons de vous orienter vers cette [discussion](https://stackoverflow.com/questions/21435339/data-table-vs-dplyr-can-one-do-something-well-the-other-cant-or-does-poorly), qui dresse les avantages et les désavantages de ces méthodes
+#### Lecture et écriture
+Les sources de données peuvent se présenter sous plusieurs formes : un fichier, une base de données ou un service. Dans tous les cas, R gère facilement la lecture et l'écriture des données.
 
-> [STOP] on va faire un merge des données ... Météo?
+##### Lecture et écriture de fichiers
+Les sources de données se présentent parfois sous la forme de fichier. Aussi peu dynamique cela soit-il, il est fréquent d'avoir recours à des fichiers aux premiers stades de développement d'une idée. En effet, un fichier est souvent plus simple à obtenir, et plus rapide à configurer pour des besoins ponctuels qu'une connexion à une base de données ou à une API.
+
+Plusieurs packages R facilitent et accélèrent cette étape du processus. Parmi ceux-ci, notons [data.table](http://r-datatable.com) et sa fonction ```fread```, [readr](https://github.com/tidyverse/readr), [readxl](https://github.com/tidyverse/readxl) et [xlsx](https://github.com/colearendt/xlsx).
+
+##### Connexion à une base de données
+L'importation de fichiers peut fonctionner à petite échelle. Pour éliminer des étapes manuelles, il convient de configurer l'environnement de modélisation pour qu'il puisse se connecter à des bases de données.
+
+Parmi les types de bases de données, on peut les placer sur un continuum allant de structuré à non-structuré. Certaines définitions considèrent que les données semi-structurées sont une classe à part... nous nous contenterons de dire qu'il existe un continuum de degrés d'organisation des données, avec à un extrême les données structurées, et à l'autre les données non-structurées.
+
+Sans entrer dans les détails, notons que les packages permettant à R de se connecter à des bases de données sont multiples : [odbc](https://github.com/r-dbi/odbc), [DBI](https://github.com/r-dbi/DBI), [dbplyr](https://github.com/tidyverse/dbplyr), [sparklyr](https://github.com/rstudio/sparklyr), [ROracle](https://cran.r-project.org/web/packages/ROracle/index.html), [RMySQL](https://cran.r-project.org/web/packages/RMySQL/index.html), [RPostgresSQL](https://github.com/tomoakin/RPostgreSQL), [RSQLite](https://github.com/r-dbi/RSQLite), [sqldf](https://github.com/ggrothendieck/sqldf), [rio](https://github.com/leeper/rio), [foreign](https://cran.r-project.org/web/packages/foreign/foreign.pdf) et [haven](https://github.com/tidyverse/haven) sont du nombre. Notons également que l'éditeur RStudio [facilite l'interaction](https://db.rstudio.com/) avec plusieurs de ces packages.
+
+###### Données structurées
+Les données structurées sont caractérisées par un modèle de données qui garanti une uniformité entre toutes les données, de façon à ce que la lecture et l'écriture de ces données soient facilitées et accélérées.
+
+L'implantation la plus connue de données structurées est probablement les bases de données relationnelles constituées de tables disposées en colonnes et en rangées. L'utilisation de jointures est omniprésente et à la base de ce type de bases de données. Le langage par excellence pour ce type de bases de données est le SQL (Structured Query Language).
+
+###### Données non-structurées
+Les données non-structurées sont celles qui ne sont pas organisées à l'aide d'un modèle de données. Une base de données non-structurée peut donc contenir à la fois du texte, des images, du son ou une combinaison (ex. vidéo). R est également équipé pour traiter ce genre de données. Par exemple, pour le traitement d'images, les packages [imager](https://github.com/dahtah/imager), [magick](https://github.com/ropensci/magick#readme) et [png](https://cran.r-project.org/web/packages/png/index.html) sont disponibles.
+
+##### Service
+Outre la collecte par fichiers ou par connexion à des bases de données, il est possible de procéder en faisant appel à un service. Un service est accessible via une adresse précise, référant à un port sur un serveur. On y envoie des instructions, et on reçoit une réponse, souvent en XML ou en JSON.
+
+
+
+Les packages suivants facilitent la communication avec des serveurs : [curl](https://github.com/jeroen/curl), [httr](https://github.com/r-lib/httr), [jsonlite](https://cran.r-project.org/web/packages/jsonlite/index.html), [xml2](https://github.com/r-lib/xml2), [XML](https://cran.r-project.org/web/packages/XML/index.html), [downloader](https://github.com/wch/downloader)
+
+CURL de Jé
+
+https://api.citybik.es/v2/
+https://api.citybik.es/v2/networks/bixi-montreal
+
+https://api-core.bixi.com/gbfs/gbfs.json
+https://api-core.bixi.com/gbfs/en/station_status.json
+https://github.com/NABSA/gbfs
+
+Discarter dispos vélo live parce que pas d'historique
+
+http://www.omdbapi.com
+&apikey=9927136f
+
+gratuites vs payantes, timeouts, etc.
+
+#### Web Scraping
+
+Principal obstacle est l'aspect légal
+[rvest](http://rvest.tidyverse.org/), , [googlesheets](https://github.com/jennybc/googlesheets)
+
+#### Accès aux données historiques et en temps réel
+
+À ce titre, comparons l'interface du Gouvernement du Canada pour télécharger la météo historique à la [station McTavish](http://climate.weather.gc.ca/climate_data/hourly_data_f.html?StationID=10761). La boîte **Télécharger des données** nous suggère que nous pouvons obtenir [plus de données](ftp://ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/) en suivant le lien ainsi affiché.
+
+    - [température en temps réel](https://openweathermap.org/current)
+
+
+Exemple température
+http://api.openweathermap.org/data/2.5/weather?q=montreal&APPID=06284235673deed0ce24aeaaa1e8f296
+https://montreal.weatherstats.ca/download.html
+
+#### Stabilité
+Pour que la stabilité des sources de données soit problématique, deux éléments doivent être réunis :
+- le format des données change
+- notre fréquence d'extraction est trop élevée pour nous donner le temps de réagir
+
+Alors que nous n'avons peu de contrôle sur le premier élément, nous pouvons mitiger le deuxième. Nous pouvons travailler avec une *copie* des données, de sorte que nous ne serons pas affectés par un changement à la source. Évidemment, en contrepartie on sacrifie la réactivité... l'approche à prendre dépendra donc de la valeur d'avoir les données les plus à jour dans le modèle, de notre anticipation de la stabilité ainsi que de l'impact d'une panne du service.
+
+Dans notre cas, les shapefiles... On garde les shapefiles pour la suite!
+
+    - [découpage des quartiers](http://donnees.ville.montreal.qc.ca/dataset/polygones-arrondissements/resource/bc6e94c7-9393-490d-899f-4296dd1e3dcf)
+
+- Évolution anticipée du format des données (pas de contrôle sur la source de données? → copier les données freezées. Le modèle a encore de la valeur)
+- Pourquoi on va utiliser les shapefiles comme exemple de merge (statique, etc.)
+
+#### sécurité et confidentialité
+Comme dans tout projet informatique, nous devons nous assurer du niveau de sécurité approprié pour l'usage.
+
 
 ### Qualité
 Plusieurs aspects peuvent influencer notre perception de qualité d'une source de données, tels que son organisation, sa documentation, son pouvoir prédictif, sa fréquence, la capacité de faire des jointures et le biais. Encore une fois, notons que les étapes futures peuvent invalider une source de données. Par exemple, le pouvoir prédictif est difficile à évaluer sans un premier modèle naïf au moins.
@@ -241,7 +325,7 @@ La météo demande d'avoir des données historiques pour l'entraînement, et une
 Dans la section "approche", nous avons grandement simplifié le processus de jointure de sources de données. Or, dans la *vraie* vie, les opérations de jointure peuvent parfois s'avérer périlleuses. En effet, les informations de part et d'autres peuvent être manquantes ou insuffisantes, de sorte que la jointure produira un prédicteur avec une faible qualité ou un faible niveau de confiance. La quantité de jointures à effectuer peut aussi être supérieure à 1, ce qui augmente l'incertitude par rapport à la qualité des données jointes.
 
 ##### Faible qualité
-À la section approche, si au lieu d'avoir sous la main l'heure moyenne de lever et de coucher du soleil dans un mois, plutôt que la donnée exacte pour chacune des journées, nos prédicteurs auraient un pouvoir prédictif plus faible étant donné que l'heure moyenne dans un mois est seulement un *proxy* pour le vrai prédicteur, qui est l'heure exacte :
+À la section \@ref(effectuer-jointure), si au lieu d'avoir sous la main l'heure moyenne de lever et de coucher du soleil dans un mois, plutôt que la donnée exacte pour chacune des journées, nos prédicteurs auraient un pouvoir prédictif plus faible étant donné que l'heure moyenne dans un mois est seulement un *proxy* pour le vrai prédicteur, qui est l'heure exacte :
 
 ```{r, echo = FALSE}
 jointure <- tibble::data_frame(mois = c("2017-05", "2017-10"),
@@ -267,10 +351,10 @@ Nous constatons que les 2 premières observations ont le même prédicteur, alor
 Nous utiliserions donc une source de données en jointure, sachant que son pouvoir prédictif n'est pas aussi élevé qu'il pourrait l'être.
 
 ##### Faible niveau de confiance
-Un faible niveau de confiance dans la jointure est présent lorsque la clé de jointure comporte de l'incertitude. Contrairement au cas précédent où nous compressions volontairement l'information de la clé de jointure pour joindre des données aggrégées, ce cas-ci se produit lorsque la clé produit des jointures irrégulières ou imprévisibles. Par exemple, si nous avions accès au nom du client dans les données étiquettées, et que nous avions accès à des données de jointure triées par nom, il y aurait certainement des clients pour lesquels la jointure des 2 sources retournerait la mauvaise personne ou plusieurs personnes.
+Un faible niveau de confiance dans la jointure est présent lorsque la clé de jointure comporte de l'incertitude. Contrairement au cas précédent où nous compressions volontairement l'information de la clé de jointure pour joindre des données aggrégées, ce cas-ci se produit lorsque la clé produit des jointures irrégulières ou imprévisibles. Par exemple, si nous avions accès au nom du client dans les données étiquetées, et que nous avions accès à des données de jointure triées par nom, il y aurait certainement des clients pour lesquels la jointure des 2 sources retournerait la mauvaise personne ou plusieurs personnes.
 
 ##### Plusieurs jointures
-Supposons un instant que nous disposons d'une source de données avec l'altitude pour toute position GPS (nous reviendrons à la connection à des APIs [API]). Supposons également que nous croyons qu'une station de départ plus élevée produit en général des trajets plus longs. Nous pourrions alors joindre successivement plusieurs sources de données jusqu'à temps que le prédicteur (altitude) soit vis-à-vis l'étiquette. En effet, en joignant les données étiquettées, la position GPS de chaque station et l'altitude par position GPS :
+Supposons un instant que nous disposons d'une source de données avec l'altitude pour toute position GPS (nous reviendrons à la connection à des APIs [API]). Supposons également que nous croyons qu'une station de départ plus élevée produit en général des trajets plus longs. Nous pourrions alors joindre successivement plusieurs sources de données jusqu'à temps que le prédicteur (altitude) soit vis-à-vis l'étiquette. En effet, en joignant les données etiquetées, la position GPS de chaque station et l'altitude par position GPS :
 
 
 ```{r, echo = FALSE}
@@ -316,108 +400,22 @@ dès que des données personnelles sont en jeu
 dès que des proxys de données personnelles sont en jeu
 aggravé lorsque les prédictions ont un impact réel sur la vie des gens
 
-### Accessibilité
-Pour une matière première, la dernière considération principale serait le coût. Dans le cas des données, nous allons plutôt parler d'accessibilité, dont le coût est une des composantes.
+### Volume
+Dans le cas des données, on parlera de volume plutôt que de quantité. Nous définissons le volume comme l'espace occupé par un objet sur disque ou en mémoire. Le volume d'une source de données sera donc le produit du nombre d'observations et de la richesse de chaque observation. Si notre source de données contient beaucoup d'observations ou des observations riches, nous aurons des contraintes de rapidité de calcul, d'espace disque ou de mémoire au moment de l'entraînement, et potentiellement même au moment de la prédiction selon l'algorithme choisi.
 
-#### coût (gratuit?)
-Si (la)[] (plupart)[] des (tribunes)[] s'entendent pour dire que le nouvel or noir est les données, nous aurons donc à considérer le coût pour accéder aux données. Or, plusieurs (#sources) sont gratuites.
+Si nous avons le *malheur* d'être ensevelis sous des observations en trop grand nombre ou d'une trop grande richesse, plusieurs options s'offrent à nous, qu'elles soient informatiques ou mathématiques/statistiques.
 
-##### Sources gratuites {#sources-gratuites}
-- https://www.kaggle.com/datasets
-- https://toolbox.google.com/datasetsearch
-- https://www.reddit.com/r/datasets
-- https://archive.ics.uci.edu/ml/index.php?fbclid=IwAR09F5grBOTCr1SS4v8gONEYeqk0DqqWpPdt1blmYF9ucZkhsQeM5T0E7ew
-- http://donnees.ville.montreal.qc.ca/
-- stats can
-- ville Montréal
-- gc.ca
+Du point de vue informatique, R est parfois réputé lent et capricieux en termes de mémoire vive. Or, [il n'en est rien](http://adv-r.had.co.nz/Performance.html). En effet, il existe plusieurs stratégies simples pour optimiser une expression R : [profiler le code](http://adv-r.had.co.nz/Profiling.html), [comprendre la gestion de la mémoire](http://adv-r.had.co.nz/memory.html) ou des interfaces [C++](http://adv-r.had.co.nz/Rcpp.html) et [C](http://adv-r.had.co.nz/C-interface.html).
 
+Du point de vue mathématique, il serait étonnant que la quantité d'observations *etiquetées* soit trop grande. Comme a déjà admis le Scientifique en Chef de Google : «Nous n'avons pas de meilleurs algorithmes que n'importe qui d'autre; nous avons seulement plus de données»[https://www.forbes.com/sites/scottcleland/2011/10/03/googles-infringenovation-secrets]. Pour contourner les problèmes de mémoire ou d'espace disque, il existe des algorithmes qui taitent les données par *batches*, c'est-à-dire par tranches de $n$ observations à la  fois, où $n$ devra être assez petit pour contourner les contraintes d'espace, mais assez grand pour que l'algorithme puisse généraliser son apprentissage. C'est le cas notamment des algorithmes d'apprentissage profond.
 
-##### Sources payantes {#sources-payantes}
-- courtiers
-- aggrégateurs
-- entreprises technologiques
-- entreprises qui ont beaucoup de données
+Pour les besoins de l'atelier, nous utiliserons seulement les données de 2017 pour entraîner le modèle, mais vous pouvez vous amuser à modéliser avec autant de données que vous le désirez!
 
-#### Lecture de fichiers
+#### Aggrégation
+À la section précédente, nous avons pris la peine de préciser que ce sont les données etiquetées qui ne peuvent pas être trop nombreuses. Par contre, pour toutes les données de jointure, il est possible que les clés de jointure ne soient pas tout à fait alignées avec leur correspondance dans les données etiquetées. Par exemple, si le taux d'échantillonnage des données de jointure n'est pas aussi précis que le permet la clé dans les données etiquetées, nous devrons nous contenter d'une valeur aggrégée, par exemple la moyenne sur une plus longue période. D'un point de vue mathématique, nous préférerons une source la plus granulaire possible, car nous aurions toujours la possibilité de faire l'aggrégation nous-même si nécessaire. Nous évitons ainsi la perte potentielle d'information prédictive pour notre modèle. Par contre, des contraintes de coûts ou d'entreposage pourraient nous forcer à entreposer des données aggrégées.
 
-Les sources de données se présentent parfois sous la forme de fichier. Aussi peu dynamique cela soit-il, il est fréquent d'avoir recours à des fichiers aux premiers stades de développement d'une idée. En effet, c'est souvent plus simple à obtenir, et plus rapide à configurer pour des besoins ponctuels.
+Pour effectuer ces aggrégations, il existe plusieurs écoles de pensées en R. Les packages base, dplyr et data.table sont tous capables d'effectuer la majorité des opérations, mais avec des vitesses et des convivialités variables d'une tâche à l'autre. Plutôt que choisir un camp, nous nous contenterons de vous orienter vers cette [discussion](https://stackoverflow.com/questions/21435339/data-table-vs-dplyr-can-one-do-something-well-the-other-cant-or-does-poorly), qui dresse les avantages et les désavantages de ces méthodes
 
-Plusieurs packages R facilitent cette étape du processus. Parmi ceux-ci, notons data.table (fread), readr, readxl et xlsx.
-
-#### Connexion à une base de données
-
-L'importation de fichiers peut fonctionner à petite échelle. Pour éliminer des étapes manuelles, il convient de configurer l'environnement de modélisation pour qu'il puisse se connecter à des bases de données.
-
-Parmi les types de bases de données, on peut les placer sur un continuum allant de structuré à non-structuré. Certaines définitions considèrent que les données semi-structurées sont une classe à part... nous nous contenterons de dire qu'il existe un continuum de degrés d'organisation des données, avec à un extrême les données structurées, et à l'autre les données non-structurées.
-
-##### Données structurées
-Les données structurées sont caractérisées par un modèle de données qui garanti une uniformité entre toutes les données, de façon à ce que la lecture et l'écriture de ces données soient facilitées et accélérées.
-
-L'implantation la plus connue de données structurées est probablement les bases de données relationnelles constituées de tables disposées en colonnes et en rangées. L'utilisation de jointures est omniprésente et à la base de ce type de bases de données. Le langage par excellence pour ce type de bases de données est le SQL (Structured Query Language)
-
-##### Données non-structurées
-Les données non-structurées sont celles qui ne sont pas organisées à l'aide d'un modèle de données. Une base de données non-structurée peut donc contenir à la fois du texte, des images, du son ou une combinaison (ex. vidéo).  
-
-Sans entrer dans les détails, notons que les packages permettant à R de se connecter à des bases de données sont multiples : odbc, DBI, dbplyr, sparklyr, ROracle, RMySQL, RPostgresSQL, RSQLite, sqldf, rio, foreign et haven sont du nombre. Notons également que l'éditeur RStudio [facilite l'interaction](https://db.rstudio.com/) avec plusieurs de ces packages.
-
-##### API
-
-CURL de Jé
-
-https://api.citybik.es/v2/
-https://api.citybik.es/v2/networks/bixi-montreal
-https://api-core.bixi.com/gbfs/gbfs.json
-https://api-core.bixi.com/gbfs/en/station_status.json
-https://github.com/NABSA/gbfs
-
-Discarter dispos vélo live parce que pas d'historique
-
-http://www.omdbapi.com
-&apikey=9927136f
-
-
-XML
-xml2
-curl
-httr
-rvest
-downloader
-jsonlite
-googlesheets
-
-gratuites vs payantes, timeouts, etc.
-
-#### Web Scraping
-
-Principal obstacle est l'aspect légal
-
-
-#### Accès aux données historiques et en temps réel
-
-À ce titre, comparons l'interface du Gouvernement du Canada pour télécharger la météo historique à la [station McTavish](http://climate.weather.gc.ca/climate_data/hourly_data_f.html?StationID=10761). La boîte **Télécharger des données** nous suggère que nous pouvons obtenir [plus de données](ftp://ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/) en suivant le lien ainsi affiché.
-
-    - [température en temps réel](https://openweathermap.org/current)
-
-
-Exemple température
-http://api.openweathermap.org/data/2.5/weather?q=montreal&APPID=06284235673deed0ce24aeaaa1e8f296
-https://montreal.weatherstats.ca/download.html
-
-#### Stabilité
-Pour que la stabilité des sources de données soit problématique, deux éléments doivent être réunis :
-- le format des données change
-- notre fréquence d'extraction est trop élevée pour nous donner le temps de réagir
-
-Alors que nous n'avons peu de contrôle sur le premier élément, nous pouvons mitiger le deuxième. Nous pouvons travailler avec une *copie* des données, de sorte que nous ne serons pas affectés par un changement à la source. Évidemment, en contrepartie on sacrifie la réactivité... l'approche à prendre dépendra donc de la valeur d'avoir les données les plus à jour dans le modèle, de notre anticipation de la stabilité ainsi que de l'impact d'une panne du service.
-
-Dans notre cas, les shapefiles... On garde les shapefiles pour la suite!
-
-- Évolution anticipée du format des données (pas de contrôle sur la source de données? → copier les données freezées. Le modèle a encore de la valeur)
-- Pourquoi on va utiliser les shapefiles comme exemple de merge (statique, etc.)
-
-#### sécurité et confidentialité
-Comme dans tout projet informatique, nous devons nous assurer du niveau de sécurité approprié pour l'usage.
 
 
 ## Processus itératif
