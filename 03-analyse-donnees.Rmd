@@ -83,6 +83,473 @@ La question qui reste en suspens pour le moment est de savoir si notre jeu de do
 
 La première étape pour agréger des données est de se familiariser avec les distributions marginales de chacun des champs. On doit évidemment traîter différemment les variables continues des variables discrètes. Il y a différentes manières de procéder, on propose une solution parmi tant d'autres dans le livre.
 
+```{r, status_exposure}
+data_member <- data[, .(
+  nb = .N,
+  mean = mean(duration_sec)
+), is_member][
+  , status:=as.factor(ifelse(is_member, "Membre", "Non-Membre"))
+]
+
+plot_ly(
+  data = data_member
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    x = ~status,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Status"
+      ),
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      fixedrange = TRUE,
+      exponentformat = "none"
+    )
+  )
+```
+
+```{r, status_oneway}
+data_member_quantiles <- data[, .(quantiles=quantile(duration_sec, seq(0, 1, 0.25))), is_member]
+data_member_quantiles[, status:=as.factor(ifelse(is_member, "Membre", "Non-Membre"))]
+
+plot_ly(
+  data = data_member
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    x = ~status,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y2"
+  ) %>%
+  add_trace(
+    data = data_member_quantiles,
+    type = "box",
+    name = "Quantiles",
+    hoverinfo = "y",
+    boxpoints = FALSE,
+    x = ~status,
+    y = ~quantiles,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    data = data_member,
+    type = "scatter",
+    mode = "markers",
+    name = "Moyenne",
+    hoverinfo = "y",
+    x = ~status,
+    y = ~mean,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Status"
+      ),
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Durée moyenne (sec)"
+      ),
+      side = "left",
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = list(-1000, 3000)
+    ),
+    yaxis2 = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      overlaying = "y",
+      side = "right",
+      showgrid = FALSE,
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = ~list(0, 4*max(nb))
+    )
+  )
+```
+
+
+
+```{r, date_exposure}
+# Ne pas oublier de parler de l'effet de la température sur l'exposure
+
+# Sommaire par date
+data_date <- data[, .(
+  nb = .N,
+  mean = mean(duration_sec)
+), start_date][order(start_date)]
+
+
+plot_ly(
+  data = data_date
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "x+y",
+    showlegend = FALSE,
+    x = ~start_date,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Date du trajet"
+      ),
+      rangeslider = TRUE,
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      fixedrange = TRUE,
+      exponentformat = "none"
+    ),
+    hovermode = "x"
+  )
+```
+
+
+```{r, date_oneway}
+# Ne pas oublier de parler de l'effet de la température sur la variable réponse et la corrélation avec l'exposure... Donnée sous représentées quand il pleut. Faire attention au after the fact si on prend les précipitations totales de la journée.
+
+data_date[, weekend:=wday(start_date, week_start = 7)%in%c(1, 7)]
+
+plot_ly(
+  data = data_date
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "x+y",
+    showlegend = FALSE,
+    x = ~start_date,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y2"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    name = "Durée moyenne",
+    hoverinfo = "y",
+    x = ~start_date,
+    y = ~mean,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    visible = "legendonly",
+    name = "Fin de semaine",
+    hoverinfo = "y",
+    legendgroup = "weekend",
+    x = ~start_date[weekend==TRUE],
+    y = ~mean[weekend==TRUE],
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    visible = "legendonly",
+    name = "Semaine",
+    hoverinfo = "y",
+    legendgroup = "weekend",
+    x = ~start_date[weekend==FALSE],
+    y = ~mean[weekend==FALSE],
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Date du trajet"
+      ),
+      rangeslider = TRUE,
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Durée moyenne (sec)"
+      ),
+      side = "left",
+      fixedrange = TRUE,
+      exponentformat = "none"
+    ),
+    yaxis2 = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      overlaying = "y",
+      side = "right",
+      showgrid = FALSE,
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = ~list(0, 4*max(nb))
+    ),
+    hovermode = "x",
+    legend = list(
+      y = -0.3
+    )
+  )
+```
+
+```{r, time_exposure}
+data_time <- copy(data)
+data_time[, start_hour:=hour(start_date_time)]
+data_time <- data_time[, time_min:=strftime(start_date_time, format="%H:%M", tz="UTC")][, .(
+  nb = .N,
+  mean = mean(duration_sec)
+), .(time_min, start_hour)][order(time_min)]
+
+plot_ly(
+  data = data_time
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "x+y",
+    showlegend = FALSE,
+    x = ~time_min,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Heure du trajet"
+      ),
+      rangeslider = TRUE,
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      fixedrange = TRUE,
+      exponentformat = "none"
+    ),
+    hovermode = "x"
+  )
+```
+
+```{r, time_oneway}
+data_time[, moment_journee := "nuit"]
+data_time[start_hour >= 6 & start_hour < 11, moment_journee := "matin"]
+data_time[start_hour >= 11 & start_hour < 16, moment_journee := "journee"]
+data_time[start_hour >= 16 & start_hour < 23, moment_journee := "soir"]
+data_time[, moment_journee:=as.factor(moment_journee)]
+
+plot_ly(
+  data = data_time
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "x+y",
+    showlegend = FALSE,
+    x = ~time_min,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y2"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    name = "Durée moyenne",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    x = ~time_min,
+    y = ~mean,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    visible = "legendonly",
+    name = "Matin",
+    hoverinfo = "none",
+    legendgroup = "moment",
+    x = ~time_min,
+    y = ~ifelse(moment_journee=="matin", mean, NA),
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    visible = "legendonly",
+    name = "Journée",
+    hoverinfo = "none",
+    legendgroup = "moment",
+    x = ~time_min,
+    y = ~ifelse(moment_journee=="journee", mean, NA),
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    visible = "legendonly",
+    name = "Soir",
+    hoverinfo = "none",
+    legendgroup = "moment",
+    x = ~time_min,
+    y = ~ifelse(moment_journee=="soir", mean, NA),
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    visible = "legendonly",
+    name = "Nuit",
+    hoverinfo = "none",
+    legendgroup = "moment",
+    x = ~time_min,
+    y = ~ifelse(moment_journee=="nuit", mean, NA),
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Heure du trajet"
+      ),
+      rangeslider = TRUE,
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Durée moyenne (sec)"
+      ),
+      side = "left",
+      fixedrange = TRUE,
+      exponentformat = "none"
+    ),
+    yaxis2 = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      overlaying = "y",
+      side = "right",
+      showgrid = FALSE,
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = ~list(0, 4*max(nb))
+    ),
+    hovermode = "x",
+    legend = list(
+      y = -0.4
+    )
+  )
+```
+
+```{r, moment_oneway}
+data_moment <- copy(data)
+data_moment[, start_hour:=hour(start_date_time)]
+data_moment[, moment_journee := "Nuit"]
+data_moment[start_hour >= 6 & start_hour < 11, moment_journee := "Matin"]
+data_moment[start_hour >= 11 & start_hour < 16, moment_journee := "Journée"]
+data_moment[start_hour >= 16 & start_hour < 23, moment_journee := "Soir"]
+data_moment[, moment_journee:=factor(moment_journee, c("Matin", "Journée", "Soir", "Nuit"))]
+
+data_moment_quantiles <- data_moment[, .(quantiles=quantile(duration_sec, seq(0, 1, 0.25))), moment_journee]
+
+data_moment <- data_moment[, .(
+  nb = .N,
+  mean = mean(duration_sec)
+), moment_journee]
+
+plot_ly(
+  data = data_moment
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    x = ~moment_journee,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y2"
+  ) %>%
+  add_trace(
+    data = data_moment_quantiles,
+    type = "box",
+    name = "Quantiles",
+    hoverinfo = "y",
+    boxpoints = FALSE,
+    x = ~moment_journee,
+    y = ~quantiles,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    data = data_moment,
+    type = "scatter",
+    mode = "markers",
+    name = "Moyenne",
+    hoverinfo = "y",
+    x = ~moment_journee,
+    y = ~mean,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Status"
+      ),
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Durée moyenne (sec)"
+      ),
+      side = "left",
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = list(-1000, 3000)
+    ),
+    yaxis2 = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      overlaying = "y",
+      side = "right",
+      showgrid = FALSE,
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = ~list(0, 4*max(nb))
+    )
+  )
+```
+
+
+
 ```{r, spatial_exposure, warning=FALSE}
 library(leaflet)
 library(magrittr)
