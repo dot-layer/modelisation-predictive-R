@@ -149,9 +149,9 @@ où $\bar{x}_A$ et $\hat\sigma_A$ sont la moyenne et la variance observées de l
 2. Normalisation *min-max*
 
 $$
-x_{A}^{\prime(i)}=\frac{x_{A}^{(i)}-min_A}{max_A-min_A}\big(new\_max_A-new\_min_A\big)+new\_min_A
+x_{i,A}^{\prime}=\frac{x_{i,A}-\min_A}{\max_A-\min_A}\big({\rm new\_max}_A-{\rm new\_min}_A\big)+{\rm new\_min}_A
 $$
-où le $min_A$ et le $max_A$ sont calculés sur la distribution de l'attribut $A$ alors que $new\_max_A$ et $new\_min_A$ correspondent au nouvel intervalle désiré. 
+où $\min_A = \min_i x_{i,A}$ et $\max_A  = \max_i x_{i,A}$ sont calculés sur la distribution de l'attribut $A$, alors que $new\_max_A$ et $new\_min_A$ correspondent aux bornes du nouvel intervalle désiré. 
 
 3. Normalisation pas décimation
 
