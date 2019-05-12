@@ -136,7 +136,7 @@ Avant de passer à l'entraînement d'un modèle, il est préférable pour la maj
 
 La normalisation des données permet de ramener les données autour d'une distribution plus "standard". Pour certains types de modèles, en particulier ceux qui sont basés sur des calculs de distances comme les $k$-PPV ou le *clustering*, il est primordial de normaliser les données avant d'en faire l'apprentissage. En effet, cela permet de standardiser les distributions des différents attributs du jeu de données. Par exemple, si deux variables sont distribuées sur des domaines ayant des échelles complètement différentes, il est préférable de plutôt comparer celles-ci sur un échelle commune. Voilà l'objectif fondamental de la normalisation.
 
-Il existe différentes méthodes de normalisation. Il n'y a pas de "bonne méthode", mais certaines sont mieux adaptées à des contextes en particulier. Voici quelques exemples de méthodes traditionnelles où $x_{A}^{\prime(i)}$ représente la donnée $i$ normalisée pour l'attribut $A$ et $x_{A}^{(i)}$ représente la donnée originale.
+Il existe différentes méthodes de normalisation. Il n'y a pas de "bonne méthode", mais certaines sont mieux adaptées à des contextes en particulier. Voici quelques exemples de méthodes traditionnelles où $x_{i,A}^{\prime}$ représente la donnée $i$ normalisée pour l'attribut $A$ et $x_{i,A}$ représente la donnée originale.
 
 1. Normalisation centrée-réduite
 
