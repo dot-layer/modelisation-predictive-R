@@ -293,7 +293,7 @@ data <- lapply(names(valeurs_normalisation$moyennes), function(x) {
 
 #### Création de nouveaux attributs
 
-Pour ce qui est de la création de nouveaux attributs et de la discrétisation, ces prétraitements sont généralement fait en appliquant une transformation directe aux données, par exemple, l'application d'une fonction `log`. Ces transformations peuvent donc être programmées via du code source qui sera appliqué de la même manière pour les données d'entraînement que pour les données de test. Voici un exemple de fonction qui permettrait de créer un nouvel attribut et discrétiser un attribut, et ce, pour les 2 jeux de données:
+Pour ce qui est de la création de nouveaux attributs et de la discrétisation, ces prétraitements sont généralement fait en appliquant une transformation directe aux données, par exemple, l'application d'une fonction `log`. Ces transformations peuvent donc être programmées via du code source qui sera appliqué de la même manière pour les données d'entraînement que pour les données de test. Voici un exemple de fonction qui permettrait de créer un nouvel attribut et en discrétiser un autre, et ce, pour les 2 jeux de données:
 
 ```{r, eval=FALSE, echo=TRUE}
 # Fonction qui crée de nouveaux attributs
