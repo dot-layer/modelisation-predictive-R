@@ -1,6 +1,6 @@
 # Prétraitements des données {#preprop}
 
-Pour faire de la modélisation prédictive, il est généralement inévitable de faire des prétraitements aux données pour exploiter autant que possible les différents algorithmes d'apprentissage. Ces prétraitements permettront de réaliser 2 choses:
+Pour faire de la modélisation prédictive, il est généralement inévitable de faire un prétraitement aux données pour exploiter autant que possible les différents algorithmes d'apprentissage. Ce prétraitement permettra de réaliser 2 choses:
 
 1. Transformer les données dans un format compatible pour l'algorithme
 2. Transformer les données de manière à faciliter l'apprentissage
@@ -9,7 +9,7 @@ Pour faire de la modélisation prédictive, il est généralement inévitable de
 
 ## Nettoyage de données
 
-La première étape du prétraitement de données consiste à nettoyer les données. Après cette étape, l'algorithme devrait au minimum être en mesure de fonctionner et de faire un apprentissage de base. Le nettoyage de données comprend plusieurs traitements propres à chaque jeu de données, voici ceux que nous avons identifiés et qui sont assez générales en pratique : 
+La première étape du prétraitement des données consiste à les nettoyer. Après cette étape, l'algorithme devrait au minimum être en mesure de fonctionner et de faire un apprentissage de base. Le nettoyage de données comprend plusieurs traitements propres à chaque jeu de données. Voici ceux que nous avons identifiés et qui sont assez générales en pratique : 
 
 1. Imputation de données manquantes
 2. Traitement des données aberrantes
@@ -17,7 +17,7 @@ La première étape du prétraitement de données consiste à nettoyer les donn�
 
 ### Imputation de données manquantes
 
-La majorité des jeux de données réels sont témoins de données manquantes. Certains algorithmes ne sont pas en mesure de gérer les données manquantes par eux-mêmes. Cela nous oblige donc à traiter celles-ci et imputer le jeu de données. Les causes d'absence de données peuvent être relativement variées: bris de système, abstention, perte de données, etc. Il est généralement difficile de connaître la raison exacte, ce qui rend le traitement de données manquantes une étape importante. Avant même de trouver une méthode pour imputer ces données manquantes, il faut d'abord évaluer la quantité de données manquantes et tenter de comprendre le mécanisme expliquant la non-réponse d'une donnée.
+La majorité des jeux de données rencontrés en pratique contient des données manquantes. Certains algorithmes ne sont pas en mesure de gérer les données manquantes par eux-mêmes. Cela nous oblige donc à imputer le jeu de données. Les causes d'absence de données peuvent être relativement variées: bris de système, abstention, perte de données, etc. Il est généralement difficile de connaître la raison exacte, ce qui rend le traitement de données manquantes une étape importante. Avant même de trouver une méthode pour imputer ces données manquantes, il faut d'abord évaluer la quantité de données manquantes et tenter de comprendre le mécanisme expliquant la non-réponse d'une donnée.
 
 Il existe essentiellement 3 types de mécanismes de non-réponse [@charest:imputation:2018]:
 
