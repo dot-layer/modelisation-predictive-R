@@ -40,7 +40,7 @@ Il existe différentes manières d'émettre une hypothèse quant au mécanisme d
 3. **Imputation par régression**: Remplacer les données manquantes par la prévision de modèle de régression entraîné sur les observations pour lesquelles cette variable est présente. On sur-estimera la corrélation entre les variables et diminuera la variance des variables (moins que par l'imputation par mesure de centralité).
 4. **Imputation par régression stochastique**: Même chose que la méthode par régression, mais on ajoute un résidu aléatoire à la prévision. Cela permet d'augmenter la variance.
 
-En bref, il est important d'avoir une bonne compréhension des données manquantes dans le jeu de donnée. Cela nous permet de prendre des décisions éclairées sur les techniques utilisées pour imputer ces valeurs manquantes. 
+En bref, il est important d'avoir une bonne compréhension des données manquantes dans le jeu de données. Cela nous permet de prendre des décisions éclairées sur les techniques utilisées pour imputer ces valeurs manquantes. 
 
 ### Traitement des données aberrantes
 
