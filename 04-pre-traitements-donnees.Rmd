@@ -162,7 +162,7 @@ où $j$ est la plus petite valeur entière où $max(|x_{i,A}|)<1$.
 
 ### Discrétisation
 
-La discrétisation consiste à prendre une donnée numérique $A$ et de la transformer en un ensemble de valeurs discrètes qu'on appelle souvent *buckets* ou *bins*. L'idée derrière ce genre de transformation est de simplifier la vie du modèle en lui "pré-mâchant" une donnée continue en certains groupes de valeurs plus faciles à apprendre.
+La discrétisation consiste à prendre une donnée numérique et de la transformer en un ensemble de valeurs discrètes qu'on appelle souvent *buckets* ou *bins*. L'idée derrière ce genre de transformation est de simplifier la vie du modèle en lui "pré-mâchant" une donnée continue en certains groupes de valeurs plus faciles à apprendre.
 
 Il existe encore une fois plusieurs méthodes pour construire ces regroupements de valeurs. L'étape de l'exploration des données permet entres autres de bien comprendre celles-ci et de créer des groupes qui ajoutent une valeur au modèle. La présence d'un expert du domaine peut également être utile dans la création de ce genre de groupes.
 
