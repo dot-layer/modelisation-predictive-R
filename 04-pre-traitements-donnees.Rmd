@@ -25,7 +25,7 @@ Il existe essentiellement 3 types de mécanismes de non-réponse [@charest:imput
 2. Données manquantes au hasard (MAR)
 3. Données manquantes pas au hasard (NMAR)
 
-Dans le premier cas (MCAR), l'absence de donnée ne dépend pas de la vraie donnée. Par exemple, un système est défaillant dans la collecte de données et arrête de fonctionner en moyenne 5% du temps, et ce, de manière complètement aléatoire.
+Dans le premier cas (MCAR), l'absence d'une donnée ne dépend pas de sa vraie valeur (non-observée). Par exemple, un système est défaillant dans la collecte de données et arrête de fonctionner en moyenne 5% du temps, et ce, de manière complètement aléatoire.
 
 Dans le deuxième cas (MAR), l'absence de donnée dépend uniquement de la valeur des variables qui ont été observées. Par exemple, des données ont été récoltées à partir de 2 systèmes différents et il est toujours connu de quel système les données proviennent. Pour un des deux systèmes, les données ont une plus grande probabilité d'être manquantes.
 
