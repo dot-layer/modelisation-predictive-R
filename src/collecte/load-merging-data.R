@@ -2,7 +2,7 @@ load_merging_data <- function(path_save_data)
 {
   AWS_URL <- "https://s3.ca-central-1.amazonaws.com/jeremiedb/share/dot-layer/R-Quebec"
   
-  # Merger de l'info sur les stations
+  # Charger de l'info sur les stations
   path_data_stations <- paste0(path_save_data, "data_stations.csv")
   
   if (!file.exists(path_data_stations)){
@@ -12,7 +12,7 @@ load_merging_data <- function(path_save_data)
     data_stations <- fread(path_data_stations)
   }
   
-  # Merger de l'info sur les quartiers
+  # Charger de l'info sur les quartiers
   path_geo <- paste0(path_save_data, "LIMADMIN")
   extension_list <- c(".shx", ".shp", ".prj", ".dbf")
   
@@ -25,6 +25,7 @@ load_merging_data <- function(path_save_data)
     
   }
   
+  # Déterminer chaque point est dans quel polygone
   shape_file <- read_sf(dsn=path.expand(paste0(path_geo, ".shp")))
   
   points_stations <- data.frame(
@@ -50,6 +51,7 @@ load_merging_data <- function(path_save_data)
   
   points_stations$quartier <- apply(matrice_intersection, 2, extraire_nom_quartier)
   
+  # Combiner les stations et les quartiers pour faire une table de correspondance entre les 2
   points_stations <- as.data.table(points_stations)
   setnames(points_stations, old = c("x", "y"), new = c("longitude", "latitude"))
   setkeyv(points_stations, c("longitude", "latitude"))
