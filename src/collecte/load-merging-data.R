@@ -36,15 +36,19 @@ load_merging_data <- function(path_save_data)
   
   pnts_trans <- st_transform(points_stations_sf, 2163)
   shape_file_trans <- st_transform(shape_file, 2163)
+  matrice_intersection <- st_intersects(shape_file_trans, pnts_trans, sparse = FALSE)
   
-  points_stations$quartier <- apply(st_intersects(shape_file_trans, pnts_trans, sparse = FALSE), 2, 
-                                    function(col) { 
-                                      if (length(shape_file_trans[which(col), ]$NOM)>0){
-                                        shape_file_trans[which(col), ]$NOM 
-                                      }else{
-                                        NA_character_
-                                      }
-                                    })
+  extraire_nom_quartier <- function(col) {
+    nom_quartier <- shape_file_trans[which(col), ]$NOM
+    
+    if (length(nom_quartier) > 0){
+      nom_quartier
+    }else{
+      NA_character_
+    }
+  }
+  
+  points_stations$quartier <- apply(matrice_intersection, 2, extraire_nom_quartier)
 
   list(points_stations = points_stations,
        data_stations = data_stations)
