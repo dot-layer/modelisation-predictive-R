@@ -17,7 +17,7 @@ La première étape du prétraitement des données consiste à les nettoyer. Apr
 
 ### Imputation de données manquantes
 
-La majorité des jeux de données rencontrés en pratique contient des données manquantes. Certains algorithmes ne sont pas en mesure de gérer les données manquantes par eux-mêmes. Cela nous oblige donc à imputer le jeu de données. Les causes d'absence de données peuvent être relativement variées: bris de système, abstention, perte de données, etc. Il est généralement difficile de connaître la raison exacte, ce qui rend le traitement de données manquantes une étape importante. Avant même de trouver une méthode pour imputer ces données manquantes, il faut d'abord évaluer la quantité de données manquantes et tenter de comprendre le mécanisme expliquant la non-réponse d'une donnée.
+La majorité des jeux de données rencontrés en pratique contient des données manquantes. Certains algorithmes ne sont pas en mesure de gérer les données manquantes par eux-mêmes. Dans certains cas, simplement effacer du jeu de données les observations contenant des données manquantes peut avoir un impact négatif sur la performance des algorithmes entraînés. Une alternative est d'imputer les données manquantes. Les causes d'absence de données peuvent être relativement variées: bris de système, abstention, perte de données, etc. Il est généralement difficile de connaître la raison exacte, ce qui rend le traitement de données manquantes une étape importante. Avant même de trouver une méthode pour imputer ces données manquantes, il faut d'abord évaluer la quantité de données manquantes et tenter de comprendre le mécanisme expliquant la non-réponse d'une donnée.
 
 Il existe essentiellement 3 types de mécanismes de non-réponse [@charest:imputation:2018]:
 
