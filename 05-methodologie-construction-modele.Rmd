@@ -747,8 +747,8 @@ xgb_w <- xgboost(data = as.matrix(X_classif), label = y_classif,
 ```
 ```{r, include = F}
 # saveRDS(xgb_w, "src/modelisation/xgb_w.rds")
-prop_1 <- mean(y_classif == 1) # proportion de 1
-poids <- (1-prop_1)*y_classif + prop_1*(1-y_classif)
+# prop_1 <- mean(y_classif == 1) # proportion de 1
+# poids <- (1-prop_1)*y_classif + prop_1*(1-y_classif)
 # xgb_w <- readRDS("src/modelisation/xgb_w.rds")
 ```
 
@@ -789,7 +789,7 @@ xgb <- xgb.train(data = dtrain,
                 nrounds = 100, # On se rendra pas là...
                 early_stopping_rounds = 3,
                 maximize = FALSE,
-                watchlist = list(test=dval),
+                watchlist = list(train = dtrain, test=dval),
                 feval = perte_val)
 
 ```
@@ -817,3 +817,4 @@ pred <- predict(xgb, newdata = as.matrix(X_test))
 caret::confusionMatrix(as.factor(as.numeric(pred > .1)),as.factor(y_test))
 ```
 Il ne reste qu'à jouer avec le seuil (ici $.1$).
+Est-ce qu'on aurait obtenu ces résultats en considérant une séparation entraînement/test respéctant la chronologie?
