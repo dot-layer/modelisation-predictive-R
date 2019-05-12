@@ -340,39 +340,30 @@ Si (la)[] (plupart)[] des (tribunes)[] s'entendent pour dire que le nouvel or no
 - entreprises qui ont beaucoup de données
 
 #### Lecture de fichiers
-data.table (fread)
-readr
-readxl
-xlsx
+
+Les sources de données se présentent parfois sous la forme de fichier. Aussi peu dynamique cela soit-il, il est fréquent d'avoir recours à des fichiers aux premiers stades de développement d'une idée. En effet, c'est souvent plus simple à obtenir, et plus rapide à configurer pour des besoins ponctuels.
+
+Plusieurs packages R facilitent cette étape du processus. Parmi ceux-ci, notons data.table (fread), readr, readxl et xlsx.
 
 #### Connexion à une base de données
 
-L'importation de fichiers peut fonctionner à petite échelle. Pour éliminer des étapes manuelles, il est essentiel d'utiliser des BDs.
+L'importation de fichiers peut fonctionner à petite échelle. Pour éliminer des étapes manuelles, il convient de configurer l'environnement de modélisation pour qu'il puisse se connecter à des bases de données.
 
 Parmi les types de bases de données, on peut les placer sur un continuum allant de structuré à non-structuré. Certaines définitions considèrent que les données semi-structurées sont une classe à part... nous nous contenterons de dire qu'il existe un continuum de degrés d'organisation des données, avec à un extrême les données structurées, et à l'autre les données non-structurées.
 
 ##### Données structurées
-Les données structurées sont caractérisées par un modèle de données qui garanti une uniformité entre toutes les données, de façon à ce que la lecture et l'écriture de ces données sont facilitées et accélérées.
+Les données structurées sont caractérisées par un modèle de données qui garanti une uniformité entre toutes les données, de façon à ce que la lecture et l'écriture de ces données soient facilitées et accélérées.
 
-L'implantation la plus connue de données structurées est probablement les bases de données relationnelles constituées de tables disposées en colonnes et en rangées. Un langage comme sql Un modèle de données relie ces tables entre elles, de façon à pouvoir en extraire toutes les données à l'aide de requêtes qui joignent les tables entre elles. Le langage par excellence pour ce type de bases de données est le SQL.
+L'implantation la plus connue de données structurées est probablement les bases de données relationnelles constituées de tables disposées en colonnes et en rangées. L'utilisation de jointures est omniprésente et à la base de ce type de bases de données. Le langage par excellence pour ce type de bases de données est le SQL (Structured Query Language)
 
 ##### Données non-structurées
-les données non-structurées sont celles qui ne sont pas organisées à l'aide d'un modèle de données. Une base de données non-structurée peut donc contenir à la fois du texte, des images, du son ou une combinaison (ex. vidéo).  
+Les données non-structurées sont celles qui ne sont pas organisées à l'aide d'un modèle de données. Une base de données non-structurée peut donc contenir à la fois du texte, des images, du son ou une combinaison (ex. vidéo).  
 
-sqldf
-dbplyr
-rio
-DBI
-odbc
-RMySQL, RPostgresSQL, RSQLite
-foreign
-haven
-https://db.rstudio.com/
+Sans entrer dans les détails, notons que les packages permettant à R de se connecter à des bases de données sont multiples : odbc, DBI, dbplyr, sparklyr, ROracle, RMySQL, RPostgresSQL, RSQLite, sqldf, rio, foreign et haven sont du nombre. Notons également que l'éditeur RStudio [facilite l'interaction](https://db.rstudio.com/) avec plusieurs de ces packages.
 
-#### Web Scraping (légalité/api/service/timeouts)
+##### API
 
-http://www.omdbapi.com
-&apikey=9927136f
+CURL de Jé
 
 https://api.citybik.es/v2/
 https://api.citybik.es/v2/networks/bixi-montreal
@@ -382,6 +373,10 @@ https://github.com/NABSA/gbfs
 
 Discarter dispos vélo live parce que pas d'historique
 
+http://www.omdbapi.com
+&apikey=9927136f
+
+
 XML
 xml2
 curl
@@ -390,6 +385,13 @@ rvest
 downloader
 jsonlite
 googlesheets
+
+gratuites vs payantes, timeouts, etc.
+
+#### Web Scraping
+
+Principal obstacle est l'aspect légal
+
 
 #### Accès aux données historiques et en temps réel
 
@@ -409,12 +411,16 @@ Pour que la stabilité des sources de données soit problématique, deux éléme
 
 Alors que nous n'avons peu de contrôle sur le premier élément, nous pouvons mitiger le deuxième. Nous pouvons travailler avec une *copie* des données, de sorte que nous ne serons pas affectés par un changement à la source. Évidemment, en contrepartie on sacrifie la réactivité... l'approche à prendre dépendra donc de la valeur d'avoir les données les plus à jour dans le modèle, de notre anticipation de la stabilité ainsi que de l'impact d'une panne du service.
 
-Dans notre cas, les shapefiles...
+Dans notre cas, les shapefiles... On garde les shapefiles pour la suite!
 
 - Évolution anticipée du format des données (pas de contrôle sur la source de données? → copier les données freezées. Le modèle a encore de la valeur)
 - Pourquoi on va utiliser les shapefiles comme exemple de merge (statique, etc.)
 
 #### sécurité et confidentialité
-Comme dans tout projet informatique, nous devons nous assurer du niveau de sécurité approprié pour l'usage
+Comme dans tout projet informatique, nous devons nous assurer du niveau de sécurité approprié pour l'usage.
+
+
+## Processus itératif
+Exemple analyser et comprendre les résidus, puis amener de nouvelles features
 
 ## Références
