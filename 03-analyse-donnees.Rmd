@@ -11,7 +11,7 @@ source("src/collecte/merge-data.R")
 
 historical_data <- load_historical_data("data/")
 merging_data <- load_merging_data("data/")
-data <- merge_data(historical_data, merging_data$data_stations, merging_data$points_stations)
+data <- merge_data(historical_data, merging_data$data_stations)
 
 data_bixi <- fread("data/data_bixi.csv")
 data_stations <- fread("data/data_stations.csv")
@@ -89,6 +89,8 @@ La question qui reste en suspens pour le moment est de savoir si notre jeu de do
 La première étape pour agréger des données est de se familiariser avec les distributions marginales de chacun des champs. On doit évidemment traîter différemment les variables continues des variables discrètes. Il y a différentes manières de procéder, on propose une solution parmi tant d'autres dans le livre.
 
 ```{r, status_exposure}
+library(plotly)
+
 data_member <- data[, .(
   nb = .N,
   mean = mean(duration_sec)
