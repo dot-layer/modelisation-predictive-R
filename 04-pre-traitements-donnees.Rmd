@@ -54,7 +54,7 @@ Une fois que les observations aberrantes ont été identifiées, il faut par la 
 
 ### Encodage des données catégoriques {#encodage}
 
-Plusieurs algorithmes d'apprentissage ne peuvent pas traiter des données catégoriques directement. Il faut donc généralement encoder ces attributs en variables numériques pour pouvoir les utiliser dans le modèle. Pour se faire, il faut d'abord faire la distinction entre une donnée de nominale et une donnée ordinale. Dans le premier cas, il n'y a pas vraiment de notion d'ordre entre les différentes catégories. Dans le deuxième cas, on peut ordonner les catégories d'une certaine manière.
+Plusieurs algorithmes d'apprentissage ne peuvent pas traiter des données catégoriques directement. Il faut donc généralement encoder ces attributs en variables numériques pour pouvoir les utiliser dans le modèle. Pour se faire, il faut d'abord faire la distinction entre une donnée de nominale et une donnée ordinale. Dans le premier cas, il n'y a pas vraiment de notion d'ordre entre les différentes catégories. Dans le deuxième cas, il existe un ordonnancement naturel des catégories.
 
 Voici un exemple de donnée ordinale (`condition_generale`) où il est possible d'ordonner les observations:
 
@@ -141,10 +141,10 @@ Il existe différentes méthodes de normalisation. Il n'y a pas de "bonne métho
 1. Normalisation centrée-réduite
 
 $$
-x_{A}^{\prime(i)}=\frac{x_{A}^{(i)}-\bar{A}}{\sigma_A}
+x_{i,A}^{\prime}=\frac{x_{i,A}-\bar{x}_A}{\hat\sigma_A}
 $$
 
-où $\bar{A}$ est la moyenne et $\sigma_A$ la variance de l'attribut $A$.
+où $\bar{x}_A$ et $\hat\sigma_A$ sont la moyenne et la variance observées de l'attribut $A$.
 
 2. Normalisation *min-max*
 
