@@ -27,7 +27,7 @@ model_iris <- xgboost::xgb.train(params = param, data = dtrain, nrounds = 400, w
 ########################
 # Bixi
 ########################
-source("../../../src/collecte/load-merging-data.R")
-source("../../../src/init.R")
-init_objects <- init(path_data = "../../../data/", path_objects = "../../../data/models/")
+source("../../../collecte/load-merging-data.R")
+source("../../../init.R")
+init_objects <- init(path_data = "../../../../data/", path_objects = "../../../../data/models/")
 usethis::use_data(model_iris, iris_levels, init_objects, internal = T, overwrite = T)
