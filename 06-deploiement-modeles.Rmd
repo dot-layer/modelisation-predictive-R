@@ -4,18 +4,20 @@ L'ultime étape pour donner vie à un modèle est de le mettre en production.
 
 Les exemples de déploiement de modèles sont omniprésents. Il peut s'agir de cas plus évidents comme l'obtention d'un score de crédit afin de déterminer l'éligibilité pour un prêt ou encore une soumission pour un produit d'assurance basé sur les caractéristiques de l'appliquant et du bien assuré. De manière plus large, ça comprend également des recommendations d'achat faites par un marchand en ligne, les utilitaires un appareil photo permettant la reconnaissance des visages ou un système de conduite autonome. 
 
-De par la diversité des cas de consommation des modèles, il n'existe pas de solution unique applicable à toutes les situations. Parmi les considérations, notons le nombre de requêtes qui devra être supporté (l'application est-elle destinée à un groupe d'employé ou à une masse de consommateurs localisés partout sur le globe?), les besoins en latence (cherche-t-on simplement à assurer une expérience client dynamique ou doit-on exécuter un ordre d'achat dans un contexte d'arbitrage boursier à haute fréquence?), les contraintes de la plateforme qui supoprtera les prédictions (par exemple un système de contrôle intelligent qui a des resources processeur et mémoire limités) ou encore les besoins de stabilité dy système (est-ce qu'une défaillance ou une latence non-déterministe due aux collecteur de déchet pourrait entraîner une collision aérienne?). 
+De par la diversité des cas de consommation des modèles, il n'existe pas de solution unique applicable à toutes les situations. Parmi les considérations, notons: 
 
-En présence de contraintes importantes sur les précédents facteurs, il peut être préférable d'avoir recours à des langages compilés ou encore plus près du matériel qu'un langage dynamique dynamique tel que R. Il n'en reste pas moins que pour un large éventail de contextes, une capacité de développement rapide combinée à des options de déploiement simples font de R une option intéressante pour le déploiement de modèle. 
+ - nombre de requêtes qui devra être supporté: l'application est-elle destinée à un groupe d'employé ou à une masse de consommateurs localisés partout sur le globe?)
+ - besoins en latence: cherche-t-on simplement à assurer une expérience client dynamique ou doit-on exécuter un ordre d'achat dans un contexte d'arbitrage boursier à haute fréquence?
+ - les contraintes de la plateforme qui supoprtera les prédictions: par exemple un système de contrôle intelligent qui a des resources processeurs et mémoires limités
+  - besoins de stabilité dy système: est-ce qu'une défaillance ou une latence non-déterministe due aux collecteur de déchet pourrait entraîner une collision aérienne? 
+
+En présence de contraintes importantes sur les précédents facteurs, il peut être préférable d'avoir recours à des langages compilés (C/C++) ou encore plus près du matériel (CUDA) qu'un langage dynamique tel que R. Il n'en reste pas moins que pour un large éventail de contextes, une capacité de développement rapide combinée à des options de déploiement simples font de R une option intéressante pour le déploiement de modèle. 
 
 
-Il existe différentes manières d'y arriver, dépendemment du cas d'utilisation du modèle. 
+À très haut niveau, ce qu'on chercher à accomplir est de permettre à un usager extérieur à notre localisation, sans accès à R, d'accéder aux prédictions de notre modèle: 
 
-Ce qu'on chercher à accomplir: 
+![](./static-files/deploiement/rest-api.png)
 
-usager => requête => serveur
-
-serveur => résultat => usager
 
 Nous verrons ici deux outils permettant de servir les résultats d'un modèle: 
 
@@ -40,10 +42,10 @@ Une fois le serveur démarré, il est désormais possible d'interagir avec celui
 
 Une requête http peut alors être faite à ce serveur. La programme `curl` est communément utilisé pour ces requêtes et peut être utilisé à partir du Terminal dans RStudio (ou à partir de tout autre terminal) ou même à l'intérieur de R grâce à des librairies comme `curl` our `httr`: 
 
-`curl http://localhost:5656/ocpu/library/stats/R/rnorm/json -d n=2`
-
-La commande précédente devrait retourner un résultat similaire au suivant:
-![](./deploiement/ocpu_rnorm_demo.PNG)
+```
+$ curl http://127.0.0.1:5656/ocpu/library/stats/R/rnorm/json -d n=2
+[-0.4539, 0.1959]
+```
 
 Que s'est-il passé? Le serveur a reçu une requête pour la fonction `rnorm` situé dans `stats/R/` avec `n=2` comme paramètre. La segment `/json` a servi à demander à ce que le résultat soit retourné dans le format json. De fait, l'appel à la fonction a retourné un json contenant deux observations simulées d'une Normale(0,1). 
 
@@ -55,8 +57,8 @@ Avant d'illustrer le déploiement d'un modèle, nous allons présenter comment u
 
 La première étape est d'avoir le code structuré en une librairie. Une librairie peut être initialisée à l'aide de la commande: 
 
-```
-usethis::create_package("~/nom_de_la_librairie/")
+``````{r, eval=FALSE}
+usethis::create_package("~/<nom_de_la_librairie>/")
 usethis::create_package("~/model.ocpu/")
 ```
 
@@ -66,7 +68,7 @@ Une librarie en R n'est qu'un projet qui contient un fichier `DESCRIPTION`, un f
 
 Une fois la création du squelette complétée, une fonction de test peut être créée. Par exemple, avec le code suivant dans le fichier `./R/salut.R`:
 
-```
+```{r, eval=FALSE}
 #' Salut
 #' Une fonction qui salue.
 #' @export
@@ -86,8 +88,9 @@ L'installation peut ensuite s'exécuter à l'aide du raccourci: `ctrl-shift-B`.
 
 En démarrant une nouvelle session du serveur OpenCPU, il sera désormais possible d'intéragir avec la librairie model.ocpu nouvellement installée. 
 
-`curl http://localhost:5656/ocpu/library/model.ocpu/R/salut/json -d ""`
-
+```bash
+curl http://localhost:5656/ocpu/library/model.ocpu/R/salut/json -d ""
+```
 
 ### Intégrer un modèle prédictif dans une librairie
 
@@ -104,54 +107,40 @@ La méthode recommandée consiste en la création d'un script générant un fich
 
 Par exemple, ce script sera le suivant pour rendre disponible le modèle développé à la section précédente: 
 
-```
-model_iris <- xgboost::xgb.train(params = param, data = dtrain, nrounds = 400)
-usethis::use_data(model_iris, internal = T, overwrite = T)
+```{r, eval=FALSE}
+source("../../../src/collecte/load-merging-data.R")
+source("../../../src/init.R")
+init_objects <- init(path_data = "../../../data/", path_objects = "../../../data/models/")
+usethis::use_data(init_objects, internal = T, overwrite = T)
 ```
 
 Une fonction d'inférence peut maintenant être construite. 
 
-```
-#' Classification from vector of features
+```{r, eval=FALSE}
 #' @export
-pred_xgboost_vector <- function(input = c(0,0,0,0)) {
-  data_pred <- matrix(input, nrow = 1)
-  prob <- predict(object = model_iris, newdata = data_pred)
-  label = iris_levels[which.max(prob)]
-  return(list(label = label, prob = prob))
+bixikwargs <- function(start_date, start_station_code, is_member) {
+
+  # arranger en un data.table
+  dt_pred <- data.table(start_date, start_station_code, is_member)
+
+  dt_pred <- merge_data(dt_pred, init_objects$merging_data$data_stations, init_objects$merging_data$points_stations)
+  data_pred <- preprocessing_main(copy(dt_pred), train_mode = FALSE, list_objects = init_objects)
+  data_pred_regression <- data_pred$data_regression
+  data_pred_classif <- data_pred$data_classif
+
+  duree = predict(init_objects$model_glm, as.matrix(data_pred_regression), s = "lambda.min")
+  meme_station = predict(init_objects$model_xgb, as.matrix(data_pred_classif)) > 0.5
+
+  return(list(duree = duree, meme_station = meme_station))
 }
 ```
 
-### Appels à l'API
 
-```
-curl http://localhost:80/ocpu/library/model.ocpu/R/salut/json -d ""
-```
-
-```
-curl http://localhost:80/ocpu/library/model.ocpu/R/bixikwargs/json -d "start_date='2017-04-15 00:48'&start_station_code=6079&is_member=1"
+```bash
+curl http://localhost:5656/ocpu/library/model.ocpu/R/bixikwargs/json -d "start_date='2017-04-15 00:48'&start_station_code=6079&is_member=1"
 ```
 
  - Ajouter des fonctions et dépendances
- 
- - Déploiement sur server
-
- - Intégration avec webhook
- 
-
-### Déploiement sur Docker
-
-Construire une image. Requiert un fichier Dockerfile. 
-
-```
-docker build ./src/deploiement/ocpu/ -t jeremiedb/dot-layer:ocpu
-```
-
-Lancer une image. 
-
-```
-docker run --rm -p 8080:8080 jeremiedb/dot-layer:ocpu
-```
 
 
 ## Plumber
@@ -166,42 +155,51 @@ L'approche prise par Plumber repose sur l'ajout d'annotations au code. La techno
 Une exemple minimaliste est founi dans le dossier `src/deploiement/model.plumber/plumber_ini.R`. 
 Ce code peut être servi comme un service plumber de la manière suivante: 
 
-```
-pr <- plumber::plumb("src/deploiement/plumber/plumber_ini.R")
+```R
+pr <- plumber::plumb("src/deploiement/plumber/assets/plumber_ini.R")
 pr$run(port=8985)
 ```
 
 Il est alors possible d'accéder au service: 
 
-```
-curl -X GET "http://127.0.0.1:8985/message?msg=Salut!" -H "accept: application/json"
-```
-
-```
-curl -d "msg=Salut!" -G "http://127.0.0.1:5099/message"
+```bash
+curl http://127.0.0.1:8985/message?msg=Salut!
 ```
 
 ### Inférence de modèle prédictif
 
-```
-pr <- plumber::plumb("src/deploiement/plumber/pred_xgboost.R")
-pr$run(port = 8985)
-```
 
-```
-curl -X GET --data '{"Sepal.Length":0,"Sepal.Width":0,"Petal.Length":0,"Petal.Width":0}' "http://localhost:8985/xgbkwargs"
-curl -X GET --data '{"input":[1.1,2.2,3.3,4]}' "http://localhost:8985/xgbvector"
-```
-
-```
+```R
 pr <- plumber::plumb("src/deploiement/plumber/assets/pred_bixi.R")
 pr$run(port = 8985)
 ```
 
+
+## Détails sur les requêtes HTTP
+
+
+```bash
+curl -d msg=Salut! -G http://127.0.0.1:8985/message
+```
+
+Passer les paramètres individuellement: 
+
+```bash
+curl -X GET --data '{
+    "start_date": "2017-04-15 00:48",
+    "start_station_code": 6079,
+    "is_member": 1
+  }' http://localhost:8985/bixikwargs
+```
+
+```bash
+curl -X GET --data @src/deploiement/data_test_elements.json http://localhost:8985/bixikwargs
+```
+
+
 Passer un fichier json en argument. 
 
-```
-curl -X GET --data @src/deploiement/data_test.json "http://localhost:8985/bixidata"
+```bash
 curl -X GET --data '{"data":[
   {
     "start_date": "2017-04-15 00:48",
@@ -209,46 +207,28 @@ curl -X GET --data '{"data":[
     "is_member": 1
   }
 ]}' "http://localhost:8985/bixidata"
-
-curl -X GET --data '{"data":[
-  {
-    "start_date": "2017-04-15 00:48",
-    "start_station_code": 6079,
-    "is_member": 1
-  }
-]}' "35.203.105.200:8080/bixidata"
 ```
 
-Passer les paramètres individuellement: 
-
-```
-curl -X GET --data @src/deploiement/data_test_elements.json "35.203.20.124:8080/bixikwargs"
-curl -X GET --data @src/deploiement/data_test_elements.json "http://localhost:8080/bixikwargs"
-
-curl -X GET --data '{
-    "start_date": "2017-04-15 00:48",
-    "start_station_code": 6079,
-    "is_member": 1
-  }' "http://localhost:8985/bixikwargs"
-
-  
-curl -X GET --data '{
-    "start_date": "2017-04-15 00:48",
-    "start_station_code": 6079,
-    "is_member": 1
-  }' "35.203.105.200:8080/bixikwargs"
+```bash
+curl -X GET --data @src/deploiement/data_test.json "http://localhost:8985/bixidata"
 ```
 
-
-### Détails sur les commandes curl
 
 La commande `-X` est utilisée pour forcer le remplacement des instructions par défaut. La méthode `--data` ou `-d` est en effet associés par défaut à une commande POST. Puisqu'on ne cherche ici qu'à retourner une réponse à une instruction, le verbe `GET` est approprié. 
 
-### OpenAPI/Swagger doc
 
 ## Déploiement avec Docker
 
-Construire une image. Requiert un fichier Dockerfile. 
+Docker est une technologie permettant la containerization d’applications, faciliant leur portabilité sur différentes plateformes. 
+
+
+![](./static-files/deploiement/docker.png)
+
+
+Une image Docker est formée de différentes couches contenant les libraries et configurations requises pour l'exécution de l'application. On peut construire une image à partir d'une racine très générique comme d'une installation générique de Ubuntu, ou encore d'une image intégrant déjà plusieurs fonctionnalités adaptées à notre domaine. 
+
+La recette pour la construction de ces images est spécifiée dans un fichier texte nommé Dockerfile.
+
 
 ```
 docker build ./src/deploiement/plumber/ -t jeremiedb/dot-layer:plumber
@@ -259,3 +239,7 @@ Lancer une image.
 ```
 docker run --rm -p 8080:8080 jeremiedb/dot-layer:plumber
 ```
+
+## Intégration continue et webhook
+
+

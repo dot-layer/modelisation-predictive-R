@@ -9,25 +9,19 @@ library(lubridate)
 library(xgboost)
 library(glmnet)
 
-load("sysdata.rda")
-source("merge-data.R")
-source("preprocessing_base.R")
-source("preprocessing_classif.R")
-source("preprocessing_regression.R")
-source("preprocessing_main.R")
+# load("sysdata.rda")
+# source("merge-data.R")
+# source("preprocessing_base.R")
+# source("preprocessing_classif.R")
+# source("preprocessing_regression.R")
+# source("preprocessing_main.R")
 
-# load("src/deploiement/plumber/assets/sysdata.rda")
-# source("src/deploiement/plumber/assets/merge-data.R")
-# source("src/deploiement/plumber/assets/preprocessing_base.R")
-# source("src/deploiement/plumber/assets/preprocessing_classif.R")
-# source("src/deploiement/plumber/assets/preprocessing_regression.R")
-# source("src/deploiement/plumber/assets/preprocessing_main.R")
-
-# dt_pred_test <- read_fst("src/deploiement/sample_data.fst")
-# dt_pred_test <- read_fst("data_test.fst", as.data.table = T)
-
-# jsonlite::write_json(dt_pred_test, path = "src/deploiement/data_test.json")
-# jsonlite::write_json(dt_pred_test, path = "src/deploiement/data_test_elements.json")
+load("src/deploiement/plumber/assets/sysdata.rda")
+source("src/deploiement/plumber/assets/merge-data.R")
+source("src/deploiement/plumber/assets/preprocessing_base.R")
+source("src/deploiement/plumber/assets/preprocessing_classif.R")
+source("src/deploiement/plumber/assets/preprocessing_regression.R")
+source("src/deploiement/plumber/assets/preprocessing_main.R")
 
 #' Classification from individually specified features
 #' @param start_date start_date
@@ -42,7 +36,7 @@ source("preprocessing_main.R")
 #' @param end_quartier end_quartier
 #' @get /bixikwargs
 #' @json
-function(start_date, start_station_code, is_member) {
+function(start_date="2017-04-15 00:48", start_station_code=6079, is_member=1) {
   
   # arranger en un data.table
   dt_pred <- data.table(start_date, start_station_code, is_member)
