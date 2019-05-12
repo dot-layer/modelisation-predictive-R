@@ -156,9 +156,9 @@ où $\min_A = \min_i x_{i,A}$ et $\max_A  = \max_i x_{i,A}$ sont calculés sur l
 3. Normalisation pas décimation
 
 $$
-x_{A}^{\prime(i)}=\frac{x_{A}^{(i)}}{10^j}
+x_{i,A}^{\prime}=\frac{x_{i,A}}{10^j}
 $$
-où $j$ est la plus petite valeur entière où $max(|x_{A}^{(i)}|)<1$.
+où $j$ est la plus petite valeur entière où $max(|x_{i,A}|)<1$.
 
 ### Discrétisation
 
