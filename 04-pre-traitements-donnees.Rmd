@@ -316,7 +316,7 @@ data_test <- creation_attributs(data_test)
 
 ## Conclusion
 
-En conclusion, le prétraitement de données a comme objectif de partir d'une table de données brutes et de rendre cette table compatible et prédictive pour un algorithme d'apprentissage. Pour se faire, il nécessaire de commencer par nettoyer les données. Ensuite, certaines étapes de réduction et de transformations de données permettront de rendre les données plus prédictives pour le modèle. Finalement, il est important de garder en tête que les prétraitements doivent pouvoir être répliqués sur les données à inférer. C'est pourquoi il est primordial de garder une trace de ces prétraitements, et ainsi rendre possible le prétraitement d'une seule et unique requête à prédire.
+En conclusion, le prétraitement de données a comme objectif de partir d'une table de données brutes et de rendre cette table compatible et prédictive pour un algorithme d'apprentissage. Pour se faire, il nécessaire de commencer par nettoyer les données. Ensuite, certaines étapes de réduction et de transformations des données permettront de rendre les données plus prédictives pour le modèle. Finalement, il est important de garder en tête que le prétraitements doivent pouvoir être répliqués sur les données à inférer. C'est pourquoi il est primordial de garder une trace de ces prétraitements, et ainsi rendre possible le prétraitement d'une seule et unique requête à prédire.
 
 
 ## Références
