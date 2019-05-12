@@ -19,10 +19,12 @@
 #' @importFrom stringi stri_replace_all_regex
 #'
 #' @export
-bixikwargs <- function(start_date, start_station_code, is_member) {
+bixikwargs <- function(start_date="2017-04-15 00:48", start_station_code=6079, is_member=1) {
 
   # arranger en un data.table
-  dt_pred <- data.table(start_date, start_station_code, is_member)
+  dt_pred <- data.table(start_date = as.character(start_date), 
+                        start_station_code = as.integer(start_station_code), 
+                        is_member = as.numeric(is_member))
 
   dt_pred <- merge_data(dt_pred, init_objects$merging_data$data_stations)
   data_pred <- preprocessing_main(copy(dt_pred), train_mode = FALSE, list_objects = init_objects)
