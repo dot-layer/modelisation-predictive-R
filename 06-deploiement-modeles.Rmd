@@ -1,25 +1,34 @@
 # Déploiement de modèles
 
-L'ultime étape pour donner vie à un modèle est de le mettre en production. Le cas d'utilisation générique considéré dans ce chapitre assume que l'usager veut 
+L'ultime étape pour donner vie à un modèle est de le mettre en production. 
 
-Il existe différentes manières d'y arriver, dépendemment du cas d'utilisation du modèle. 
+Les exemples de déploiement de modèles sont omniprésents. Il peut s'agir de cas plus évidents comme l'obtention d'un score de crédit afin de déterminer l'éligibilité pour un prêt ou encore une soumission pour un produit d'assurance basé sur les caractéristiques de l'appliquant et du bien assuré. De manière plus large, ça comprend également des recommendations d'achat faites par un marchand en ligne, les utilitaires un appareil photo permettant la reconnaissance des visages ou un système de conduite autonome. 
 
-Ce qu'on chercher à accomplir: 
+De par la diversité des cas de consommation des modèles, il n'existe pas de solution unique applicable à toutes les situations. Parmi les considérations, notons: 
 
-usager => requête => serveur
+ - nombre de requêtes qui devra être supporté: l'application est-elle destinée à un groupe d'employé ou à une masse de consommateurs localisés partout sur le globe?)
+ - besoins en latence: cherche-t-on simplement à assurer une expérience client dynamique ou doit-on exécuter un ordre d'achat dans un contexte d'arbitrage boursier à haute fréquence?
+ - les contraintes de la plateforme qui supoprtera les prédictions: par exemple un système de contrôle intelligent qui a des resources processeurs et mémoires limités
+  - besoins de stabilité dy système: est-ce qu'une défaillance ou une latence non-déterministe due aux collecteur de déchet pourrait entraîner une collision aérienne? 
 
-serveur => résultat => usager
+En présence de contraintes importantes sur les précédents facteurs, il peut être préférable d'avoir recours à des langages compilés (C/C++) ou encore plus près du matériel (CUDA) qu'un langage dynamique tel que R. Il n'en reste pas moins que pour un large éventail de contextes, une capacité de développement rapide combinée à des options de déploiement simples font de R une option intéressante pour le déploiement de modèle. 
+
+
+À très haut niveau, ce qu'on chercher à accomplir est de permettre à un usager extérieur à notre localisation, sans accès à R, d'accéder aux prédictions de notre modèle: 
+
+![](./static-files/deploiement/rest-api.png)
+
 
 Nous verrons ici deux outils permettant de servir les résultats d'un modèle: 
 
  - [OpenCPU](https://www.opencpu.org/)
  - [Plumber](https://www.rplumber.io/)
 
-Chacun de ces outils permet de servir un modèle via un REST API, ce qui signifie que les échanges sont réalisés au travers du protocole http. Comme il s'agit d'un protocole omniprésent, il existe de nombreux outils disponibles pour en faciliter l'intégration dans différentes applications. Ça signifie que ces applications peuvent exploiter les capacités de modélisation de R sans qu'elles aient à intégrer R d'aucune façon. L'utilisation d'un modèle via un REST API devient donc agnostic du ou des langages utilisé à l'intérieur de cet API. 
+Chacun de ces outils permet de servir un modèle via un REST API, ce qui signifie que les échanges sont réalisés au travers du protocole http. Comme il s'agit d'un protocole omniprésent, il existe de nombreux outils disponibles pour en faciliter l'intégration dans différentes applications. Ça signifie que ces applications peuvent exploiter les capacités de modélisation de R sans qu'elles aient à intégrer R d'aucune façon. L'utilisation d'un modèle via un REST API devient donc agnostic du ou des langages utilisés à l'intérieur de cet API. 
 
 ## OpenCPU
 
-L'unité de travail de OpenCPU repose sur la librairie. Pour pouvoir servir un modèle, on doit donc le structurer de manière à ce qu'il puisse être servi par une librairie. Si l'approche peut paraître contraignante, elle incite à l'adoption d'une discipline dans la structure du code et de ses dépendances qui peut être salutaires à sa maintenance. 
+L'unité de travail de OpenCPU repose sur la librairie. Pour pouvoir servir un modèle, on doit donc le structurer de manière à ce qu'il puisse être encapsulé à l'intérieur d'une librairie. Si l'approche peut paraître contraignante, elle incite à l'adoption d'une discipline dans la structure du code et de ses dépendances qui peut être salutaire à sa maintenance. 
 
 ### Débuter avec OpenCPU
 
@@ -33,33 +42,33 @@ Une fois le serveur démarré, il est désormais possible d'interagir avec celui
 
 Une requête http peut alors être faite à ce serveur. La programme `curl` est communément utilisé pour ces requêtes et peut être utilisé à partir du Terminal dans RStudio (ou à partir de tout autre terminal) ou même à l'intérieur de R grâce à des librairies comme `curl` our `httr`: 
 
-`curl http://localhost:5656/ocpu/library/stats/R/rnorm/json -d n=2`
-
-La commande précédente devrait retourner un résultat similaire au suivant:
-![](./deploiement/ocpu_rnorm_demo.PNG)
+```
+$ curl http://127.0.0.1:5656/ocpu/library/stats/R/rnorm/json -d n=2
+[-0.4539, 0.1959]
+```
 
 Que s'est-il passé? Le serveur a reçu une requête pour la fonction `rnorm` situé dans `stats/R/` avec `n=2` comme paramètre. La segment `/json` a servi à demander à ce que le résultat soit retourné dans le format json. De fait, l'appel à la fonction a retourné un json contenant deux observations simulées d'une Normale(0,1). 
 
-Il a été possible de faire la précédente requête puisque par défaut, la librairie `stats` est accessible par OpenCPU, à l'instar de l'ensemble des librairies accessibles au niveau système. Pour servir un modèle prédictif, une librairie permettant de retourner les prédictions de ce modèle devra donc être développée. 
+Il a été possible de faire la précédente requête puisque par défaut, la librairie `stats` est accessible par OpenCPU, à l'instar de l'ensemble des librairies accessibles au niveau système. Pour servir un modèle prédictif, une librairie permettant de retourner les prédictions de ce modèle devra donc être développée et installée. 
 
 ### Bâtir un squelette de librairie
 
-Avant d'illustruer le déploiement d'un modèle, nous allons présenter comment utiliser OpenCPU à partir d'un exemple le plus minimal possible.
+Avant d'illustrer le déploiement d'un modèle, nous allons présenter comment utiliser OpenCPU à partir d'un exemple le plus minimal possible.
 
 La première étape est d'avoir le code structuré en une librairie. Une librairie peut être initialisée à l'aide de la commande: 
 
-```
-usethis::create_package("~/nom_de_la_librairie/")
+``````{r, eval=FALSE}
+usethis::create_package("~/<nom_de_la_librairie>/")
 usethis::create_package("~/model.ocpu/")
 ```
 
 Alternativement, Rstudio offre la fonctionnalité à partir du menu: `File -> New Project -> New Directory -> R Package`. 
 
-Une librarie en R n'est qu'un projet qui contient un fichier `DESCRIPTION`, un fichier `NAMESPACE` ainsi qu'un dossier `R/` à l'intérieur duquel se trouve les codes R. Les fonctions d'initialisation ci-haut ne sont que des aides facilitant la création de cette structure. 
+Une librarie en R n'est qu'un projet qui contient un fichier `DESCRIPTION`, un fichier `NAMESPACE` ainsi qu'un dossier `R/` à l'intérieur duquel se trouvent les codes R. Les fonctions d'initialisation ci-haut ne sont que des aides facilitant la création de cette structure. 
 
-Une fois la création du squelette complétée, une fonction test peut être créée. Par exemple, avec le code suivant dans le fichier `./R/salut.R`:
+Une fois la création du squelette complétée, une fonction de test peut être créée. Par exemple, avec le code suivant dans le fichier `./R/salut.R`:
 
-```
+```{r, eval=FALSE}
 #' Salut
 #' Une fonction qui salue.
 #' @export
@@ -68,23 +77,24 @@ salut <- function() {
 }
 ```
 
-La librairie mode.ocpu peut maintenant être bâtie. 
+La librairie model.ocpu peut maintenant être bâtie. 
 La documentation sera d'abord générée:
 
 ```
 devtools::document()
 ```
 
-Et l'installtion peut se faire avec le raccourci: `ctrl-shift-B`.
+L'installation peut ensuite s'exécuter à l'aide du raccourci: `ctrl-shift-B`.
 
-En démarrant à une nouvelle session du serveur OpenCPU, il sera désormais possible d'intéragir avec la librairie model.ocpu nouvellement installée. 
+En démarrant une nouvelle session du serveur OpenCPU, il sera désormais possible d'intéragir avec la librairie model.ocpu nouvellement installée. 
 
-`curl http://localhost:5656/ocpu/library/model.ocpu/R/salut/json -d ""`
-
+```bash
+curl http://localhost:5656/ocpu/library/model.ocpu/R/salut/json -d ""
+```
 
 ### Intégrer un modèle prédictif dans une librairie
 
-Une librairie permettant de retourner des prédictions devra supporter les fonctionnalité suivante: 
+Une librairie permettant de retourner des prédictions devra supporter les fonctionnalité suivantes: 
  - Lire les informations relativement aux observations pour lesquelles une prédiction doit être retournée
  - Appliquer les possibles transformations utilisées dans la préparation des données sur lesquelle le modèle a été construit. 
  - Effectuer la prédiction sur ces donnée à partir du modèle sélectionné pour la déploiement. 
@@ -97,77 +107,139 @@ La méthode recommandée consiste en la création d'un script générant un fich
 
 Par exemple, ce script sera le suivant pour rendre disponible le modèle développé à la section précédente: 
 
-```
-model_iris <- xgboost::xgb.train(params = param, data = dtrain, nrounds = 400)
-usethis::use_data(model_iris, internal = T, overwrite = T)
+```{r, eval=FALSE}
+source("../../../src/collecte/load-merging-data.R")
+source("../../../src/init.R")
+init_objects <- init(path_data = "../../../data/", path_objects = "../../../data/models/")
+usethis::use_data(init_objects, internal = T, overwrite = T)
 ```
 
 Une fonction d'inférence peut maintenant être construite. 
 
-```
-#' Classification from vector of features
+```{r, eval=FALSE}
 #' @export
-pred_xgboost_vector <- function(input = c(0,0,0,0)) {
-  data_pred <- matrix(input, nrow = 1)
-  prob <- predict(object = model_iris, newdata = data_pred)
-  label = iris_levels[which.max(prob)]
-  return(list(label = label, prob = prob))
+bixikwargs <- function(start_date, start_station_code, is_member) {
+
+  # arranger en un data.table
+  dt_pred <- data.table(start_date, start_station_code, is_member)
+
+  dt_pred <- merge_data(dt_pred, init_objects$merging_data$data_stations, init_objects$merging_data$points_stations)
+  data_pred <- preprocessing_main(copy(dt_pred), train_mode = FALSE, list_objects = init_objects)
+  data_pred_regression <- data_pred$data_regression
+  data_pred_classif <- data_pred$data_classif
+
+  duree = predict(init_objects$model_glm, as.matrix(data_pred_regression), s = "lambda.min")
+  meme_station = predict(init_objects$model_xgb, as.matrix(data_pred_classif)) > 0.5
+
+  return(list(duree = duree, meme_station = meme_station))
 }
 ```
 
 
- - Ajouter des fonctions et dépendances
- 
- - Déploiement sur server
+```bash
+curl http://localhost:5656/ocpu/library/model.ocpu/R/bixikwargs/json -d "start_date='2017-04-15 00:48'&start_station_code=6079&is_member=1"
+```
 
- - Intégration avec webhook
- 
- - Déploiement sur Docker
+ - Ajouter des fonctions et dépendances
 
 
 ## Plumber
 
-L'approche prise par Plumber repose sur l'ajout d'annotations au code. La technologie sous-jacente est similaire à OpenCPU, l'idée étant de convertir un code R en des services accessibles via le protocole HTTP.
-
+L'approche prise par Plumber repose sur l'ajout d'annotations au code. La technologie sous-jacente est similaire à OpenCPU, l'idée étant de convertir du code R en des services accessibles via le protocole HTTP.
 
 ### Débuter avec Plumber
  
 - Installer la librairie: `install.packages("plumber")`  
 - La charger: `library(plumber)`
 
-Une exemple minimaliste est founi dans le dossier `deploiement/model.plumber/plumber_ini.R`. 
-Ce code peut être servi en un service plumber de la manière suivante: 
+Une exemple minimaliste est founi dans le dossier `src/deploiement/model.plumber/plumber_ini.R`. 
+Ce code peut être servi comme un service plumber de la manière suivante: 
 
-```
-pr <- plumber::plumb("deploiement/model.plumber/plumber_ini.R")
-pr$run()
+```R
+pr <- plumber::plumb("src/deploiement/plumber/assets/plumber_ini.R")
+pr$run(port=8985)
 ```
 
 Il est alors possible d'accéder au service: 
 
-```
-curl -X GET "http://127.0.0.1:5099/message?msg=Salut!" -H "accept: application/json"
-```
-
-```
-curl -d "msg=Salut!" -G "http://127.0.0.1:5099/message"
+```bash
+curl http://127.0.0.1:8985/message?msg=Salut!
 ```
 
 ### Inférence de modèle prédictif
 
 
-```
-pr <- plumber::plumb("deploiement/model.plumber/pred_xgboost.R")
-pr$run()
-```
-
-```
-curl -X GET --data '{"Sepal.Length":0,"Sepal.Width":0,"Petal.Length":0,"Petal.Width":0}' "http://localhost:5099/xgbkwargs"
-curl -X GET --data '{"input":[1.1,2.2,3.3,4]}' "http://localhost:5099/xgbvector"
+```R
+pr <- plumber::plumb("src/deploiement/plumber/assets/pred_bixi.R")
+pr$run(port = 8985)
 ```
 
-### OpenAPI/Swagger doc
 
-### Déploiement docker
+## Détails sur les requêtes HTTP
 
- 
+
+```bash
+curl -d msg=Salut! -G http://127.0.0.1:8985/message
+```
+
+Passer les paramètres individuellement: 
+
+```bash
+curl -X GET --data '{
+    "start_date": "2017-04-15 00:48",
+    "start_station_code": 6079,
+    "is_member": 1
+  }' http://localhost:8985/bixikwargs
+```
+
+```bash
+curl -X GET --data @src/deploiement/data_test_elements.json http://localhost:8985/bixikwargs
+```
+
+
+Passer un fichier json en argument. 
+
+```bash
+curl -X GET --data '{"data":[
+  {
+    "start_date": "2017-04-15 00:48",
+    "start_station_code": 6079,
+    "is_member": 1
+  }
+]}' "http://localhost:8985/bixidata"
+```
+
+```bash
+curl -X GET --data @src/deploiement/data_test.json "http://localhost:8985/bixidata"
+```
+
+
+La commande `-X` est utilisée pour forcer le remplacement des instructions par défaut. La méthode `--data` ou `-d` est en effet associés par défaut à une commande POST. Puisqu'on ne cherche ici qu'à retourner une réponse à une instruction, le verbe `GET` est approprié. 
+
+
+## Déploiement avec Docker
+
+Docker est une technologie permettant la containerization d’applications, faciliant leur portabilité sur différentes plateformes. 
+
+
+![](./static-files/deploiement/docker.png)
+
+
+Une image Docker est formée de différentes couches contenant les libraries et configurations requises pour l'exécution de l'application. On peut construire une image à partir d'une racine très générique comme d'une installation générique de Ubuntu, ou encore d'une image intégrant déjà plusieurs fonctionnalités adaptées à notre domaine. 
+
+La recette pour la construction de ces images est spécifiée dans un fichier texte nommé Dockerfile.
+
+
+```
+docker build ./src/deploiement/plumber/ -t jeremiedb/dot-layer:plumber
+```
+
+Lancer une image. 
+
+```
+docker run --rm -p 8080:8080 jeremiedb/dot-layer:plumber
+```
+
+## Intégration continue et webhook
+
+

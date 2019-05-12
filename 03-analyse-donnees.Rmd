@@ -5,8 +5,13 @@ library(data.table)
 library(ggplot2)
 library(rgdal)
 
-source("src/extraction/load-data.R")
-data <- load_data("data/")
+source("src/collecte/load-historical-data.R")
+source("src/collecte/load-merging-data.R")
+source("src/collecte/merge-data.R")
+
+historical_data <- load_historical_data("data/")
+merging_data <- load_merging_data("data/")
+data <- merge_data(historical_data, merging_data$data_stations, merging_data$points_stations)
 
 data_bixi <- fread("data/data_bixi.csv")
 data_stations <- fread("data/data_stations.csv")

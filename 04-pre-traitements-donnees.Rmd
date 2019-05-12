@@ -1,17 +1,33 @@
-# Prétraitements des données
+# Prétraitements des données {#preprop}
 
 Pour faire de la modélisation prédictive, il est généralement inévitable de faire des prétraitements aux données pour exploiter autant que possible les différents algorithmes d'apprentissage. Ces prétraitements permettront de réaliser 2 choses:
 
 1. Transformer les données dans un format compatible pour l'algorithme
 2. Transformer les données de manière à faciliter l'apprentissage
 
-À ce stade-ci, nous avons une certaine connaissance de ces données acquise grâce à l'analyse de données \@ref(exploration). Dans cette section, nous serons donc en mesure de produire des données propices à l'apprentissage qui sera faite dans la section \@ref(metho). Pour se faire, nous allons couvrir certains concepts théoriques derrière le nettoyage, la réduction et la transformation de données. Ensuite, nous allons voir comment appliquer ces concepts théoriques dans le processus de modélisation en tirant profit du langage R et de certains packages.
+À ce stade-ci, nous avons acquis une certaine connaissance de ces données grâce à l'analyse de données \@ref(exploration). Dans cette section, nous serons donc en mesure de produire des données propices à l'apprentissage qui sera faite dans la section \@ref(metho). Pour se faire, nous allons couvrir certains concepts théoriques derrière le nettoyage, la réduction et la transformation de données. Ensuite, nous allons voir comment appliquer ces concepts théoriques dans le processus de modélisation en tirant profit du langage R et de certains packages. Pour illustrer certains concepts, nous utiliserons le jeu de données bixi, qui ressemble à cela avant le prétraitement:
 
-## Concepts théoriques
+```{r, import_donnees, include=FALSE}
+library(sf)
+library(data.table)
+library(lubridate)
+library(scales)
+library(ggplot2)
 
-Cette section a comme objectif de couvrir les concepts théoriques à la base du prétraitement de données. L'objectif est de présenter pourquoi il est primordial de considérer ces étapes avant de lancer des algorithmes d'apprentissage.
+source("src/collecte/load-historical-data.R")
+source("src/collecte/load-merging-data.R")
+source("src/collecte/merge-data.R")
 
-### Nettoyage de données
+historical_data <- load_historical_data("data/")
+merging_data <- load_merging_data("data/")
+data_bixi <- merge_data(historical_data, merging_data$data_stations, merging_data$points_stations)
+```
+
+```{r, head_donnees}
+head(data_bixi, 4)
+```
+
+## Nettoyage de données
 
 La première étape du prétraitement de données consite à nettoyer les données. Après cette étape, l'algorithme devrait au minimum être en mesure de fonctionner. Le nettoyage de données comprend plusieurs traitements propres à chaque jeu de données, voici ceux que nous avons identifiés et qui sont assez générales en pratique : 
 
@@ -19,9 +35,26 @@ La première étape du prétraitement de données consite à nettoyer les donné
 2. Traitement des données aberrantes
 3. Encodage des données catégoriques
 
-#### Imputation de données manquantes
+### Imputation de données manquantes
 
-La majorité des jeux de données réels sont témoins de données manquantes. Certains algorithmes ne sont pas en mesure de gérer les données manquantes par eux-mêmes. Cela nous oblige donc à traiter celles-ci et imputer le jeu de données. Les causes d'absence de données peuvent être relativement variées: bris de système, abstention, perte de données, etc. Il est généralement difficile de connaître la raison exacte, ce qui rend le traitement de données manquantes une étape importante. Avant même de trouver une méthode pour imputer ces données manquantes, il faut d'abord évaluer la quantité de données manquantes (% par variable) et tenter de comprendre le mécanisme expliquant la non-réponse d'une donnée. Il existe essentiellement 3 types de mécanismes de non-réponse [@charest:imputation:2018]:
+La majorité des jeux de données réels sont témoins de données manquantes. Certains algorithmes ne sont pas en mesure de gérer les données manquantes par eux-mêmes. Cela nous oblige donc à traiter celles-ci et imputer le jeu de données. Les causes d'absence de données peuvent être relativement variées: bris de système, abstention, perte de données, etc. Il est généralement difficile de connaître la raison exacte, ce qui rend le traitement de données manquantes une étape importante. Avant même de trouver une méthode pour imputer ces données manquantes, il faut d'abord évaluer la quantité de données manquantes (voir fig \@ref(fig:missing)) et tenter de comprendre le mécanisme expliquant la non-réponse d'une donnée. 
+
+```{r missing, echo=FALSE, fig.align='center', fig.cap="Pourcentage de données manquantes selon la variable du jeu de données BIXI."}
+
+data.table(
+  variable = names(data_bixi),
+  missing_percentage = unlist(data_bixi[, lapply(.SD, function(x) sum(is.na(x))), .SDcols = 1:ncol(data_bixi)]/nrow(data_bixi))
+) %>% 
+  ggplot(aes(x = reorder(variable, -missing_percentage), y = missing_percentage)) +
+    geom_bar(stat = "identity") +
+    scale_x_discrete("Nom de la variable") +
+    scale_y_continuous("% données manquantes", labels = percent, limits = c(NA, 0.01)) +
+    coord_flip() + 
+    theme_classic()
+```
+
+
+Il existe essentiellement 3 types de mécanismes de non-réponse [@charest:imputation:2018]:
 
 1. Données manquantes complètement au hasard (MCAR)
 2. Données manquantes au hasard (MAR)
@@ -44,7 +77,7 @@ Il existe différentes manières d'émettre une hypothèse quant au mécanisme d
 
 En bref, il est important d'avoir une bonne compréhension des données manquantes dans le jeu de donnée. Cela nous permet de prendre des décisions éclairées sur les techniques utilisées pour imputer ces valeurs manquantes. 
 
-#### Traitement des données aberrantes
+### Traitement des données aberrantes
 
 Une autre étape classique du nettoyage de données consiste à faire le traitement des données aberrantes. Ces données peuvent parfois avoir des effets importants sur l'estimation des paramètres du modèle. La première étape est d'abord d'identifier ces données et d'ensuite les traiter. Voici quelques méthodes traditionnelles pour faire la detection de celles-ci à l'intérieur d'une distribution quelconque:
 
@@ -54,26 +87,26 @@ Une autre étape classique du nettoyage de données consiste à faire le traitem
 
 Une fois que les observations aberrantes ont été identifiées, il faut par la suite les traiter. Un expert du domaine peut être utile dans ce cas-ci pour analyser ces observations et confirmer leur validité. Si la validité d'une donnée est remise en question, il est coutume de retirer ces observations du jeu de données, car cela peut avoir un impact notoire sur le modèle. Il est important de bien documenter le retrait de ces observations.
 
-#### Encodage des données catégoriques {#encodage}
+### Encodage des données catégoriques {#encodage}
 
 Plusieurs algorithmes d'apprentissage ne peuvent pas traiter des données catégoriques directement. Il faut donc généralement encoder ces attributs en variables numériques pour pouvoir les utiliser dans le modèle. Pour se faire, il faut d'abord faire la distinction entre une donnée de nominale et une donnée ordinale. Dans le premier cas, il n'y a pas vraiment de notion d'ordre entre les différentes catégories. Dans le deuxième cas, on peut ordonner les catégories d'une certaine manière.
 
 Voici un exemple de donnée ordinale (`condition_generale`) où il est possible d'ordonner les observations:
 
 ```{r, echo = FALSE}
-data.table(Id = seq(1, 4), condition_generale = c('moyen', 'mauvais', 'excellent', 'bon'))
+data.table(Id = seq(1, 4), condition_station = c('moyen', 'mauvais', 'excellent', 'bon'))
 ```
 
 À l'inverse, voici un exemple où il est moins adéquat d'ordonner les observations selon la variable `quartier`:
 
 ```{r, echo = FALSE}
-data.table(Id = seq(1, 4), quartier = c('centre-ville', 'plateau mont-royal', 'verdun', 'rosemont'))
+data.table(Id = seq(1, 4), start_quartier = c('Ville-Marie', 'Verdun', 'Westmount', 'LaSalle'))
 ```
 
 Dans le cas d'une variable ordinale, une méthode d'encodage possible et adéquate (selon le contexte) serait d'assigner une valeur numérique pour chaque catégorie:
 
 ```{r, echo = FALSE}
-data.table(Id = seq(1, 4), condition_generale = c(1, 0, 3, 2))
+data.table(Id = seq(1, 4), condition_station = c(1, 0, 3, 2))
 ```
 
 Dans l'exemple ci-dessus, il faut être **prudent**, car en encodant la variable de cette manière, on spécifie au modèle que la distance entre `'mauvais'` et `'moyen'` est la même qu'entre `'bon'` et `'excellent'`. Cette hypothèse n'est pas toujours valide selon le contexte. Les avantages avec cette méthode sont qu'elle est relativement simple, intuitive et qu'elle n'augmente pas le nombre de variables.
@@ -91,7 +124,7 @@ Le principal inconvéniant avec la méthode d'encodage *un-chaud* est qu'elle au
 Il existe d'autres méthode comme l'encodage binaire ou le *hasing*, mais les deux méthodes présentés plus en détails sont généralement les méthodes les plus utilisées en pratique.
 
 
-### Réduction de données
+## Réduction de données
 
 À la section \@ref(encodage), nous avons vu que certaines méthodes d'encodages peuvent augmenter le nombres de variables. Dans le même ordre d'idées, certains domaines (par exemple la génétique) sont propices à avoir beaucoup d'attributs et ainsi complexifier l'espace de données. Lorsque cela survient, les algorithmes d'apprentissage peuvent souffrir d'un phénomène appelé le fléau de la dimensionnalité. Cela survient lorsque le nombre de dimensions est trop grand, ce qui crée une "distance" plus importante entre les certaines données et rend plus difficile la tâche d'apprentissage. Pour illustrer ce concept, considérons l'exemple suivant:
 
@@ -105,7 +138,7 @@ La réponse : $n(\frac{1}{10})^{10}$ observations.
 
 En d'autres mots, cet exemple [@charest:acp:2018] permet d'illustrer le fait que plus la complexité de l'espace des données est importante, plus on doit couvrir un étendu important pour capturer la même proportion d'observations.
 
-#### Analyse en composantes principales
+### Analyse en composantes principales
 
 Une méthode traditionnelle et utilisée en pratique pour réduire la dimensionnalité est l'analyse en composantes principales [@hotelling:1933]. C'est une méthode non-supervisée (n'utilise pas la variable réponse) qui permet d'obtenir une représentation à plus petites dimensions d'un jeu de données tout en conservant le maximum d'information possible.
 
@@ -122,7 +155,7 @@ Voici quelques notes importantes à considérer lorsqu'on utilise cette méthode
 3. Il n'y a pas de méthode statistique pour choisir le bon nombre de composantes principales. On peut se baser sur le pourcentage de variance expliquée ou tout simplement considérer la transformation comme un hyperparamètre du modèle est conserver le nombre de composantes qui donne les meilleures performances.
 4. Pour plus d'informations sur le développement mathématique de la méthode, vous pouvez vous réferer au chapitre 10.2 du livre [@James:2014:ISL:2517747].
 
-#### Autres méthodes de réduction
+### Autres méthodes de réduction
 
 Il existe d'autres méthodes pour réduire la dimensionnalité d'un jeu de données lorsque celle-ci cause un problème lors de l'apprentissage. Voici quelques exemples fréquemment utilisées en pratique:
 
@@ -130,11 +163,11 @@ Il existe d'autres méthodes pour réduire la dimensionnalité d'un jeu de donn�
 2. Analyse factorielle: Réduire la dimensionnalité en modélisant la structure expliquant la relation entre les variables du jeu de données. Voir cette [page web](http://www.statsoft.com/Textbook/Principal-Components-Factor-Analysis) pour plus de détails.
 3. Calcul de scores: On peut également réduire la dimensionnalité d'un jeu de données en combinant plusieurs attributs de base pour calculer un nouvel attribut (voir section \@ref(scores)) comme un score par exemple. Cela peut également permettre d'augmenter le pouvoir prédictif d'attributs éparses qui sont difficiles à tirer de l'information lorsque prit individuellement.
 
-### Transformation de données {#transformations}
+## Transformation de données {#transformations}
 
 Avant de passer à l'entraînement d'un modèle, il est préférable pour la majorité des algorithmes d'utiliser les connaissances acquises lors de l'exporation de données (section \@ref(exploration)) pour transformer les données dans un format plus propice à l'apprentissage. Cette étape de transformation est souvent ce qu'on appelle le *features engineering*. Cette étape demande d'ailleurs beaucoup de va et vient avec la prochaine section \@ref(metho).
 
-#### Normalisation {#normalisation}
+### Normalisation {#normalisation}
 
 La normalisation des données permet de ramener les données autour d'une distribution plus "standard". Pour certains types de modèles, en particulier ceux qui sont fondés sur des calculs de distance comme les $k$-PPV ou le *clustering*, il est primordial de normaliser les données avant d'en faire l'apprentissage. En effet, cela permet de standardiser les distributions des différents attributs du jeu de données. Par exemple, si j'ai deux variables étant distribuées sur des domaines ayant des échelles complètement différents comme à la figure XX (la température (°C) et une indicatrice indiquant la présence de précipitations), il est préférable de plutôt comparer celles-ci sur un échelle commune comme à la figure YY. Voilà l'objectif fondamental de la normalisation.
 
@@ -162,7 +195,7 @@ x_{A}^{\prime(i)}=\frac{x_{A}^{(i)}}{10^j}
 $$
 où $j$ est la plus petite valeur entière où $max(|x_{A}^{(i)}|)<1$.
 
-#### Discrétisation
+### Discrétisation
 
 La discrétisation consiste à prendre une donnée numérique $A$ et de la transformer en un ensemble de valeurs discrètes qu'on appelle souvent *buckets* ou *bins*. L'idée derrière ce genre de transformation est de simplifier la vie du modèle en lui "pré-mâchant" une donnée continue en certains groupes de valeurs plus faciles à apprendre.
 
@@ -175,7 +208,7 @@ Dans la figure YY, on remarque qu'il semble est intuitivement plus facile de ré
 Il existe encore une fois plusieurs méthodes pour construire ces regroupements de valeurs. L'étape de l'exploration des données permet entres autres de bien comprendre celles-ci et de créer des groupes qui ajoutent une valeur au modèle. La présence d'un expert du domaine peut également être utile dans ce cas-ci.
 
 
-#### Création de nouveaux attributs {#scores}
+### Création de nouveaux attributs {#scores}
 
 Un autre type de transformation classique en modélisation consiste à créer de nouveaux attributs en utilisant les attributs originaux. Ces nouveaux attributs peuvent prendre la forme de scores ou tout simplement être une redéfinition d'un attribut en particulier.
 
@@ -189,16 +222,46 @@ Les méthodes de transformation de données présentées dans cette section ont 
 
 Dans cette section, nous verrons comment appliquer les concepts théoriques décrits dans la section précédente dans un contexte de production. Dans cette optique, il faudra garder une trace des prétraitements effectués sur le jeu de données d'entraînement pour être en mesure de les effectuer de la même manière lors de l'inférence.
 
-Pour se faire, nous proposons de faire 2 processus de prétraitements différents:
+Pour se faire, nous proposons de faire 2 processus de prétraitements différents. Le premier servira à faire le prétraitement des données d'entraînement alors que le deuxième servira à faire le prétraitement des données à prédire lors de l'inférence. Les prochaines sections permettront de formaliser les différentes étapes clés à prévoir pour ces deux scénarios différents en tirant profit de certains packages R.
 
-- `src/pretraitements/pretraitements-train.R`
-- `src/pretraitements/pretraitements-predict.R`
+### Séparation du jeu de données
 
-Le premier servira à faire le prétraitement des données d'entraînement alors que le deuxième servira à faire le prétraitement des données à prédire lors de l'inférence. Les prochaines sections permettront de formaliser les différentes étapes clés à prévoir pour ces deux scénarios différents en tirant profit de certains packages R.
+Avant même d'effectuer les premiers prétraitements, il est primordial de garder en tête que nous cherchons à construire un modèle prédictif qui sera performant en généralisation. Pour se faire, il faut inévitablement garder de côté un jeu de données test que nous utiliserons à la toute fin pour avoir une idée plausible de la performance de notre modèle sur des données que celui-ci n'a jamais encore vues. Afin de ne pas induire de l'information de ce jeu de données dans notre entraînement, nous devrons d'abord effectuer cette séparation et ensuite faire les différents prétraitements sur le jeu de données d'entraînement seulement. À la toute fin, nous pourrons effectuer ces mêmes prétraitements sur le jeu de données test et ainsi simuler l'entrée de nouvelles données.
+
+Pour faire la séparation, il courant dans la pratique de prendre un pourcentage arbitraire des données, par exemple 10%, sélectionné aléatoirement pour le jeu de données test. Pour faire cela, il est possible d'utiliser des fonctions de base en R, comme la fonction `sample`:
+
+```{r, echo=TRUE}
+ind_train <- sample(x = 1:nrow(data_bixi), size = 0.9 * nrow(data_bixi), replace = FALSE)
+head(sort(ind_train), 10)
+lapply(list(data_bixi[ind_train,]$duration_sec, data_bixi[-ind_train,]$duration_sec), mean)
+```
+
+Dans certaines situations, il peut être utile de faire une séparation qui permet de s'assurer de la présence de certaines données dans chaque jeu de données. Pour faire ce genre de séparation, il est possible de faire un échantilloannage stratifiée sur certaines variables, ce qui assure la cohérence entre les deux jeux de données vis-à-vis ces variables. Cela peut être notamment utile dans un contexte de données débanlancées. Pour faciliter la mise en place de ce genre de séparation, il est possible d'utiliser la fonction `createDataPartition` du package `caret`:
+
+```{r, echo=TRUE}
+library(caret)
+ind_train <- createDataPartition(y = data_bixi$duration_sec, times = 1, p = 0.9, list = FALSE)
+head(sort(ind_train), 10)
+lapply(list(data_bixi[ind_train,]$duration_sec, data_bixi[-ind_train,]$duration_sec), mean)
+```
+
+Une fois que la séparation du jeu de données est faite, on peut désormais effectuer nos prétraitements via 2 processus différents. Un premier processus sera appliqué sur les données d'entraînement et un deuxième processus sera appliqué sur le jeu de données test (ou les données nouvelles données à prédire par notre modèle).
+
+### Prétraitements en entraînement
+
+Le processus de prétraitements en entraînement 
+
+```{r workflow, echo=FALSE, fig.align='center', fig.cap="Processsing"}
+knitr::include_graphics("static-files/preprocessing-workflow.png")
+```
+
+
+
+### Prétraitements en inférence
 
 ### Imputations de données manquantes
 
-Dans le prétraitement des données d'entraînement, il faudra sauvegarder les valeurs d'imputation et tout autre objets permettant de faire l'imputation des données manquantes. Par exemple, il est possible de définir les valeurs d'imputations et de sauvegarder ces valeurs dans un fichier JSON en utilisant le package `jsonlite`:
+Dans le prétraitement des données d'entraînement, il faudra garder une trace des valeurs d'imputation ou tout autre objet permettant de faire l'imputation des données manquantes. Par exemple, il est possible de définir les valeurs d'imputations et de sauvegarder ces valeurs dans un fichier JSON en utilisant le package `jsonlite`:
 
 ```{r, eval=FALSE, echo=TRUE}
 # Définir les valeurs d'imputation
@@ -230,7 +293,6 @@ Les fichiers JSON sont généralement faciles à traiter dans plusieurs logiciel
 Pour être en mesure de répliquer l'encodage de données catégoriques, le principal défi est faire l'encodage *un-chaud*. La fonction `dummyVars` du package `caret` permet de réaliser assez facilement ce genre de transformation:
 
 ```{r, eval=FALSE, echo=TRUE}
-library(caret)
 variables_un_chaud <- c("weekend_flag")
 # Il faut transformer les variables à encoder en factor d'abord
 lapply(variables_un_chaud, function(var) data_bixi[, (var) := factor(get(var))])
