@@ -126,7 +126,7 @@ Il existe d'autres méthodes pour réduire la dimensionnalité d'un jeu de donn�
 
 1. Positionnement multidimensionnel: Trouver une représentation (avec une dimension inférieure à la dimension initiale) qui représente le mieux possible les distances entre les observations du jeu de données initial. Voir cette [page web](http://www.statsoft.com/textbook/multidimensional-scaling) pour plus de détails.
 2. Analyse factorielle: Réduire la dimensionnalité en modélisant la structure expliquant la relation entre les variables du jeu de données. Voir cette [page web](http://www.statsoft.com/Textbook/Principal-Components-Factor-Analysis) pour plus de détails.
-3. Calcul de scores: On peut également réduire la dimensionnalité d'un jeu de données en combinant plusieurs attributs de base pour calculer un nouvel attribut (voir section \@ref(scores)) comme un score par exemple. Cela peut également permettre d'augmenter le pouvoir prédictif d'attributs éparses qui sont difficiles à tirer de l'information lorsque prit individuellement.
+3. Calcul de scores: On peut également réduire la dimensionnalité d'un jeu de données en combinant plusieurs attributs de base pour calculer un nouvel attribut (voir section \@ref(scores)) comme un score par exemple. Cela peut également permettre d'augmenter le pouvoir prédictif d'attributs éparses desquels il est difficile de tirer de l'information lorsque considérés individuellement.
 
 ## Transformation de données {#transformations}
 
