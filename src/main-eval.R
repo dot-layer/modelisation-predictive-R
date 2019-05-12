@@ -27,16 +27,17 @@ source("src/preprocessing/preprocessing_main.R")
 source("src/init.R")
 init_objects <- init(path_data = "data/", path_objects = "data/models/")
 
-
 # Importer les données ----------------------------------------------------
 
 # Doit avoir le fichier 'LIMADMIN.shp' dans le repertoire passer en argument
 # a la fonction load_data()
+set.seed(123)
 sample_data <- load_historical_data("data/")[sample(1:500, 1),]
-data_bixi <- merge_data(sample_data, init_objects$merging_data$data_stations, init_objects$merging_data$points_stations)
+merge_data(sample_data, init_objects$merging_data$data_stations)
+
 
 # TEST POUR LE MOMENT: ON VA AVOIR LES DONNÉES EN ENTRÉE DANS L'API
-data_test <- data_bixi
+data_test <- copy(sample_data)
 
 
 # Preprocessing -----------------------------------------------------------
