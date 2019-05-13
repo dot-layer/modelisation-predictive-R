@@ -2,7 +2,7 @@ load_merging_data <- function(path_save_data)
 {
   AWS_URL <- "https://s3.ca-central-1.amazonaws.com/jeremiedb/share/dot-layer/R-Quebec"
   
-  # Merger de l'info sur les stations
+  # Charger de l'info sur les stations
   path_data_stations <- paste0(path_save_data, "data_stations.csv")
   
   if (!file.exists(path_data_stations)){
@@ -12,7 +12,7 @@ load_merging_data <- function(path_save_data)
     data_stations <- fread(path_data_stations)
   }
   
-  # Merger de l'info sur les quartiers
+  # Charger de l'info sur les quartiers
   path_geo <- paste0(path_save_data, "LIMADMIN")
   extension_list <- c(".shx", ".shp", ".prj", ".dbf")
   
@@ -25,6 +25,7 @@ load_merging_data <- function(path_save_data)
     
   }
   
+  # Déterminer chaque point est dans quel polygone
   shape_file <- read_sf(dsn=path.expand(paste0(path_geo, ".shp")))
   
   points_stations <- data.frame(
@@ -36,16 +37,21 @@ load_merging_data <- function(path_save_data)
   
   pnts_trans <- st_transform(points_stations_sf, 2163)
   shape_file_trans <- st_transform(shape_file, 2163)
+  matrice_intersection <- st_intersects(shape_file_trans, pnts_trans, sparse = FALSE)
   
-  points_stations$quartier <- apply(st_intersects(shape_file_trans, pnts_trans, sparse = FALSE), 2, 
-                                    function(col) { 
-                                      if (length(shape_file_trans[which(col), ]$NOM)>0){
-                                        shape_file_trans[which(col), ]$NOM 
-                                      }else{
-                                        NA_character_
-                                      }
-                                    })
+  extraire_nom_quartier <- function(col) {
+    nom_quartier <- shape_file_trans[which(col), ]$NOM
+    
+    if (length(nom_quartier) > 0){
+      nom_quartier
+    }else{
+      NA_character_
+    }
+  }
   
+  points_stations$quartier <- apply(matrice_intersection, 2, extraire_nom_quartier)
+  
+  # Combiner les stations et les quartiers pour faire une table de correspondance entre les 2
   points_stations <- as.data.table(points_stations)
   setnames(points_stations, old = c("x", "y"), new = c("longitude", "latitude"))
   setkeyv(points_stations, c("longitude", "latitude"))

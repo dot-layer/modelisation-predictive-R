@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Chapitre 5 Prétraitements des données | Modélisation prédictive en R</title>
+  <meta name="description" content="Chapitre 5 Prétraitements des données | Modélisation prédictive en R">
+  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+
+  <meta property="og:title" content="Chapitre 5 Prétraitements des données | Modélisation prédictive en R" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  <meta name="github-repo" content="dot-layer/modelisation-predictive-R" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapitre 5 Prétraitements des données | Modélisation prédictive en R" />
+  
+  
+  
+
+<meta name="author" content=".Layer">
+
+
+<meta name="date" content="2019-05-12">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="exploration.html">
+<link rel="next" href="metho.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<script src="libs/htmlwidgets-1.3/htmlwidgets.js"></script>
+<script src="libs/plotly-binding-4.9.0/plotly.js"></script>
+<script src="libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-1.46.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-1.46.1/plotly-latest.min.js"></script>
+<link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-1.3.1/leaflet.js"></script>
+<link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+<script src="libs/Proj4Leaflet-1.0.1/proj4-compressed.js"></script>
+<script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-binding-2.0.2/leaflet.js"></script>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Modélisation prédictive en R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Préface</a></li>
+<li class="chapter" data-level="2" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>2</b> Introduction</a></li>
+<li class="chapter" data-level="3" data-path="collecte.html"><a href="collecte.html"><i class="fa fa-check"></i><b>3</b> Collecte de données</a><ul>
+<li class="chapter" data-level="3.1" data-path="collecte.html"><a href="collecte.html#approche"><i class="fa fa-check"></i><b>3.1</b> Description de l’approche</a><ul>
+<li class="chapter" data-level="3.1.1" data-path="collecte.html"><a href="collecte.html#obtenir-les-donnees-etiquetees"><i class="fa fa-check"></i><b>3.1.1</b> Obtenir les données etiquetées</a></li>
+<li class="chapter" data-level="3.1.2" data-path="collecte.html"><a href="collecte.html#obtenir-jointure"><i class="fa fa-check"></i><b>3.1.2</b> Obtenir les données de <em>jointure</em></a></li>
+<li class="chapter" data-level="3.1.3" data-path="collecte.html"><a href="collecte.html#effectuer-jointure"><i class="fa fa-check"></i><b>3.1.3</b> Effectuer la <em>jointure</em></a></li>
+<li class="chapter" data-level="3.1.4" data-path="collecte.html"><a href="collecte.html#collecte-historique-vs.-collecte-en-production"><i class="fa fa-check"></i><b>3.1.4</b> Collecte historique vs. collecte en production</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="collecte.html"><a href="collecte.html#liste"><i class="fa fa-check"></i><b>3.2</b> Liste des données potentielles</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="collecte.html"><a href="collecte.html#donnees-etiquetees"><i class="fa fa-check"></i><b>3.2.1</b> Données étiquetées</a></li>
+<li class="chapter" data-level="3.2.2" data-path="collecte.html"><a href="collecte.html#donnees-de-jointure"><i class="fa fa-check"></i><b>3.2.2</b> Données de <em>jointure</em></a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="collecte.html"><a href="collecte.html#considerations"><i class="fa fa-check"></i><b>3.3</b> Considérations</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="collecte.html"><a href="collecte.html#accessibilite"><i class="fa fa-check"></i><b>3.3.1</b> Accessibilité</a></li>
+<li class="chapter" data-level="3.3.2" data-path="collecte.html"><a href="collecte.html#qualite"><i class="fa fa-check"></i><b>3.3.2</b> Qualité</a></li>
+<li class="chapter" data-level="3.3.3" data-path="collecte.html"><a href="collecte.html#volume"><i class="fa fa-check"></i><b>3.3.3</b> Volume</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="collecte.html"><a href="collecte.html#references"><i class="fa fa-check"></i><b>3.4</b> Références</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="exploration.html"><a href="exploration.html"><i class="fa fa-check"></i><b>4</b> Exploration de données</a><ul>
+<li class="chapter" data-level="4.1" data-path="exploration.html"><a href="exploration.html#distribution-des-variables-dentree"><i class="fa fa-check"></i><b>4.1</b> Distribution des variables d’entrée</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="exploration.html"><a href="exploration.html#status-membrenon-membre-booleencategorique"><i class="fa fa-check"></i><b>4.1.1</b> Status membre/non-membre (booléen/catégorique)</a></li>
+<li class="chapter" data-level="4.1.2" data-path="exploration.html"><a href="exploration.html#quartier-de-la-station-de-depart-categorique"><i class="fa fa-check"></i><b>4.1.2</b> Quartier de la station de départ (catégorique)</a></li>
+<li class="chapter" data-level="4.1.3" data-path="exploration.html"><a href="exploration.html#date-du-trajet-temporelle"><i class="fa fa-check"></i><b>4.1.3</b> Date du trajet (temporelle)</a></li>
+<li class="chapter" data-level="4.1.4" data-path="exploration.html"><a href="exploration.html#heure-du-trajet-temporelle"><i class="fa fa-check"></i><b>4.1.4</b> Heure du trajet (temporelle)</a></li>
+<li class="chapter" data-level="4.1.5" data-path="exploration.html"><a href="exploration.html#variables-spatiales-stations-quartiers"><i class="fa fa-check"></i><b>4.1.5</b> Variables spatiales (stations + quartiers)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="exploration.html"><a href="exploration.html#correlation-entre-les-variables-dentree"><i class="fa fa-check"></i><b>4.2</b> Corrélation entre les variables d’entrée</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="exploration.html"><a href="exploration.html#status-categorique-vs-quartier-de-la-station-de-depart-categorique"><i class="fa fa-check"></i><b>4.2.1</b> Status (catégorique) vs Quartier de la station de départ (catégorique)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="exploration.html"><a href="exploration.html#effets-one-way"><i class="fa fa-check"></i><b>4.3</b> Effets <em>one-way</em></a><ul>
+<li class="chapter" data-level="4.3.1" data-path="exploration.html"><a href="exploration.html#status-membrenon-membre-booleencategoriqe"><i class="fa fa-check"></i><b>4.3.1</b> Status membre/non-membre (booléen/catégoriqe)</a></li>
+<li class="chapter" data-level="4.3.2" data-path="exploration.html"><a href="exploration.html#quartier-de-la-station-de-depart-categorique-1"><i class="fa fa-check"></i><b>4.3.2</b> Quartier de la station de départ (catégorique)</a></li>
+<li class="chapter" data-level="4.3.3" data-path="exploration.html"><a href="exploration.html#date-du-trajet-temporelle-1"><i class="fa fa-check"></i><b>4.3.3</b> Date du trajet (temporelle)</a></li>
+<li class="chapter" data-level="4.3.4" data-path="exploration.html"><a href="exploration.html#heure-du-trajet-temporelle-1"><i class="fa fa-check"></i><b>4.3.4</b> Heure du trajet (temporelle)</a></li>
+<li class="chapter" data-level="4.3.5" data-path="exploration.html"><a href="exploration.html#variables-spatiales-stations-quartiers-1"><i class="fa fa-check"></i><b>4.3.5</b> Variables spatiales (stations + quartiers)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="exploration.html"><a href="exploration.html#effet-multi-ways"><i class="fa fa-check"></i><b>4.4</b> Effet <em>multi-ways</em></a><ul>
+<li class="chapter" data-level="4.4.1" data-path="exploration.html"><a href="exploration.html#status-categorique-vs-quartier-de-la-station-de-depart-categorique-1"><i class="fa fa-check"></i><b>4.4.1</b> Status (catégorique) vs Quartier de la station de départ (catégorique)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="exploration.html"><a href="exploration.html#proposition-de-transformations"><i class="fa fa-check"></i><b>4.5</b> Proposition de transformations</a><ul>
+<li class="chapter" data-level="4.5.1" data-path="exploration.html"><a href="exploration.html#moment-de-la-journee"><i class="fa fa-check"></i><b>4.5.1</b> Moment de la journée</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="exploration.html"><a href="exploration.html#sommaire-des-transformations-retenues"><i class="fa fa-check"></i><b>4.6</b> Sommaire des transformations retenues</a><ul>
+<li class="chapter" data-level="4.6.1" data-path="exploration.html"><a href="exploration.html#donnees-externes-a-explorer"><i class="fa fa-check"></i><b>4.6.1</b> Données externes à explorer</a></li>
+<li class="chapter" data-level="4.6.2" data-path="exploration.html"><a href="exploration.html#transformations-a-explorer-sur-donnees-deja-disponibles"><i class="fa fa-check"></i><b>4.6.2</b> Transformations à explorer (sur données déjà disponibles)</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="preprop.html"><a href="preprop.html"><i class="fa fa-check"></i><b>5</b> Prétraitements des données</a><ul>
+<li class="chapter" data-level="5.1" data-path="preprop.html"><a href="preprop.html#nettoyage-de-donnees"><i class="fa fa-check"></i><b>5.1</b> Nettoyage de données</a><ul>
+<li class="chapter" data-level="5.1.1" data-path="preprop.html"><a href="preprop.html#imputation-de-donnees-manquantes"><i class="fa fa-check"></i><b>5.1.1</b> Imputation de données manquantes</a></li>
+<li class="chapter" data-level="5.1.2" data-path="preprop.html"><a href="preprop.html#traitement-des-donnees-aberrantes"><i class="fa fa-check"></i><b>5.1.2</b> Traitement des données aberrantes</a></li>
+<li class="chapter" data-level="5.1.3" data-path="preprop.html"><a href="preprop.html#encodage"><i class="fa fa-check"></i><b>5.1.3</b> Encodage des données catégoriques</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="preprop.html"><a href="preprop.html#reduction-de-donnees"><i class="fa fa-check"></i><b>5.2</b> Réduction de données</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="preprop.html"><a href="preprop.html#analyse-en-composantes-principales"><i class="fa fa-check"></i><b>5.2.1</b> Analyse en composantes principales</a></li>
+<li class="chapter" data-level="5.2.2" data-path="preprop.html"><a href="preprop.html#autres-methodes-de-reduction"><i class="fa fa-check"></i><b>5.2.2</b> Autres méthodes de réduction</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="preprop.html"><a href="preprop.html#transformations"><i class="fa fa-check"></i><b>5.3</b> Transformation de données</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="preprop.html"><a href="preprop.html#normalisation"><i class="fa fa-check"></i><b>5.3.1</b> Normalisation</a></li>
+<li class="chapter" data-level="5.3.2" data-path="preprop.html"><a href="preprop.html#discretisation"><i class="fa fa-check"></i><b>5.3.2</b> Discrétisation</a></li>
+<li class="chapter" data-level="5.3.3" data-path="preprop.html"><a href="preprop.html#scores"><i class="fa fa-check"></i><b>5.3.3</b> Création de nouveaux attributs</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="preprop.html"><a href="preprop.html#pretraitements-de-donnees-en-r"><i class="fa fa-check"></i><b>5.4</b> Prétraitements de données en R</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="preprop.html"><a href="preprop.html#separation-du-jeu-de-donnees"><i class="fa fa-check"></i><b>5.4.1</b> Séparation du jeu de données</a></li>
+<li class="chapter" data-level="5.4.2" data-path="preprop.html"><a href="preprop.html#processus-de-pretraitements"><i class="fa fa-check"></i><b>5.4.2</b> Processus de prétraitements</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="preprop.html"><a href="preprop.html#conclusion"><i class="fa fa-check"></i><b>5.5</b> Conclusion</a></li>
+<li class="chapter" data-level="5.6" data-path="preprop.html"><a href="preprop.html#references-1"><i class="fa fa-check"></i><b>5.6</b> Références</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="metho.html"><a href="metho.html"><i class="fa fa-check"></i><b>6</b> Construction de modèles</a><ul>
+<li class="chapter" data-level="6.1" data-path="metho.html"><a href="metho.html#split"><i class="fa fa-check"></i><b>6.1</b> Gestion des données</a><ul>
+<li class="chapter" data-level="6.1.1" data-path="metho.html"><a href="metho.html#divisions-entrainementvalidationtest"><i class="fa fa-check"></i><b>6.1.1</b> Divisions entraînement/validation/test</a></li>
+<li class="chapter" data-level="6.1.2" data-path="metho.html"><a href="metho.html#utilite-des-differents-jeux"><i class="fa fa-check"></i><b>6.1.2</b> Utilité des différents jeux</a></li>
+<li class="chapter" data-level="6.1.3" data-path="metho.html"><a href="metho.html#exemple-bixi"><i class="fa fa-check"></i><b>6.1.3</b> Exemple bixi</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="metho.html"><a href="metho.html#description"><i class="fa fa-check"></i><b>6.2</b> Description classique</a></li>
+<li class="chapter" data-level="6.3" data-path="metho.html"><a href="metho.html#famille"><i class="fa fa-check"></i><b>6.3</b> Familles de modèles</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="metho.html"><a href="metho.html#regression"><i class="fa fa-check"></i><b>6.3.1</b> Régression</a></li>
+<li class="chapter" data-level="6.3.2" data-path="metho.html"><a href="metho.html#classification"><i class="fa fa-check"></i><b>6.3.2</b> Classification</a></li>
+<li class="chapter" data-level="6.3.3" data-path="metho.html"><a href="metho.html#complexite-et-disponibilite-des-donnees"><i class="fa fa-check"></i><b>6.3.3</b> Complexité et disponibilité des données</a></li>
+<li class="chapter" data-level="6.3.4" data-path="metho.html"><a href="metho.html#variables-a-inclure"><i class="fa fa-check"></i><b>6.3.4</b> Variables à inclure</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="metho.html"><a href="metho.html#estimation"><i class="fa fa-check"></i><b>6.4</b> Estimation d’un modèle</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="metho.html"><a href="metho.html#regularisation"><i class="fa fa-check"></i><b>6.4.1</b> Un mot sur la régularisation</a></li>
+<li class="chapter" data-level="6.4.2" data-path="metho.html"><a href="metho.html#les-hyper-parametres-et-le-compromis-biais-variance"><i class="fa fa-check"></i><b>6.4.2</b> Les hyper-paramètres et le compromis biais-variance</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="metho.html"><a href="metho.html#selection"><i class="fa fa-check"></i><b>6.5</b> Sélection du modèle final (validation) et évaluation</a><ul>
+<li class="chapter" data-level="6.5.1" data-path="metho.html"><a href="metho.html#validation-directe"><i class="fa fa-check"></i><b>6.5.1</b> Validation directe</a></li>
+<li class="chapter" data-level="6.5.2" data-path="metho.html"><a href="metho.html#criteres-classiques"><i class="fa fa-check"></i><b>6.5.2</b> Critères classiques</a></li>
+<li class="chapter" data-level="6.5.3" data-path="metho.html"><a href="metho.html#validation"><i class="fa fa-check"></i><b>6.5.3</b> Validation croisée</a></li>
+<li class="chapter" data-level="6.5.4" data-path="metho.html"><a href="metho.html#evaluation-finale"><i class="fa fa-check"></i><b>6.5.4</b> Évaluation finale</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="metho.html"><a href="metho.html#exemple-2-classification-avec-xgboost-en-construction"><i class="fa fa-check"></i><b>6.6</b> Exemple 2 : classification avec xgboost (en construction)</a><ul>
+<li class="chapter" data-level="6.6.1" data-path="metho.html"><a href="metho.html#split-trainval"><i class="fa fa-check"></i><b>6.6.1</b> Split train/val</a></li>
+<li class="chapter" data-level="6.6.2" data-path="metho.html"><a href="metho.html#le-modele-en-bref"><i class="fa fa-check"></i><b>6.6.2</b> Le modèle en bref</a></li>
+<li class="chapter" data-level="6.6.3" data-path="metho.html"><a href="metho.html#estimation-1"><i class="fa fa-check"></i><b>6.6.3</b> Estimation</a></li>
+<li class="chapter" data-level="6.6.4" data-path="metho.html"><a href="metho.html#validation-1"><i class="fa fa-check"></i><b>6.6.4</b> Validation</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html"><i class="fa fa-check"></i><b>7</b> Déploiement de modèles</a><ul>
+<li class="chapter" data-level="7.1" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#opencpu"><i class="fa fa-check"></i><b>7.1</b> OpenCPU</a><ul>
+<li class="chapter" data-level="7.1.1" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#debuter-avec-opencpu"><i class="fa fa-check"></i><b>7.1.1</b> Débuter avec OpenCPU</a></li>
+<li class="chapter" data-level="7.1.2" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#batir-un-squelette-de-librairie"><i class="fa fa-check"></i><b>7.1.2</b> Bâtir un squelette de librairie</a></li>
+<li class="chapter" data-level="7.1.3" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#integrer-un-modele-predictif-dans-une-librairie"><i class="fa fa-check"></i><b>7.1.3</b> Intégrer un modèle prédictif dans une librairie</a></li>
+</ul></li>
+<li class="chapter" data-level="7.2" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#plumber"><i class="fa fa-check"></i><b>7.2</b> Plumber</a><ul>
+<li class="chapter" data-level="7.2.1" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#debuter-avec-plumber"><i class="fa fa-check"></i><b>7.2.1</b> Débuter avec Plumber</a></li>
+<li class="chapter" data-level="7.2.2" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#inference-de-modele-predictif"><i class="fa fa-check"></i><b>7.2.2</b> Inférence de modèle prédictif</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#details-sur-les-requetes-http"><i class="fa fa-check"></i><b>7.3</b> Détails sur les requêtes HTTP</a></li>
+<li class="chapter" data-level="7.4" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#deploiement-avec-docker"><i class="fa fa-check"></i><b>7.4</b> Déploiement avec Docker</a></li>
+<li class="chapter" data-level="7.5" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#integration-continue-et-webhook"><i class="fa fa-check"></i><b>7.5</b> Intégration continue et webhook</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/dot-layer/modelisation-predictive-r" target="blank">Publié avec bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Modélisation prédictive en R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="preprop" class="section level1">
+<h1><span class="header-section-number">Chapitre 5</span> Prétraitements des données</h1>
+<p>Pour faire de la modélisation prédictive, il est généralement inévitable de faire un prétraitement aux données pour exploiter autant que possible les différents algorithmes d’apprentissage. Ce prétraitement permettra de réaliser 2 choses:</p>
+<ol style="list-style-type: decimal">
+<li>Transformer les données dans un format compatible pour l’algorithme</li>
+<li>Transformer les données de manière à faciliter l’apprentissage</li>
+</ol>
+<p>À ce stade-ci, nous avons acquis une certaine connaissance de ces données grâce à l’analyse de données <a href="exploration.html#exploration">4</a>. Dans cette section, nous serons donc en mesure de produire des données propices à l’apprentissage qui sera faite dans la section <a href="metho.html#metho">6</a>. Pour se faire, nous allons couvrir certains concepts théoriques derrière le nettoyage, la réduction et la transformation de données. Ensuite, nous allons voir comment appliquer ces concepts théoriques dans le processus de modélisation en tirant profit du langage R et de certains packages.</p>
+<div id="nettoyage-de-donnees" class="section level2">
+<h2><span class="header-section-number">5.1</span> Nettoyage de données</h2>
+<p>La première étape du prétraitement des données consiste à les nettoyer. Après cette étape, l’algorithme devrait au minimum être en mesure de fonctionner et de faire un apprentissage de base. Le nettoyage de données comprend plusieurs traitements propres à chaque jeu de données. Voici ceux que nous avons identifiés et qui sont assez générales en pratique :</p>
+<ol style="list-style-type: decimal">
+<li>Imputation de données manquantes</li>
+<li>Traitement des données aberrantes</li>
+<li>Encodage des données catégoriques</li>
+</ol>
+<div id="imputation-de-donnees-manquantes" class="section level3">
+<h3><span class="header-section-number">5.1.1</span> Imputation de données manquantes</h3>
+<p>La majorité des jeux de données rencontrés en pratique contient des données manquantes. Certains algorithmes ne sont pas en mesure de gérer les données manquantes par eux-mêmes. Dans certains cas, simplement effacer du jeu de données les observations contenant des données manquantes peut avoir un impact négatif sur la performance des algorithmes entraînés. Une alternative est d’imputer les données manquantes. Les causes d’absence de données peuvent être relativement variées: bris de système, abstention, perte de données, etc. Il est généralement difficile de connaître la raison exacte, ce qui rend le traitement de données manquantes une étape importante. Avant même de trouver une méthode pour imputer ces données manquantes, il faut d’abord évaluer la quantité de données manquantes et tenter de comprendre le mécanisme expliquant la non-réponse d’une donnée.</p>
+<p>Il existe essentiellement 3 types de mécanismes de non-réponse <span class="citation">(Charest <a href="#ref-charest:imputation:2018">2018</a><a href="#ref-charest:imputation:2018">b</a>)</span>:</p>
+<ol style="list-style-type: decimal">
+<li>Données manquantes complètement au hasard (MCAR)</li>
+<li>Données manquantes au hasard (MAR)</li>
+<li>Données manquantes pas au hasard (NMAR)</li>
+</ol>
+<p>Dans le premier cas (MCAR), l’absence d’une donnée ne dépend pas de sa vraie valeur (non-observée). Par exemple, un système est défaillant dans la collecte de données et arrête de fonctionner en moyenne 5% du temps, et ce, de manière complètement aléatoire.</p>
+<p>Dans le deuxième cas (MAR), l’absence d’une donnée dépend uniquement de la valeur des variables qui ont été observées. Par exemple, des données ont été récoltées à partir de 2 systèmes différents et il est toujours connu de quel système les données proviennent. Pour un des deux systèmes, les données ont une plus grande probabilité d’être manquantes.</p>
+<p>Dans le troisième cas (NMAR), l’absence d’une donnée dépend également des données manquantes. La probabilité de non-réponse peut dépendre de la variable elle-même ou d’une autre variable. Par exemple, c’est le cas si les personnes ayant un salaire faible ont une probabilité plus faible de répondre à la question d’un sondage en lien avec le salaire gagné.</p>
+<p>Il existe différentes manières d’émettre une hypothèse quant au mécanisme de non-réponse. Certains tests<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> statistiques existent pour identifier un cas de MCAR. Cependant, il est difficile de différencier statistiquement MAR et NMAR. Pour se faire, on peut entres autres analyser le comportement des autres variables en fonction de l’absence ou la présence d’une donnée. Une connaissance du domaine d’affaire peut également être utile pour évaluer le mécanisme de non-réponse. Par la suite, il est possible de faire l’imputation selon différentes méthodes:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Analyse des cas complets</strong>: Conserver uniquement les observations pour lesquelles toutes les variables sont présentes. Cette méthode est très simple, mais nécessite MCAR, sinon peut introduire un biais notable dans les estimateurs.</li>
+<li><strong>Imputation par une mesure de centralité</strong>: Utiliser la moyenne, la médiane ou le mode pour remplacer les données manquantes. Cette méthode est relativement simple, mais peu recommandée pour des variables ayant un pourcentage élevé de données manquantes (même pour MCAR). Cela diminue la variabilité et la corrélation entre les variables.</li>
+<li><strong>Imputation par régression</strong>: Remplacer les données manquantes par la prévision de modèle de régression entraîné sur les observations pour lesquelles cette variable est présente. On sur-estimera la corrélation entre les variables et diminuera la variance des variables (moins que par l’imputation par mesure de centralité).</li>
+<li><strong>Imputation par régression stochastique</strong>: Même chose que la méthode par régression, mais on ajoute un résidu aléatoire à la prévision. Cela permet d’augmenter la variance.</li>
+</ol>
+<p>En bref, il est important d’avoir une bonne compréhension des données manquantes dans le jeu de données. Cela nous permet de prendre des décisions éclairées sur les techniques utilisées pour imputer ces valeurs manquantes.</p>
+</div>
+<div id="traitement-des-donnees-aberrantes" class="section level3">
+<h3><span class="header-section-number">5.1.2</span> Traitement des données aberrantes</h3>
+<p>Une autre étape classique du nettoyage de données consiste à faire le traitement des données aberrantes. Ces données peuvent parfois avoir des effets importants sur l’estimation des paramètres du modèle. La première étape est d’abord d’identifier ces données et d’ensuite de les traiter. Voici quelques méthodes traditionnelles pour faire la détection de celles-ci à l’intérieur d’une distribution quelconque:</p>
+<ol style="list-style-type: decimal">
+<li><span class="math inline">\(\pm\)</span> 3 écarts-types de la moyenne</li>
+<li><span class="math inline">\(\pm\)</span> 1.5 EI (écarts interquartile)</li>
+<li>Partitionnement (<em>clustering</em>)</li>
+</ol>
+<p>Une fois que les observations aberrantes ont été identifiées, il faut par la suite les traiter. Un expert du domaine peut être utile dans ce cas-ci pour analyser ces observations et confirmer leur validité. Si la validité d’une donnée est remise en question, il est coutume de retirer ces observations du jeu de données, car cela peut avoir un impact notoire sur le modèle. Il est important de bien documenter le retrait de ces observations.</p>
+</div>
+<div id="encodage" class="section level3">
+<h3><span class="header-section-number">5.1.3</span> Encodage des données catégoriques</h3>
+<p>Plusieurs algorithmes d’apprentissage ne peuvent pas traiter des données catégoriques directement. Il faut donc généralement encoder ces attributs en variables numériques pour pouvoir les utiliser dans le modèle. Pour se faire, il faut d’abord faire la distinction entre une donnée de nominale et une donnée ordinale. Dans le premier cas, il n’y a pas vraiment de notion d’ordre entre les différentes catégories. Dans le deuxième cas, il existe un ordonnancement naturel des catégories.</p>
+<p>Voici un exemple de donnée ordinale (<code>condition_generale</code>) où il est possible d’ordonner les observations:</p>
+<pre><code>##    Id condition_station
+## 1:  1             moyen
+## 2:  2           mauvais
+## 3:  3         excellent
+## 4:  4               bon</code></pre>
+<p>À l’inverse, voici un exemple où il est moins adéquat d’ordonner les observations selon la variable <code>quartier</code>:</p>
+<pre><code>##    Id start_quartier
+## 1:  1    Ville-Marie
+## 2:  2         Verdun
+## 3:  3      Westmount
+## 4:  4        LaSalle</code></pre>
+<p>Dans le cas d’une variable ordinale, une méthode d’encodage possible et adéquate (selon le contexte) serait d’assigner une valeur numérique pour chaque catégorie:</p>
+<pre><code>##    Id condition_station
+## 1:  1                 1
+## 2:  2                 0
+## 3:  3                 3
+## 4:  4                 2</code></pre>
+<p>Dans l’exemple ci-dessus, il faut être <strong>prudent</strong>, car en encodant la variable de cette manière, on spécifie au modèle que la distance entre <code>'mauvais'</code> et <code>'moyen'</code> est la même qu’entre <code>'bon'</code> et <code>'excellent'</code>. Cette hypothèse n’est pas toujours valide selon le contexte. Les avantages avec cette méthode sont qu’elle est relativement simple, intuitive et qu’elle n’augmente pas le nombre de variables.</p>
+<p>Dans le cas d’une variable nominale, il faut généralement opter pour une autre stratégie. Une méthode classique d’encodage dans ce cas-ci est d’utiliser la méthode <em>un-chaud</em><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> (<em>one-hot encoding</em>). Cette méthode consiste à traiter chaque catégorie comme une variable indicatrice qui indique la présence de la catégorie:</p>
+<pre><code>##    Id quartier_centre.ville quartier_plateau.mont.royal quartier_verdun
+## 1:  1                     1                           0               0
+## 2:  2                     0                           1               0
+## 3:  3                     0                           0               1
+## 4:  4                     0                           0               0
+##    quartier_rosemont
+## 1:                 0
+## 2:                 0
+## 3:                 0
+## 4:                 1</code></pre>
+<p>Le principal inconvénient avec la méthode d’encodage <em>un-chaud</em> est qu’elle augmente le nombre de variables. Cela peut être significatif pour une variable ayant plusieurs catégories différentes. C’est d’ailleurs dans ce genre de situations qu’il peut devenir intéressant de regrouper certaines classes entres elles, ce que nous allons voir à la section <a href="preprop.html#transformations">5.3</a>.</p>
+<p>Il existe d’autres méthode comme l’encodage binaire ou le <em>hasing</em>, mais les deux méthodes présentés plus en détails sont généralement les méthodes les plus utilisées en pratique.</p>
+</div>
+</div>
+<div id="reduction-de-donnees" class="section level2">
+<h2><span class="header-section-number">5.2</span> Réduction de données</h2>
+<p>À la section <a href="preprop.html#encodage">5.1.3</a>, nous avons vu que certaines méthodes d’encodages peuvent augmenter le nombres de variables. Dans le même ordre d’idées, certains domaines (par exemple la génétique) sont propices à avoir beaucoup d’attributs et ainsi avoir des espaces de données très complexe. Lorsque cela survient, les algorithmes d’apprentissage peuvent souffrir d’un phénomène appelé le fléau de la dimensionnalité. Cela survient lorsque le nombre de dimensions est trop grand, ce qui crée une “distance” plus importante entre les certaines données et rend plus difficile la tâche d’apprentissage. Pour illustrer ce concept, considérons l’exemple suivant:</p>
+<p>On suppose qu’on a un jeu de données avec <span class="math inline">\(p=1\)</span> attribut de <span class="math inline">\(n\)</span> observations où <span class="math inline">\(x_1,...,x_n \stackrel{iid}{\sim} U(0,1)\)</span>. Combien d’observations en moyenne se trouveront dans l’intervalle <span class="math inline">\([0;0.1]\)</span>?</p>
+<p>La réponse : <span class="math inline">\(\frac{n}{10}\)</span> observations.</p>
+<p>Maintenant, supposons que notre jeu de données est plus complexe et possède <span class="math inline">\(p=10\)</span> attributs au lieu d’un seul attribut. Les observations suivent toujours une loi uniforme où <span class="math inline">\(x_1,...,x_n \stackrel{iid}{\sim} U([0,1]^{10})\)</span>. Combien d’observations en moyenne se trouveront dans l’intervalle <span class="math inline">\([0;0.1]^{10}\)</span>?</p>
+<p>La réponse : <span class="math inline">\(n(\frac{1}{10})^{10}\)</span> observations.</p>
+<p>En d’autres mots, cet exemple <span class="citation">(Charest <a href="#ref-charest:acp:2018">2018</a><a href="#ref-charest:acp:2018">a</a>)</span> permet d’illustrer le fait que plus la complexité de l’espace des données est importante, plus on doit couvrir un étendu important pour capturer la même proportion d’observations.</p>
+<div id="analyse-en-composantes-principales" class="section level3">
+<h3><span class="header-section-number">5.2.1</span> Analyse en composantes principales</h3>
+<p>Une méthode traditionnelle et utilisée en pratique pour réduire la dimensionnalité est l’analyse en composantes principales <span class="citation">(Hotelling <a href="#ref-hotelling:1933">1933</a>)</span>. C’est une méthode non-supervisée (n’utilise pas la variable réponse) qui permet d’obtenir une représentation à plus petites dimensions d’un jeu de données tout en conservant le maximum d’information possible.</p>
+<p>En termes plus simple, on cherche à trouver une combinaison linéaire des <span class="math inline">\(p\)</span> attributs qui permettra de maximiser la variance (information). Cette combinaison linéaire constituera notre première composante principale. Par la suite, on cherche une deuxième combinaison linéaire, qui aura comme contrainte d’être orthogonale à la première, qui maximise encore une fois la variance. On procède de cette manière jusqu’à temps qu’on juge avoir un nombre de composantes principales qui contient suffisamment d’information et réduit la dimensionnalité du jeu de données. À la figure <a href="preprop.html#fig:acp">5.1</a> <span class="citation">(Khrunin <a href="#ref-10.1371/journal.pone.0058552">2013</a>)</span>, on peut voir un exemple où avec seulement les 2 premières composantes principales, il est possible de reconstruire les données de manière intéressante avec 166 000 attributs génétiques différents.</p>
+<div class="figure" style="text-align: center"><span id="fig:acp"></span>
+<img src="static-files/pca-populations.png" alt="Exemple où l'analyse en composantes principales permet de passer d'une dimension de 166 000  attributs vers une dimension de 2 attributs. On peut également voir que ce genre de méthode permet de rendre possible la visualisation de données à haute dimension." width="1030" />
+<p class="caption">
+Figure 5.1: Exemple où l’analyse en composantes principales permet de passer d’une dimension de 166 000 attributs vers une dimension de 2 attributs. On peut également voir que ce genre de méthode permet de rendre possible la visualisation de données à haute dimension.
+</p>
+</div>
+<p>Voici quelques notes importantes à considérer lorsqu’on utilise cette méthode:</p>
+<ol style="list-style-type: decimal">
+<li>Il est important de normaliser (voir section <a href="preprop.html#normalisation">5.3.1</a>) les données au préalable. Dans le cas contraire, certaines variables ayant des échelles importantes pourraient avoir l’impression d’apporter beaucoup de variance.</li>
+<li>L’analyse en composantes principales permet de représenter les données dans une toute autre dimension (on l’espère plus petite), ce qui vient rendre difficile l’interprétation des données dans cette nouvelle dimension. Il peut donc être important de re-transformer les données dans leur format original à la fin.</li>
+<li>Il n’y a pas de méthode statistique pour choisir le bon nombre de composantes principales. On peut se baser sur le pourcentage de variance expliquée ou tout simplement considérer la transformation comme un hyperparamètre du modèle est conserver le nombre de composantes qui donne les meilleures performances.</li>
+<li>Pour plus d’informations sur le développement mathématique de la méthode, vous pouvez vous référer au chapitre 10.2 du livre <span class="citation">(James et al. <a href="#ref-James:2014:ISL:2517747">2014</a>)</span>.</li>
+</ol>
+</div>
+<div id="autres-methodes-de-reduction" class="section level3">
+<h3><span class="header-section-number">5.2.2</span> Autres méthodes de réduction</h3>
+<p>Il existe d’autres méthodes pour réduire la dimensionnalité d’un jeu de données lorsque celle-ci cause un problème lors de l’apprentissage. Voici quelques exemples fréquemment utilisées en pratique:</p>
+<ol style="list-style-type: decimal">
+<li>Positionnement multidimensionnel: Trouver une représentation (avec une dimension inférieure à la dimension initiale) qui représente le mieux possible les distances entre les observations du jeu de données initial. Voir cette <a href="http://www.statsoft.com/textbook/multidimensional-scaling">page web</a> pour plus de détails.</li>
+<li>Analyse factorielle: Réduire la dimensionnalité en modélisant la structure expliquant la relation entre les variables du jeu de données. Voir cette <a href="http://www.statsoft.com/Textbook/Principal-Components-Factor-Analysis">page web</a> pour plus de détails.</li>
+<li>Calcul de scores: On peut également réduire la dimensionnalité d’un jeu de données en combinant plusieurs attributs de base pour calculer un nouvel attribut (voir section <a href="preprop.html#scores">5.3.3</a>) comme un score par exemple. Cela peut également permettre d’augmenter le pouvoir prédictif d’attributs éparses desquels il est difficile de tirer de l’information lorsque considérés individuellement.</li>
+</ol>
+</div>
+</div>
+<div id="transformations" class="section level2">
+<h2><span class="header-section-number">5.3</span> Transformation de données</h2>
+<p>Avant de passer à l’entraînement d’un modèle, il est préférable pour la majorité des algorithmes d’utiliser les connaissances acquises lors de l’exploration de données (section <a href="exploration.html#exploration">4</a>) pour transformer les données dans un format plus propice à l’apprentissage. Cette étape de transformation est souvent ce qu’on appelle le <em>feature engineering</em>. Cette étape demande d’ailleurs beaucoup de va-et-vient avec la prochaine section <a href="metho.html#metho">6</a>.</p>
+<div id="normalisation" class="section level3">
+<h3><span class="header-section-number">5.3.1</span> Normalisation</h3>
+<p>La normalisation des données permet de ramener les données autour d’une distribution plus “standard”. Pour certains types de modèles, en particulier ceux qui sont basés sur des calculs de distances comme les <span class="math inline">\(k\)</span>-PPV ou le <em>clustering</em>, il est primordial de normaliser les données avant d’en faire l’apprentissage. En effet, cela permet de standardiser les distributions des différents attributs du jeu de données. Par exemple, si deux variables sont distribuées sur des domaines ayant des échelles complètement différentes, il est préférable de plutôt comparer celles-ci sur un échelle commune. Voilà l’objectif fondamental de la normalisation.</p>
+<p>Il existe différentes méthodes de normalisation. Il n’y a pas de “bonne méthode”, mais certaines sont mieux adaptées à des contextes en particulier. Voici quelques exemples de méthodes traditionnelles où <span class="math inline">\(x_{i,A}^{\prime}\)</span> représente la donnée <span class="math inline">\(i\)</span> normalisée pour l’attribut <span class="math inline">\(A\)</span> et <span class="math inline">\(x_{i,A}\)</span> représente la donnée originale.</p>
+<ol style="list-style-type: decimal">
+<li>Normalisation centrée-réduite</li>
+</ol>
+<p><span class="math display">\[
+x_{i,A}^{\prime}=\frac{x_{i,A}-\bar{x}_A}{\hat\sigma_A}
+\]</span></p>
+<p>où <span class="math inline">\(\bar{x}_A\)</span> et <span class="math inline">\(\hat\sigma_A\)</span> sont la moyenne et la variance observées de l’attribut <span class="math inline">\(A\)</span>.</p>
+<ol start="2" style="list-style-type: decimal">
+<li>Normalisation <em>min-max</em></li>
+</ol>
+<p><span class="math display">\[
+x_{i,A}^{\prime}=\frac{x_{i,A}-\min_A}{\max_A-\min_A}\big({\rm new\_max}_A-{\rm new\_min}_A\big)+{\rm new\_min}_A
+\]</span>
+où <span class="math inline">\(\min_A = \min_i x_{i,A}\)</span> et <span class="math inline">\(\max_A = \max_i x_{i,A}\)</span> sont calculés sur la distribution de l’attribut <span class="math inline">\(A\)</span>, alors que <span class="math inline">\({\rm new\_max}_A\)</span> et <span class="math inline">\({\rm new\_min}_A\)</span> correspondent aux bornes du nouvel intervalle désiré.</p>
+<ol start="3" style="list-style-type: decimal">
+<li>Normalisation pas décimation</li>
+</ol>
+<p><span class="math display">\[
+x_{i,A}^{\prime}=\frac{x_{i,A}}{10^j}
+\]</span>
+où <span class="math inline">\(j\)</span> est la plus petite valeur entière où <span class="math inline">\(max(|x_{i,A}|)&lt;1\)</span>.</p>
+</div>
+<div id="discretisation" class="section level3">
+<h3><span class="header-section-number">5.3.2</span> Discrétisation</h3>
+<p>La discrétisation consiste à prendre une donnée numérique et de la transformer en un ensemble de valeurs discrètes qu’on appelle souvent <em>buckets</em> ou <em>bins</em>. L’idée derrière ce genre de transformation est de simplifier la vie du modèle en lui “pré-mâchant” une donnée continue en certains groupes de valeurs plus faciles à apprendre.</p>
+<p>Il existe encore une fois plusieurs méthodes pour construire ces regroupements de valeurs. L’étape de l’exploration des données permet entres autres de bien comprendre celles-ci et de créer des groupes qui ajoutent une valeur au modèle. La présence d’un expert du domaine peut également être utile dans la création de ce genre de groupes.</p>
+</div>
+<div id="scores" class="section level3">
+<h3><span class="header-section-number">5.3.3</span> Création de nouveaux attributs</h3>
+<p>Un autre type de transformation classique en modélisation consiste à créer de nouveaux attributs en utilisant les attributs originaux. Ces nouveaux attributs peuvent prendre la forme de scores ou tout simplement être une redéfinition d’un attribut en particulier.</p>
+<p>C’est d’ailleurs le genre de transformation qui demande une certaine compréhension des données et de l’algorithme utilisé pour faire l’apprentissage. Par exemple, si on prend la date de départ d’un trajet, il est difficile d’intégrer directement cette variable dans un modèle prédictif. Toutefois, on peut utiliser cette variable pour créer un attribut qui indique si le moment de départ du trajet est un jour de semaine ou un jour de week-end. On pourrait également créer un attribut qui indique s’il y a eu des précipitations de pluie pendant la journée au lieu d’utiliser la quantité de pluie (mm) directement.</p>
+<p>Ce type de transformation permet d’intégrer de l’ingénierie dans le jeu de données. Cela peut également permettre de réduire la dimensionnalité lorsqu’un nouvel attribut contient plusieurs autres attributs et que ceux-ci peuvent être retirés du jeu de données. Ultimement, toutes ces transformations de données ont pour objectif de faciliter l’apprentissage et ainsi obtenir un modèle ayant un plus grand pouvoir prédictif.</p>
+<p>Les méthodes de transformation de données présentées dans cette section ont comme objectif de faciliter l’apprentissage. Cependant, étant donné que les données sont désormais transformées, il faut faire attention à l’interprétation des résultats. En effet, certaines transformations comme la normalisation ou le lissage font en sorte que les données ne sont plus dans leur format original.</p>
+</div>
+</div>
+<div id="pretraitements-de-donnees-en-r" class="section level2">
+<h2><span class="header-section-number">5.4</span> Prétraitements de données en R</h2>
+<p>Dans cette section, nous verrons comment appliquer les concepts théoriques décrits dans la section précédente dans un contexte de production. Dans cette optique, il faudra garder une trace des prétraitements effectués sur le jeu de données d’entraînement pour être en mesure de les effectuer de la même manière lors de l’inférence.</p>
+<p>Pour se faire, nous proposons de faire 2 processus de prétraitements différents. Le premier servira à faire le prétraitement des données d’entraînement alors que le deuxième servira à faire le prétraitement des données à prédire lors de l’inférence. Les prochaines sections permettront de formaliser les différentes étapes clés à prévoir pour ces deux scénarios différents en tirant profit de certains packages R.</p>
+<div id="separation-du-jeu-de-donnees" class="section level3">
+<h3><span class="header-section-number">5.4.1</span> Séparation du jeu de données</h3>
+<p>Avant même d’effectuer les premiers prétraitements, il est primordial de garder en tête que nous cherchons à construire un modèle prédictif qui sera performant en généralisation. Pour se faire, il faut inévitablement garder de côté un jeu de données test que nous utiliserons à la toute fin pour avoir une idée plausible de la performance de notre modèle sur des données que celui-ci n’a jamais encore vues. Afin de ne pas induire de l’information de ce jeu de données dans notre entraînement, nous devrons d’abord effectuer cette séparation et ensuite faire les différents prétraitements sur le jeu de données d’entraînement seulement. À la toute fin, nous pourrons effectuer ces mêmes prétraitements sur le jeu de données test et ainsi simuler l’entrée de nouvelles données.</p>
+<p>Pour faire la séparation, il courant dans la pratique de prendre un pourcentage arbitraire des données, par exemple 10%, sélectionné aléatoirement pour le jeu de données test. Pour faire cela, il est possible d’utiliser des fonctions de base en R, comme la fonction <code>sample</code>:</p>
+<pre class="sourceCode r"><code class="sourceCode r">ind_train &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(data_bixi), <span class="dt">size =</span> <span class="fl">0.9</span> <span class="op">*</span><span class="st"> </span><span class="kw">nrow</span>(data_bixi), <span class="dt">replace =</span> <span class="ot">FALSE</span>)
+<span class="kw">head</span>(<span class="kw">sort</span>(ind_train), <span class="dv">10</span>)</code></pre>
+<pre><code>##  [1]  1  2  3  4  5  6  7  8  9 10</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">lapply</span>(<span class="kw">list</span>(data_bixi[ind_train,]<span class="op">$</span>duration_sec, data_bixi[<span class="op">-</span>ind_train,]<span class="op">$</span>duration_sec), mean)</code></pre>
+<pre><code>## [[1]]
+## [1] 818.2513
+## 
+## [[2]]
+## [1] 817.3133</code></pre>
+<p>Dans certaines situations, il peut être utile de faire une séparation qui permet de s’assurer de la présence de certaines données dans chaque jeu de données. Pour faire ce genre de séparation, il est possible de faire un échantillonnage stratifié sur certaines variables, ce qui assure la cohérence entre les deux jeux de données vis-à-vis ces variables. Cela peut être notamment utile dans un contexte de données débalancées. Pour faciliter la mise en place de ce genre de séparation, il est possible d’utiliser la fonction <code>createDataPartition</code> du package <code>caret</code>:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(caret)</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">ind_train &lt;-<span class="st"> </span><span class="kw">createDataPartition</span>(<span class="dt">y =</span> data_bixi<span class="op">$</span>duration_sec, <span class="dt">times =</span> <span class="dv">1</span>, <span class="dt">p =</span> <span class="fl">0.9</span>, <span class="dt">list =</span> <span class="ot">FALSE</span>)
+<span class="kw">head</span>(<span class="kw">sort</span>(ind_train), <span class="dv">10</span>)</code></pre>
+<pre><code>##  [1]  1  2  3  4  5  6  7  9 10 11</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">lapply</span>(<span class="kw">list</span>(data_bixi[ind_train,]<span class="op">$</span>duration_sec, data_bixi[<span class="op">-</span>ind_train,]<span class="op">$</span>duration_sec), mean)</code></pre>
+<pre><code>## [[1]]
+## [1] 818.1882
+## 
+## [[2]]
+## [1] 817.8807</code></pre>
+</div>
+<div id="processus-de-pretraitements" class="section level3">
+<h3><span class="header-section-number">5.4.2</span> Processus de prétraitements</h3>
+<p>Une fois que la séparation du jeu de données est faite, on peut désormais effectuer nos prétraitements via 2 processus différents. Un premier processus sera appliqué sur les données d’entraînement et un deuxième processus sera appliqué sur le jeu de données test (ou les données nouvelles à prédire par notre modèle). La figure <a href="preprop.html#fig:workflow">5.2</a> illustre bien ces 2 processus et comment ceux-ci sont interreliés.</p>
+<div class="figure" style="text-align: center"><span id="fig:workflow"></span>
+<img src="static-files/preprocessing-workflow.png" alt="Processus de prétraitements des données" width="512" />
+<p class="caption">
+Figure 5.2: Processus de prétraitements des données
+</p>
+</div>
+<p>Le point clé ici est que certains objets seront calculés et sauvegardés lors du processus de prétraitements effectué sur les données d’entraînement. Ces objets seront par la suite utilisés pour le processus de prétraitements des données de test. Les prochaines sections montrent quelques options disponibles en R pour réaliser certaines étapes de ce prétraitement.</p>
+<div id="imputations-de-donnees-manquantes" class="section level4">
+<h4><span class="header-section-number">5.4.2.1</span> Imputations de données manquantes</h4>
+<p>Pour l’imputation de données manquantes, il est nécessaire d’avoir une liste de variables à imputer avec une définition de comment calculer la valeur d’imputation. Le calcul de la valeur d’imputation se fait sur les données d’entraînement seulement. Il est possible de définir les valeurs d’imputations et de sauvegarder ces valeurs dans un fichier JSON en utilisant le package <code>jsonlite</code>:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Définir les valeurs d&#39;imputation</span>
+valeurs_imputations &lt;-<span class="st"> </span><span class="kw">list</span>(
+  <span class="dt">start_station_code =</span> <span class="kw">median</span>(data_bixi<span class="op">$</span>start_station_code),
+  <span class="dt">start_wday =</span> <span class="kw">median</span>(data_bixi<span class="op">$</span>start_wday)
+)
+
+<span class="co"># Sauvegarder le fichier d&#39;imputations dans un JSON</span>
+<span class="kw">write</span>(jsonlite<span class="op">::</span><span class="kw">toJSON</span>(valeurs_imputations, <span class="dt">pretty =</span> <span class="ot">TRUE</span>), <span class="st">&quot;chemin/du/model/valeurs_imputations.json&quot;</span>)</code></pre>
+<p>Dans le prétraitement des données lors de l’inférence, on peut désormais importer ces valeurs d’imputation et remplacer les données manquantes:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Importer en mémoire les données d&#39;imputation</span>
+valeurs_imputations &lt;-<span class="st"> </span>jsonlite<span class="op">::</span><span class="kw">fromJSON</span>(<span class="st">&quot;chemin/du/model/valeurs_imputations.json&quot;</span>)
+
+<span class="co"># Remplacer les données manquantes par leur valeurs d&#39;imputation</span>
+<span class="cf">for</span> (col <span class="cf">in</span> <span class="kw">names</span>(valeurs_imputations)) {
+    data_inference[<span class="kw">is.na</span>(<span class="kw">get</span>(col)), (col) <span class="op">:</span><span class="er">=</span><span class="st"> </span>list[[<span class="kw">eval</span>(col)]]]
+}</code></pre>
+<p>Les fichiers JSON sont généralement faciles à traiter dans plusieurs logiciels et langages différents. En R, il est également intéressant d’utiliser ce format qui se marie bien avec les objets de type liste. C’est donc un format que nous recommandons d’utiliser. Notez que dans cet exemple, l’imputation est faite en sauvegardant une liste de valeurs d’imputation. Par contre, cela pourrait également être fait via un autre objet, comme un modèle, qui viendrait faire une prédiction en guise d’imputation.</p>
+</div>
+<div id="encodage-de-donnees-categoriques" class="section level4">
+<h4><span class="header-section-number">5.4.2.2</span> Encodage de données catégoriques</h4>
+<p>Pour être en mesure de répliquer l’encodage de données catégoriques, le principal défi est faire l’encodage <em>un-chaud</em>. La fonction <code>dummyVars</code> du package <code>caret</code> permet de réaliser assez facilement ce genre de transformation:</p>
+<pre class="sourceCode r"><code class="sourceCode r">objet_un_chaud &lt;-<span class="st"> </span><span class="kw">dummyVars</span>(<span class="st">&quot; ~ weekend_flag&quot;</span>, <span class="dt">data =</span> data_bixi)
+<span class="kw">saveRDS</span>(objet_un_chaud, <span class="st">&quot;chemin/du/model/objet_un_chaud.rds&quot;</span>)</code></pre>
+<p>Lors de l’inférence, on peut importer cet objet en mémoire et transformer les variables pour les données à prédire:</p>
+<pre class="sourceCode r"><code class="sourceCode r">objet_un_chaud &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;chemin/du/model/objet_un_chaud.rds&quot;</span>)
+data_inference &lt;-<span class="st"> </span><span class="kw">predict</span>(objet_un_chaud, <span class="dt">newdata =</span> data_inference)</code></pre>
+<p>Le package <code>caret</code> offre plusieurs fonctionnalités intéressantes dans un contexte de modélisation. La fonction <code>dummyVars</code> est assez intuitive à utiliser et offre certaines options comme la possibilité de nommer les variables indicatrices par un séparateur au choix (<code>sep</code>), comment gérer les nouvelles catégories (<code>na.action</code>), la possibilité d’enlever le niveau de base (<code>fullRank</code>), etc.</p>
+</div>
+<div id="valeurs-de-normalisation" class="section level4">
+<h4><span class="header-section-number">5.4.2.3</span> Valeurs de normalisation</h4>
+<p>Pour ce qui est de la normalisation des attributs, il faut encore une fois garder une trace de ces valeurs pour ainsi normaliser adéquatement les données lors de l’inférence. Un peu comme dans l’imputation, on peut calculer ces valeurs sur le jeu de données d’entraînement. Voici une manière de stocker ces valeurs, en utilisant encore une fois le package <code>jsonlite</code>:</p>
+<pre class="sourceCode r"><code class="sourceCode r">variables_a_normaliser &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;variable_1&quot;</span>, <span class="st">&quot;variable_2&quot;</span>)
+moyennes &lt;-<span class="st"> </span><span class="kw">apply</span>(data[, (variables_a_normaliser), <span class="dt">with =</span> F], <span class="dv">2</span>, mean)
+ecarts_types &lt;-<span class="st"> </span><span class="kw">apply</span>(data[, (variables_a_normaliser), <span class="dt">with =</span> F], <span class="dv">2</span>, sd)
+valeurs_normalisation &lt;-<span class="st"> </span><span class="kw">list</span>(
+  <span class="dt">moyennes =</span> <span class="kw">as.list</span>(moyennes),
+  <span class="dt">ecarts_types =</span> <span class="kw">as.list</span>(ecarts_types)
+)
+
+<span class="co"># Sauvegarder les valeurs de normalisation</span>
+<span class="kw">write</span>(jsonlite<span class="op">::</span><span class="kw">toJSON</span>(valeurs_normalisation, <span class="dt">pretty =</span> <span class="ot">TRUE</span>), <span class="st">&quot;chemin/du/model/valeurs_normalisation.json&quot;</span>)</code></pre>
+<p>Une fois les valeurs calculées, on peut les importer et les appliquer sur les données à inférer:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Importer en mémoire les valeurs de normalisation</span>
+valeurs_normalisation &lt;-<span class="st"> </span>jsonlite<span class="op">::</span><span class="kw">fromJSON</span>(<span class="st">&quot;chemin/du/model/valeurs_normalisation.json&quot;</span>)
+
+<span class="co"># Appliquer la normalisation pour les variables à normaliser</span>
+data &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="kw">names</span>(valeurs_normalisation<span class="op">$</span>moyennes), <span class="cf">function</span>(x) {
+  data[, (x) <span class="op">:</span><span class="er">=</span><span class="st"> </span>(<span class="kw">get</span>(x) <span class="op">-</span><span class="st"> </span>valeurs_normalisation<span class="op">$</span>moyennes[[<span class="kw">eval</span>(x)]])<span class="op">/</span>valeurs_normalisation<span class="op">$</span>ecarts_types[[<span class="kw">eval</span>(x)]]]
+})[[<span class="dv">2</span>]]</code></pre>
+</div>
+<div id="creation-de-nouveaux-attributs" class="section level4">
+<h4><span class="header-section-number">5.4.2.4</span> Création de nouveaux attributs</h4>
+<p>Pour ce qui est de la création de nouveaux attributs et de la discrétisation, ces prétraitements sont généralement fait en appliquant une transformation directe aux données, par exemple, l’application d’une fonction <code>log</code>. Ces transformations peuvent donc être programmées via du code source qui sera appliqué de la même manière pour les données d’entraînement que pour les données de test. Voici un exemple de fonction qui permettrait de créer un nouvel attribut et en discrétiser un autre, et ce, pour les 2 jeux de données:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Fonction qui crée de nouveaux attributs</span>
+creation_attributs &lt;-<span class="st"> </span><span class="cf">function</span>(data){
+  
+  <span class="co"># Nouveaux attributs</span>
+  data[, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(<span class="dt">start_wday =</span> lubridate<span class="op">::</span><span class="kw">wday</span>(start_date, <span class="dt">week_start =</span> <span class="dv">1</span>),
+              <span class="dt">start_hour =</span> <span class="kw">hour</span>(start_date_time))]
+  
+  <span class="co"># Discrétisation</span>
+  data[start_quartier <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;outremont&quot;</span>, <span class="st">&quot;cotedesneigesnotredamedegrace&quot;</span>, <span class="st">&quot;westmount&quot;</span>, <span class="st">&quot;lesudouest&quot;</span>, <span class="st">&quot;verdun&quot;</span>, <span class="st">&quot;lasalle&quot;</span>), start_quartier_group <span class="op">:</span><span class="er">=</span><span class="st"> &quot;sud_ouest&quot;</span>]
+  
+  data
+}
+
+<span class="co"># La fonction s&#39;applique de la même maniere pour les 2 jeux de données</span>
+data_train &lt;-<span class="st"> </span><span class="kw">creation_attributs</span>(data_train)
+data_test &lt;-<span class="st"> </span><span class="kw">creation_attributs</span>(data_test)</code></pre>
+</div>
+</div>
+</div>
+<div id="conclusion" class="section level2">
+<h2><span class="header-section-number">5.5</span> Conclusion</h2>
+<p>En conclusion, le prétraitement de données a comme objectif de partir d’une table de données brutes et de rendre cette table compatible et prédictive pour un algorithme d’apprentissage. Pour se faire, il nécessaire de commencer par nettoyer les données. Ensuite, certaines étapes de réduction et de transformations des données permettront de rendre les données plus prédictives pour le modèle. Finalement, il est important de garder en tête que le prétraitements doivent pouvoir être répliqués sur les données à inférer. C’est pourquoi il est primordial de garder une trace de ces prétraitements, et ainsi rendre possible le prétraitement d’une seule et unique requête à prédire.</p>
+</div>
+<div id="references-1" class="section level2">
+<h2><span class="header-section-number">5.6</span> Références</h2>
+
+</div>
+</div>
+<h3>References</h3>
+<div id="refs" class="references">
+<div id="ref-charest:imputation:2018">
+<p>Charest, Anne-Sophie. 2018b. “Données Manquantes.” In <em>STT-7330: Méthode d’analyse de Données</em>. Québec, Canada: Université Laval.</p>
+</div>
+<div id="ref-charest:acp:2018">
+<p>Charest, Anne-Sophie. 2018a. “Analyse En Composantes Principales.” In <em>STT-7330: Méthode d’analyse de Données</em>. Québec, Canada: Université Laval.</p>
+</div>
+<div id="ref-hotelling:1933">
+<p>Hotelling, Harold. 1933. “Analysis of a Complex of Statistical Variables into Principal Components.” <em>Journal of Educational Psychology</em> vol 24: 417–41, 498–520.</p>
+</div>
+<div id="ref-10.1371/journal.pone.0058552">
+<p>Khrunin, Denis V. AND Filippova, Andrey V. AND Khokhrin. 2013. “A Genome-Wide Analysis of Populations from European Russia Reveals a New Pole of Genetic Diversity in Northern Europe.” <em>PLOS ONE</em> 8 (3): 1–9. <a href="https://doi.org/10.1371/journal.pone.0058552">https://doi.org/10.1371/journal.pone.0058552</a>.</p>
+</div>
+<div id="ref-James:2014:ISL:2517747">
+<p>James, Gareth, Daniela Witten, Trevor Hastie, and Robert Tibshirani. 2014. <em>An Introduction to Statistical Learning: With Applications in R</em>. Springer Publishing Company, Incorporated.</p>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="1">
+<li id="fn1"><p>Voir le test de Welch et le test de Little. Les deux tests ne peuvent garantir l’hypothèse de MCAR.<a href="preprop.html#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>Traduction libre, crédit à <a href="https://github.com/jtbai">Jean-Thomas Baillargeon</a>.<a href="preprop.html#fnref2" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="exploration.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="metho.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
