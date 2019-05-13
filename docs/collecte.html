@@ -25,7 +25,7 @@
 <meta name="author" content=".Layer">
 
 
-<meta name="date" content="2019-05-12">
+<meta name="date" content="2019-05-13">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -851,8 +851,8 @@ httr<span class="op">::</span><span class="kw">content</span>(r)</code></pre>
 <h4><span class="header-section-number">3.3.1.3</span> Web Scraping</h4>
 <p>Le principal obstacle du web scraping est l’aspect légal. Néanmoins, les packages suivants facilitent la collecte d’information par web scraping : <a href="http://rvest.tidyverse.org/">rvest</a>, <a href="https://github.com/jennybc/googlesheets">googlesheets</a>.</p>
 </div>
-<div id="acces-aux-donnees-historiques-et-en-temps-reel-acces-historique-temps-reel" class="section level4">
-<h4><span class="header-section-number">3.3.1.4</span> Accès aux données historiques et en temps réel {acces-historique-temps-reel}</h4>
+<div id="acces-historique-temps-reel" class="section level4">
+<h4><span class="header-section-number">3.3.1.4</span> Accès aux données historiques et en temps réel</h4>
 <p>Nous avons discarté le service de disponibilité des vélos par absence d’historique. Voyons maintenant comment pourrait s’orchestrer l’utilisation de sources différentes en entraînement et en production.</p>
 <p>Le site <a href="https://montreal.weatherstats.ca/download.html">weatherstats.ca</a> permet de télécharger un historique des températures à Montréal.</p>
 <p>Le site <a href="https://openweathermap.org/api">OpenWeatherMap.org</a>, lui, permet d’obtenir la température en temps réel à l’aide d’une requête à un service :</p>
@@ -870,13 +870,13 @@ httr<span class="op">::</span><span class="kw">content</span>(r)</code></pre>
 ## $weather
 ## $weather[[1]]
 ## $weather[[1]]$id
-## [1] 804
+## [1] 803
 ## 
 ## $weather[[1]]$main
 ## [1] &quot;Clouds&quot;
 ## 
 ## $weather[[1]]$description
-## [1] &quot;overcast clouds&quot;
+## [1] &quot;broken clouds&quot;
 ## 
 ## $weather[[1]]$icon
 ## [1] &quot;04n&quot;
@@ -888,58 +888,58 @@ httr<span class="op">::</span><span class="kw">content</span>(r)</code></pre>
 ## 
 ## $main
 ## $main$temp
-## [1] 284.06
+## [1] 284.04
 ## 
 ## $main$pressure
 ## [1] 1014
 ## 
 ## $main$humidity
-## [1] 55
+## [1] 37
 ## 
 ## $main$temp_min
-## [1] 282.59
+## [1] 282.04
 ## 
 ## $main$temp_max
-## [1] 285.37
+## [1] 286.15
 ## 
 ## 
 ## $visibility
-## [1] 14484
+## [1] 24140
 ## 
 ## $wind
 ## $wind$speed
-## [1] 3.1
+## [1] 4.1
 ## 
 ## $wind$deg
-## [1] 90
+## [1] 80
 ## 
 ## 
 ## $clouds
 ## $clouds$all
-## [1] 90
+## [1] 75
 ## 
 ## 
 ## $dt
-## [1] 1557718723
+## [1] 1557720128
 ## 
 ## $sys
 ## $sys$type
 ## [1] 1
 ## 
 ## $sys$id
-## [1] 820
+## [1] 943
 ## 
 ## $sys$message
-## [1] 0.0075
+## [1] 0.0073
 ## 
 ## $sys$country
 ## [1] &quot;CA&quot;
 ## 
 ## $sys$sunrise
-## [1] 1557653265
+## [1] 1557739592
 ## 
 ## $sys$sunset
-## [1] 1557706436
+## [1] 1557792909
 ## 
 ## 
 ## $id
@@ -1015,7 +1015,7 @@ temps
 <tbody>
 <tr>
 <td style="text-align:left;">
-2019-05-12 23:42:56
+2019-05-13 00:05:28
 </td>
 <td style="text-align:right;">
 0.0208333
@@ -1037,7 +1037,7 @@ Durée (minutes)
 <tbody>
 <tr>
 <td style="text-align:left;">
-2019-05-12 23:42:56
+2019-05-13 00:05:28
 </td>
 <td style="text-align:right;">
 30
@@ -1059,10 +1059,10 @@ Date fin
 <tbody>
 <tr>
 <td style="text-align:left;">
-2019-05-12 23:42:56
+2019-05-13 00:05:28
 </td>
 <td style="text-align:left;">
-2019-05-13 00:12:56
+2019-05-13 00:35:28
 </td>
 </tr>
 </tbody>
