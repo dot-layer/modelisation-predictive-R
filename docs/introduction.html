@@ -145,7 +145,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <li class="divider"></li>
 <li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Préface</a></li>
-<li class="chapter" data-level="2" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>2</b> Introduction</a></li>
+<li class="chapter" data-level="2" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>2</b> Introduction</a><ul>
+<li class="chapter" data-level="2.1" data-path="introduction.html"><a href="introduction.html#intro-considerations"><i class="fa fa-check"></i><b>2.1</b> Considérations</a></li>
+<li class="chapter" data-level="2.2" data-path="introduction.html"><a href="introduction.html#jeu-de-donnees"><i class="fa fa-check"></i><b>2.2</b> Jeu de données</a></li>
+</ul></li>
 <li class="chapter" data-level="3" data-path="collecte.html"><a href="collecte.html"><i class="fa fa-check"></i><b>3</b> Collecte de données</a><ul>
 <li class="chapter" data-level="3.1" data-path="collecte.html"><a href="collecte.html#approche"><i class="fa fa-check"></i><b>3.1</b> Description de l’approche</a><ul>
 <li class="chapter" data-level="3.1.1" data-path="collecte.html"><a href="collecte.html#obtenir-les-donnees-etiquetees"><i class="fa fa-check"></i><b>3.1.1</b> Obtenir les données etiquetées</a></li>
@@ -281,7 +284,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="introduction" class="section level1">
 <h1><span class="header-section-number">Chapitre 2</span> Introduction</h1>
+<p><strong>Modélisation prédictive en R</strong> est un livre proposant un proposant complet de modélisation, de l’extraction des données jusqu’au déploiement d’un modèle. Il comprend autant des notions théoriques que des considérations techniques nécessaires au déploiement d’un modèle dans un contexte de production. À des fins pédagogiques, nous avons séparé le processus en 5 grandes étapes. Tout d’abord, la collecte de données, souvent délaissée; ensuite les 3 étapes classiques d’exploration, prétraitement et modélisation, auxquelles nous ajoutons l’étape de déploiement.</p>
+<div id="intro-considerations" class="section level2">
+<h2><span class="header-section-number">2.1</span> Considérations</h2>
+<p>Les données peuvent prendre toutes sortes de formes. C’est la beauté du travail du scientifique des données, mais aussi son plus grand défi. Dans ce livre, nous présentons certaines notions et procédures que nous croyons applicables dans plusieurs contextes, mais quiconque a œuvré dans un domaine impliquant de la modélisation le sait, l’aventure est rarement linéaire. On progresse, on revient, on réessaie … La présentation d’un processus linéaire ne fait donc évidemment pas honneur à la réalité. Une partie de ce va-et-vient est nécessaire et sain. Nous espérons que la méthodologie présentée permettra de minimiser le va-et-vient inutile autant que possible.</p>
+<p>De plus, en tant que document portant sur le langage R et la modélisation, nous utilisons, recommandons et citons plusieurs librairies et algorithmes. Le vaste étendu de méthodes disponibles en R rend impossible leur énumération. Nous avons choisit d’utiliser certaines librairies que nous recommandons, mais l’accent doit être mis sur le processus dans lequel elles sont insérées, et non sur les librairies elle-mêmes.</p>
+</div>
+<div id="jeu-de-donnees" class="section level2">
+<h2><span class="header-section-number">2.2</span> Jeu de données</h2>
+<p>Pour illustrer différents exemples tout au long de ce document, nous avons utilisé un jeu de données ouvert et gratuit disponible sur le site de <a href="https://montreal.bixi.com/fr">BIXI Montréal</a>. BIXI Montréal est un organisme à but non lucratif créé en 2014 par la Ville de Montréal pour gérer le système de vélopartage à Montréal. Les données utilisées dans le cadre de ce livre sont en lien avec les trajets de bicyclette réalisés et enregistrés par le système de transport urbain.</p>
 
+</div>
 </div>
             </section>
 

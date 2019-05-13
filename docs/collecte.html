@@ -145,7 +145,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <li class="divider"></li>
 <li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Préface</a></li>
-<li class="chapter" data-level="2" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>2</b> Introduction</a></li>
+<li class="chapter" data-level="2" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>2</b> Introduction</a><ul>
+<li class="chapter" data-level="2.1" data-path="introduction.html"><a href="introduction.html#intro-considerations"><i class="fa fa-check"></i><b>2.1</b> Considérations</a></li>
+<li class="chapter" data-level="2.2" data-path="introduction.html"><a href="introduction.html#jeu-de-donnees"><i class="fa fa-check"></i><b>2.2</b> Jeu de données</a></li>
+</ul></li>
 <li class="chapter" data-level="3" data-path="collecte.html"><a href="collecte.html"><i class="fa fa-check"></i><b>3</b> Collecte de données</a><ul>
 <li class="chapter" data-level="3.1" data-path="collecte.html"><a href="collecte.html#approche"><i class="fa fa-check"></i><b>3.1</b> Description de l’approche</a><ul>
 <li class="chapter" data-level="3.1.1" data-path="collecte.html"><a href="collecte.html#obtenir-les-donnees-etiquetees"><i class="fa fa-check"></i><b>3.1.1</b> Obtenir les données etiquetées</a></li>
@@ -728,7 +731,7 @@ MÃ©tro Angrignon
 </ul></li>
 <li>Données météorologiques
 <ul>
-<li><a href="http://climate.weather.gc.ca/historical_data/search_historic_data_e.html">température historique</a></li>
+<li><a href="https://montreal.weatherstats.ca/download.html">température historique</a></li>
 <li><a href="https://openweathermap.org/current">température en temps réel</a></li>
 <li>précipitations</li>
 <li>vent</li>
@@ -848,8 +851,8 @@ httr<span class="op">::</span><span class="kw">content</span>(r)</code></pre>
 <h4><span class="header-section-number">3.3.1.3</span> Web Scraping</h4>
 <p>Le principal obstacle du web scraping est l’aspect légal. Néanmoins, les packages suivants facilitent la collecte d’information par web scraping : <a href="http://rvest.tidyverse.org/">rvest</a>, <a href="https://github.com/jennybc/googlesheets">googlesheets</a>.</p>
 </div>
-<div id="acces-aux-donnees-historiques-et-en-temps-reel" class="section level4">
-<h4><span class="header-section-number">3.3.1.4</span> Accès aux données historiques et en temps réel</h4>
+<div id="acces-aux-donnees-historiques-et-en-temps-reel-acces-historique-temps-reel" class="section level4">
+<h4><span class="header-section-number">3.3.1.4</span> Accès aux données historiques et en temps réel {acces-historique-temps-reel}</h4>
 <p>Nous avons discarté le service de disponibilité des vélos par absence d’historique. Voyons maintenant comment pourrait s’orchestrer l’utilisation de sources différentes en entraînement et en production.</p>
 <p>Le site <a href="https://montreal.weatherstats.ca/download.html">weatherstats.ca</a> permet de télécharger un historique des températures à Montréal.</p>
 <p>Le site <a href="https://openweathermap.org/api">OpenWeatherMap.org</a>, lui, permet d’obtenir la température en temps réel à l’aide d’une requête à un service :</p>
@@ -885,30 +888,30 @@ httr<span class="op">::</span><span class="kw">content</span>(r)</code></pre>
 ## 
 ## $main
 ## $main$temp
-## [1] 284.2
+## [1] 284.06
 ## 
 ## $main$pressure
 ## [1] 1014
 ## 
 ## $main$humidity
-## [1] 43
+## [1] 55
 ## 
 ## $main$temp_min
-## [1] 282.04
+## [1] 282.59
 ## 
 ## $main$temp_max
-## [1] 286.15
+## [1] 285.37
 ## 
 ## 
 ## $visibility
-## [1] 24140
+## [1] 14484
 ## 
 ## $wind
 ## $wind$speed
-## [1] 2.6
+## [1] 3.1
 ## 
 ## $wind$deg
-## [1] 40
+## [1] 90
 ## 
 ## 
 ## $clouds
@@ -917,14 +920,14 @@ httr<span class="op">::</span><span class="kw">content</span>(r)</code></pre>
 ## 
 ## 
 ## $dt
-## [1] 1557714639
+## [1] 1557718723
 ## 
 ## $sys
 ## $sys$type
 ## [1] 1
 ## 
 ## $sys$id
-## [1] 943
+## [1] 820
 ## 
 ## $sys$message
 ## [1] 0.0075
@@ -1012,7 +1015,7 @@ temps
 <tbody>
 <tr>
 <td style="text-align:left;">
-2019-05-12 22:37:15
+2019-05-12 23:42:56
 </td>
 <td style="text-align:right;">
 0.0208333
@@ -1034,7 +1037,7 @@ Durée (minutes)
 <tbody>
 <tr>
 <td style="text-align:left;">
-2019-05-12 22:37:15
+2019-05-12 23:42:56
 </td>
 <td style="text-align:right;">
 30
@@ -1056,10 +1059,10 @@ Date fin
 <tbody>
 <tr>
 <td style="text-align:left;">
-2019-05-12 22:37:15
+2019-05-12 23:42:56
 </td>
 <td style="text-align:left;">
-2019-05-12 23:07:15
+2019-05-13 00:12:56
 </td>
 </tr>
 </tbody>
