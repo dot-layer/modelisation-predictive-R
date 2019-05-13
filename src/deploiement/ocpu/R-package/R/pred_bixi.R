@@ -24,7 +24,7 @@ bixikwargs <- function(start_date, start_station_code, is_member) {
   # arranger en un data.table
   dt_pred <- data.table(start_date, start_station_code, is_member)
 
-  dt_pred <- merge_data(dt_pred, init_objects$merging_data$data_stations, init_objects$merging_data$points_stations)
+  dt_pred <- merge_data(dt_pred, init_objects$merging_data$data_stations)
   data_pred <- preprocessing_main(copy(dt_pred), train_mode = FALSE, list_objects = init_objects)
   data_pred_regression <- data_pred$data_regression
   data_pred_classif <- data_pred$data_classif
@@ -56,7 +56,7 @@ bixidata <- function(data) {
   # convertir en data.table
   dt_pred <- as.data.table(data)
 
-  dt_pred <- merge_data(dt_pred, init_objects$merging_data$data_stations, init_objects$merging_data$points_stations)
+  dt_pred <- merge_data(dt_pred, init_objects$merging_data$data_stations)
   data_pred <- preprocessing_main(copy(dt_pred), train_mode = FALSE, list_objects = init_objects)
   data_pred_regression <- data_pred$data_regression
   data_pred_classif <- data_pred$data_classif
