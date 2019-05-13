@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Chapitre 7 Déploiement de modèles | Modélisation prédictive en R</title>
+  <meta name="description" content="Chapitre 7 Déploiement de modèles | Modélisation prédictive en R">
+  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+
+  <meta property="og:title" content="Chapitre 7 Déploiement de modèles | Modélisation prédictive en R" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  <meta name="github-repo" content="dot-layer/modelisation-predictive-R" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapitre 7 Déploiement de modèles | Modélisation prédictive en R" />
+  
+  
+  
+
+<meta name="author" content=".Layer">
+
+
+<meta name="date" content="2019-05-12">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="metho.html">
+
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<script src="libs/htmlwidgets-1.3/htmlwidgets.js"></script>
+<script src="libs/plotly-binding-4.9.0/plotly.js"></script>
+<script src="libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-1.46.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-1.46.1/plotly-latest.min.js"></script>
+<link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-1.3.1/leaflet.js"></script>
+<link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+<script src="libs/Proj4Leaflet-1.0.1/proj4-compressed.js"></script>
+<script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-binding-2.0.2/leaflet.js"></script>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Modélisation prédictive en R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Préface</a></li>
+<li class="chapter" data-level="2" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>2</b> Introduction</a></li>
+<li class="chapter" data-level="3" data-path="collecte.html"><a href="collecte.html"><i class="fa fa-check"></i><b>3</b> Collecte de données</a><ul>
+<li class="chapter" data-level="3.1" data-path="collecte.html"><a href="collecte.html#approche"><i class="fa fa-check"></i><b>3.1</b> Description de l’approche</a><ul>
+<li class="chapter" data-level="3.1.1" data-path="collecte.html"><a href="collecte.html#obtenir-les-donnees-etiquetees"><i class="fa fa-check"></i><b>3.1.1</b> Obtenir les données etiquetées</a></li>
+<li class="chapter" data-level="3.1.2" data-path="collecte.html"><a href="collecte.html#obtenir-jointure"><i class="fa fa-check"></i><b>3.1.2</b> Obtenir les données de <em>jointure</em></a></li>
+<li class="chapter" data-level="3.1.3" data-path="collecte.html"><a href="collecte.html#effectuer-jointure"><i class="fa fa-check"></i><b>3.1.3</b> Effectuer la <em>jointure</em></a></li>
+<li class="chapter" data-level="3.1.4" data-path="collecte.html"><a href="collecte.html#collecte-historique-vs.-collecte-en-production"><i class="fa fa-check"></i><b>3.1.4</b> Collecte historique vs. collecte en production</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="collecte.html"><a href="collecte.html#liste"><i class="fa fa-check"></i><b>3.2</b> Liste des données potentielles</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="collecte.html"><a href="collecte.html#donnees-etiquetees"><i class="fa fa-check"></i><b>3.2.1</b> Données étiquetées</a></li>
+<li class="chapter" data-level="3.2.2" data-path="collecte.html"><a href="collecte.html#donnees-de-jointure"><i class="fa fa-check"></i><b>3.2.2</b> Données de <em>jointure</em></a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="collecte.html"><a href="collecte.html#considerations"><i class="fa fa-check"></i><b>3.3</b> Considérations</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="collecte.html"><a href="collecte.html#accessibilite"><i class="fa fa-check"></i><b>3.3.1</b> Accessibilité</a></li>
+<li class="chapter" data-level="3.3.2" data-path="collecte.html"><a href="collecte.html#qualite"><i class="fa fa-check"></i><b>3.3.2</b> Qualité</a></li>
+<li class="chapter" data-level="3.3.3" data-path="collecte.html"><a href="collecte.html#volume"><i class="fa fa-check"></i><b>3.3.3</b> Volume</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="collecte.html"><a href="collecte.html#references"><i class="fa fa-check"></i><b>3.4</b> Références</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="exploration.html"><a href="exploration.html"><i class="fa fa-check"></i><b>4</b> Exploration de données</a><ul>
+<li class="chapter" data-level="4.1" data-path="exploration.html"><a href="exploration.html#distribution-des-variables-dentree"><i class="fa fa-check"></i><b>4.1</b> Distribution des variables d’entrée</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="exploration.html"><a href="exploration.html#status-membrenon-membre-booleencategorique"><i class="fa fa-check"></i><b>4.1.1</b> Status membre/non-membre (booléen/catégorique)</a></li>
+<li class="chapter" data-level="4.1.2" data-path="exploration.html"><a href="exploration.html#quartier-de-la-station-de-depart-categorique"><i class="fa fa-check"></i><b>4.1.2</b> Quartier de la station de départ (catégorique)</a></li>
+<li class="chapter" data-level="4.1.3" data-path="exploration.html"><a href="exploration.html#date-du-trajet-temporelle"><i class="fa fa-check"></i><b>4.1.3</b> Date du trajet (temporelle)</a></li>
+<li class="chapter" data-level="4.1.4" data-path="exploration.html"><a href="exploration.html#heure-du-trajet-temporelle"><i class="fa fa-check"></i><b>4.1.4</b> Heure du trajet (temporelle)</a></li>
+<li class="chapter" data-level="4.1.5" data-path="exploration.html"><a href="exploration.html#variables-spatiales-stations-quartiers"><i class="fa fa-check"></i><b>4.1.5</b> Variables spatiales (stations + quartiers)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="exploration.html"><a href="exploration.html#correlation-entre-les-variables-dentree"><i class="fa fa-check"></i><b>4.2</b> Corrélation entre les variables d’entrée</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="exploration.html"><a href="exploration.html#status-categorique-vs-quartier-de-la-station-de-depart-categorique"><i class="fa fa-check"></i><b>4.2.1</b> Status (catégorique) vs Quartier de la station de départ (catégorique)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="exploration.html"><a href="exploration.html#effets-one-way"><i class="fa fa-check"></i><b>4.3</b> Effets <em>one-way</em></a><ul>
+<li class="chapter" data-level="4.3.1" data-path="exploration.html"><a href="exploration.html#status-membrenon-membre-booleencategoriqe"><i class="fa fa-check"></i><b>4.3.1</b> Status membre/non-membre (booléen/catégoriqe)</a></li>
+<li class="chapter" data-level="4.3.2" data-path="exploration.html"><a href="exploration.html#quartier-de-la-station-de-depart-categorique-1"><i class="fa fa-check"></i><b>4.3.2</b> Quartier de la station de départ (catégorique)</a></li>
+<li class="chapter" data-level="4.3.3" data-path="exploration.html"><a href="exploration.html#date-du-trajet-temporelle-1"><i class="fa fa-check"></i><b>4.3.3</b> Date du trajet (temporelle)</a></li>
+<li class="chapter" data-level="4.3.4" data-path="exploration.html"><a href="exploration.html#heure-du-trajet-temporelle-1"><i class="fa fa-check"></i><b>4.3.4</b> Heure du trajet (temporelle)</a></li>
+<li class="chapter" data-level="4.3.5" data-path="exploration.html"><a href="exploration.html#variables-spatiales-stations-quartiers-1"><i class="fa fa-check"></i><b>4.3.5</b> Variables spatiales (stations + quartiers)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="exploration.html"><a href="exploration.html#effet-multi-ways"><i class="fa fa-check"></i><b>4.4</b> Effet <em>multi-ways</em></a><ul>
+<li class="chapter" data-level="4.4.1" data-path="exploration.html"><a href="exploration.html#status-categorique-vs-quartier-de-la-station-de-depart-categorique-1"><i class="fa fa-check"></i><b>4.4.1</b> Status (catégorique) vs Quartier de la station de départ (catégorique)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="exploration.html"><a href="exploration.html#proposition-de-transformations"><i class="fa fa-check"></i><b>4.5</b> Proposition de transformations</a><ul>
+<li class="chapter" data-level="4.5.1" data-path="exploration.html"><a href="exploration.html#moment-de-la-journee"><i class="fa fa-check"></i><b>4.5.1</b> Moment de la journée</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="exploration.html"><a href="exploration.html#sommaire-des-transformations-retenues"><i class="fa fa-check"></i><b>4.6</b> Sommaire des transformations retenues</a><ul>
+<li class="chapter" data-level="4.6.1" data-path="exploration.html"><a href="exploration.html#donnees-externes-a-explorer"><i class="fa fa-check"></i><b>4.6.1</b> Données externes à explorer</a></li>
+<li class="chapter" data-level="4.6.2" data-path="exploration.html"><a href="exploration.html#transformations-a-explorer-sur-donnees-deja-disponibles"><i class="fa fa-check"></i><b>4.6.2</b> Transformations à explorer (sur données déjà disponibles)</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="preprop.html"><a href="preprop.html"><i class="fa fa-check"></i><b>5</b> Prétraitements des données</a><ul>
+<li class="chapter" data-level="5.1" data-path="preprop.html"><a href="preprop.html#nettoyage-de-donnees"><i class="fa fa-check"></i><b>5.1</b> Nettoyage de données</a><ul>
+<li class="chapter" data-level="5.1.1" data-path="preprop.html"><a href="preprop.html#imputation-de-donnees-manquantes"><i class="fa fa-check"></i><b>5.1.1</b> Imputation de données manquantes</a></li>
+<li class="chapter" data-level="5.1.2" data-path="preprop.html"><a href="preprop.html#traitement-des-donnees-aberrantes"><i class="fa fa-check"></i><b>5.1.2</b> Traitement des données aberrantes</a></li>
+<li class="chapter" data-level="5.1.3" data-path="preprop.html"><a href="preprop.html#encodage"><i class="fa fa-check"></i><b>5.1.3</b> Encodage des données catégoriques</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="preprop.html"><a href="preprop.html#reduction-de-donnees"><i class="fa fa-check"></i><b>5.2</b> Réduction de données</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="preprop.html"><a href="preprop.html#analyse-en-composantes-principales"><i class="fa fa-check"></i><b>5.2.1</b> Analyse en composantes principales</a></li>
+<li class="chapter" data-level="5.2.2" data-path="preprop.html"><a href="preprop.html#autres-methodes-de-reduction"><i class="fa fa-check"></i><b>5.2.2</b> Autres méthodes de réduction</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="preprop.html"><a href="preprop.html#transformations"><i class="fa fa-check"></i><b>5.3</b> Transformation de données</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="preprop.html"><a href="preprop.html#normalisation"><i class="fa fa-check"></i><b>5.3.1</b> Normalisation</a></li>
+<li class="chapter" data-level="5.3.2" data-path="preprop.html"><a href="preprop.html#discretisation"><i class="fa fa-check"></i><b>5.3.2</b> Discrétisation</a></li>
+<li class="chapter" data-level="5.3.3" data-path="preprop.html"><a href="preprop.html#scores"><i class="fa fa-check"></i><b>5.3.3</b> Création de nouveaux attributs</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="preprop.html"><a href="preprop.html#pretraitements-de-donnees-en-r"><i class="fa fa-check"></i><b>5.4</b> Prétraitements de données en R</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="preprop.html"><a href="preprop.html#separation-du-jeu-de-donnees"><i class="fa fa-check"></i><b>5.4.1</b> Séparation du jeu de données</a></li>
+<li class="chapter" data-level="5.4.2" data-path="preprop.html"><a href="preprop.html#processus-de-pretraitements"><i class="fa fa-check"></i><b>5.4.2</b> Processus de prétraitements</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="preprop.html"><a href="preprop.html#conclusion"><i class="fa fa-check"></i><b>5.5</b> Conclusion</a></li>
+<li class="chapter" data-level="5.6" data-path="preprop.html"><a href="preprop.html#references-1"><i class="fa fa-check"></i><b>5.6</b> Références</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="metho.html"><a href="metho.html"><i class="fa fa-check"></i><b>6</b> Construction de modèles</a><ul>
+<li class="chapter" data-level="6.1" data-path="metho.html"><a href="metho.html#split"><i class="fa fa-check"></i><b>6.1</b> Gestion des données</a><ul>
+<li class="chapter" data-level="6.1.1" data-path="metho.html"><a href="metho.html#divisions-entrainementvalidationtest"><i class="fa fa-check"></i><b>6.1.1</b> Divisions entraînement/validation/test</a></li>
+<li class="chapter" data-level="6.1.2" data-path="metho.html"><a href="metho.html#utilite-des-differents-jeux"><i class="fa fa-check"></i><b>6.1.2</b> Utilité des différents jeux</a></li>
+<li class="chapter" data-level="6.1.3" data-path="metho.html"><a href="metho.html#exemple-bixi"><i class="fa fa-check"></i><b>6.1.3</b> Exemple bixi</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="metho.html"><a href="metho.html#description"><i class="fa fa-check"></i><b>6.2</b> Description classique</a></li>
+<li class="chapter" data-level="6.3" data-path="metho.html"><a href="metho.html#famille"><i class="fa fa-check"></i><b>6.3</b> Familles de modèles</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="metho.html"><a href="metho.html#regression"><i class="fa fa-check"></i><b>6.3.1</b> Régression</a></li>
+<li class="chapter" data-level="6.3.2" data-path="metho.html"><a href="metho.html#classification"><i class="fa fa-check"></i><b>6.3.2</b> Classification</a></li>
+<li class="chapter" data-level="6.3.3" data-path="metho.html"><a href="metho.html#complexite-et-disponibilite-des-donnees"><i class="fa fa-check"></i><b>6.3.3</b> Complexité et disponibilité des données</a></li>
+<li class="chapter" data-level="6.3.4" data-path="metho.html"><a href="metho.html#variables-a-inclure"><i class="fa fa-check"></i><b>6.3.4</b> Variables à inclure</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="metho.html"><a href="metho.html#estimation"><i class="fa fa-check"></i><b>6.4</b> Estimation d’un modèle</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="metho.html"><a href="metho.html#regularisation"><i class="fa fa-check"></i><b>6.4.1</b> Un mot sur la régularisation</a></li>
+<li class="chapter" data-level="6.4.2" data-path="metho.html"><a href="metho.html#les-hyper-parametres-et-le-compromis-biais-variance"><i class="fa fa-check"></i><b>6.4.2</b> Les hyper-paramètres et le compromis biais-variance</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="metho.html"><a href="metho.html#selection"><i class="fa fa-check"></i><b>6.5</b> Sélection du modèle final (validation) et évaluation</a><ul>
+<li class="chapter" data-level="6.5.1" data-path="metho.html"><a href="metho.html#validation-directe"><i class="fa fa-check"></i><b>6.5.1</b> Validation directe</a></li>
+<li class="chapter" data-level="6.5.2" data-path="metho.html"><a href="metho.html#criteres-classiques"><i class="fa fa-check"></i><b>6.5.2</b> Critères classiques</a></li>
+<li class="chapter" data-level="6.5.3" data-path="metho.html"><a href="metho.html#validation"><i class="fa fa-check"></i><b>6.5.3</b> Validation croisée</a></li>
+<li class="chapter" data-level="6.5.4" data-path="metho.html"><a href="metho.html#evaluation-finale"><i class="fa fa-check"></i><b>6.5.4</b> Évaluation finale</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="metho.html"><a href="metho.html#exemple-2-classification-avec-xgboost-en-construction"><i class="fa fa-check"></i><b>6.6</b> Exemple 2 : classification avec xgboost (en construction)</a><ul>
+<li class="chapter" data-level="6.6.1" data-path="metho.html"><a href="metho.html#split-trainval"><i class="fa fa-check"></i><b>6.6.1</b> Split train/val</a></li>
+<li class="chapter" data-level="6.6.2" data-path="metho.html"><a href="metho.html#le-modele-en-bref"><i class="fa fa-check"></i><b>6.6.2</b> Le modèle en bref</a></li>
+<li class="chapter" data-level="6.6.3" data-path="metho.html"><a href="metho.html#estimation-1"><i class="fa fa-check"></i><b>6.6.3</b> Estimation</a></li>
+<li class="chapter" data-level="6.6.4" data-path="metho.html"><a href="metho.html#validation-1"><i class="fa fa-check"></i><b>6.6.4</b> Validation</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html"><i class="fa fa-check"></i><b>7</b> Déploiement de modèles</a><ul>
+<li class="chapter" data-level="7.1" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#opencpu"><i class="fa fa-check"></i><b>7.1</b> OpenCPU</a><ul>
+<li class="chapter" data-level="7.1.1" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#debuter-avec-opencpu"><i class="fa fa-check"></i><b>7.1.1</b> Débuter avec OpenCPU</a></li>
+<li class="chapter" data-level="7.1.2" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#batir-un-squelette-de-librairie"><i class="fa fa-check"></i><b>7.1.2</b> Bâtir un squelette de librairie</a></li>
+<li class="chapter" data-level="7.1.3" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#integrer-un-modele-predictif-dans-une-librairie"><i class="fa fa-check"></i><b>7.1.3</b> Intégrer un modèle prédictif dans une librairie</a></li>
+</ul></li>
+<li class="chapter" data-level="7.2" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#plumber"><i class="fa fa-check"></i><b>7.2</b> Plumber</a><ul>
+<li class="chapter" data-level="7.2.1" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#debuter-avec-plumber"><i class="fa fa-check"></i><b>7.2.1</b> Débuter avec Plumber</a></li>
+<li class="chapter" data-level="7.2.2" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#inference-de-modele-predictif"><i class="fa fa-check"></i><b>7.2.2</b> Inférence de modèle prédictif</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#details-sur-les-requetes-http"><i class="fa fa-check"></i><b>7.3</b> Détails sur les requêtes HTTP</a></li>
+<li class="chapter" data-level="7.4" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#deploiement-avec-docker"><i class="fa fa-check"></i><b>7.4</b> Déploiement avec Docker</a></li>
+<li class="chapter" data-level="7.5" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#integration-continue-et-webhook"><i class="fa fa-check"></i><b>7.5</b> Intégration continue et webhook</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/dot-layer/modelisation-predictive-r" target="blank">Publié avec bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Modélisation prédictive en R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="deploiement-de-modeles" class="section level1">
+<h1><span class="header-section-number">Chapitre 7</span> Déploiement de modèles</h1>
+<p>L’ultime étape pour donner vie à un modèle est de le mettre en production.</p>
+<p>Les exemples de déploiement de modèles sont omniprésents. Il peut s’agir de cas plus évidents comme l’obtention d’un score de crédit afin de déterminer l’éligibilité pour un prêt ou encore une soumission pour un produit d’assurance basé sur les caractéristiques de l’appliquant et du bien assuré. De manière plus large, ça comprend également des recommendations d’achat faites par un marchand en ligne, les utilitaires un appareil photo permettant la reconnaissance des visages ou un système de conduite autonome.</p>
+<p>De par la diversité des cas de consommation des modèles, il n’existe pas de solution unique applicable à toutes les situations. Parmi les considérations, notons:</p>
+<ul>
+<li>nombre de requêtes qui devra être supporté: l’application est-elle destinée à un groupe d’employé ou à une masse de consommateurs localisés partout sur le globe?)</li>
+<li>besoins en latence: cherche-t-on simplement à assurer une expérience client dynamique ou doit-on exécuter un ordre d’achat dans un contexte d’arbitrage boursier à haute fréquence?</li>
+<li>les contraintes de la plateforme qui supoprtera les prédictions: par exemple un système de contrôle intelligent qui a des resources processeurs et mémoires limités</li>
+<li>besoins de stabilité dy système: est-ce qu’une défaillance ou une latence non-déterministe due aux collecteur de déchet pourrait entraîner une collision aérienne?</li>
+</ul>
+<p>En présence de contraintes importantes sur les précédents facteurs, il peut être préférable d’avoir recours à des langages compilés (C/C++) ou encore plus près du matériel (CUDA) qu’un langage dynamique tel que R. Il n’en reste pas moins que pour un large éventail de contextes, une capacité de développement rapide combinée à des options de déploiement simples font de R une option intéressante pour le déploiement de modèle.</p>
+<p>À très haut niveau, ce qu’on chercher à accomplir est de permettre à un usager extérieur à notre localisation, sans accès à R, d’accéder aux prédictions de notre modèle:</p>
+<p><img src="static-files/deploiement/rest-api.png" /></p>
+<p>Nous verrons ici deux outils permettant de servir les résultats d’un modèle:</p>
+<ul>
+<li><a href="https://www.opencpu.org/">OpenCPU</a></li>
+<li><a href="https://www.rplumber.io/">Plumber</a></li>
+</ul>
+<p>Chacun de ces outils permet de servir un modèle via un REST API, ce qui signifie que les échanges sont réalisés au travers du protocole http. Comme il s’agit d’un protocole omniprésent, il existe de nombreux outils disponibles pour en faciliter l’intégration dans différentes applications. Ça signifie que ces applications peuvent exploiter les capacités de modélisation de R sans qu’elles aient à intégrer R d’aucune façon. L’utilisation d’un modèle via un REST API devient donc agnostic du ou des langages utilisés à l’intérieur de cet API.</p>
+<div id="opencpu" class="section level2">
+<h2><span class="header-section-number">7.1</span> OpenCPU</h2>
+<p>L’unité de travail de OpenCPU repose sur la librairie. Pour pouvoir servir un modèle, on doit donc le structurer de manière à ce qu’il puisse être encapsulé à l’intérieur d’une librairie. Si l’approche peut paraître contraignante, elle incite à l’adoption d’une discipline dans la structure du code et de ses dépendances qui peut être salutaire à sa maintenance.</p>
+<div id="debuter-avec-opencpu" class="section level3">
+<h3><span class="header-section-number">7.1.1</span> Débuter avec OpenCPU</h3>
+<p>Le déploiement d’un modèle se fait normalement à partir d’un serveur. Pour se familiariser avec l’outil ainsi que faciliter le développement, il est possible de rouler le serveur OpenCPU localement.</p>
+<ul>
+<li>Installer la librairie: <code>install.packages("opencpu")</code><br />
+</li>
+<li>La charger: <code>library(opencpu)</code></li>
+<li>Démarrer le serveur: <code>opencpu::ocpu_start_server()</code></li>
+</ul>
+<p>Une fois le serveur démarré, il est désormais possible d’interagir avec celui-ci via le port local: <code>http://localhost:5656/ocpu/test/</code> (localhost est ici équivalent à 127.0.0.1).</p>
+<p>Une requête http peut alors être faite à ce serveur. La programme <code>curl</code> est communément utilisé pour ces requêtes et peut être utilisé à partir du Terminal dans RStudio (ou à partir de tout autre terminal) ou même à l’intérieur de R grâce à des librairies comme <code>curl</code> our <code>httr</code>:</p>
+<pre><code>$ curl http://127.0.0.1:5656/ocpu/library/stats/R/rnorm/json -d n=2
+[-0.4539, 0.1959]</code></pre>
+<p>Que s’est-il passé? Le serveur a reçu une requête pour la fonction <code>rnorm</code> situé dans <code>stats/R/</code> avec <code>n=2</code> comme paramètre. La segment <code>/json</code> a servi à demander à ce que le résultat soit retourné dans le format json. De fait, l’appel à la fonction a retourné un json contenant deux observations simulées d’une Normale(0,1).</p>
+<p>Il a été possible de faire la précédente requête puisque par défaut, la librairie <code>stats</code> est accessible par OpenCPU, à l’instar de l’ensemble des librairies accessibles au niveau système. Pour servir un modèle prédictif, une librairie permettant de retourner les prédictions de ce modèle devra donc être développée et installée.</p>
+</div>
+<div id="batir-un-squelette-de-librairie" class="section level3">
+<h3><span class="header-section-number">7.1.2</span> Bâtir un squelette de librairie</h3>
+<p>Avant d’illustrer le déploiement d’un modèle, nous allons présenter comment utiliser OpenCPU à partir d’un exemple le plus minimal possible.</p>
+<p>La première étape est d’avoir le code structuré en une librairie. Une librairie peut être initialisée à l’aide de la commande:</p>
+<pre class="sourceCode r"><code class="sourceCode r">usethis<span class="op">::</span><span class="kw">create_package</span>(<span class="st">&quot;~/&lt;nom_de_la_librairie&gt;/&quot;</span>)
+usethis<span class="op">::</span><span class="kw">create_package</span>(<span class="st">&quot;~/model.ocpu/&quot;</span>)</code></pre>
+<p>Alternativement, Rstudio offre la fonctionnalité à partir du menu: <code>File -&gt; New Project -&gt; New Directory -&gt; R Package</code>.</p>
+<p>Une librarie en R n’est qu’un projet qui contient un fichier <code>DESCRIPTION</code>, un fichier <code>NAMESPACE</code> ainsi qu’un dossier <code>R/</code> à l’intérieur duquel se trouvent les codes R. Les fonctions d’initialisation ci-haut ne sont que des aides facilitant la création de cette structure.</p>
+<p>Une fois la création du squelette complétée, une fonction de test peut être créée. Par exemple, avec le code suivant dans le fichier <code>./R/salut.R</code>:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co">#&#39; Salut</span>
+<span class="co">#&#39; Une fonction qui salue.</span>
+<span class="co">#&#39; @export</span>
+salut &lt;-<span class="st"> </span><span class="cf">function</span>() {
+  <span class="kw">print</span>(<span class="st">&quot;Salut tout le monde!&quot;</span>)
+}</code></pre>
+<p>La librairie model.ocpu peut maintenant être bâtie.
+La documentation sera d’abord générée:</p>
+<pre><code>devtools::document()</code></pre>
+<p>L’installation peut ensuite s’exécuter à l’aide du raccourci: <code>ctrl-shift-B</code>.</p>
+<p>En démarrant une nouvelle session du serveur OpenCPU, il sera désormais possible d’intéragir avec la librairie model.ocpu nouvellement installée.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">curl</span> http://localhost:5656/ocpu/library/model.ocpu/R/salut/json -d <span class="st">&quot;&quot;</span></code></pre>
+</div>
+<div id="integrer-un-modele-predictif-dans-une-librairie" class="section level3">
+<h3><span class="header-section-number">7.1.3</span> Intégrer un modèle prédictif dans une librairie</h3>
+<p>Une librairie permettant de retourner des prédictions devra supporter les fonctionnalité suivantes:
+- Lire les informations relativement aux observations pour lesquelles une prédiction doit être retournée
+- Appliquer les possibles transformations utilisées dans la préparation des données sur lesquelle le modèle a été construit.
+- Effectuer la prédiction sur ces donnée à partir du modèle sélectionné pour la déploiement.</p>
+<p>Comment rendre accessible le modèle entraîné à l’intérieur de la librairie? Un modèle peut être représenté comme la combinaison entre des paramètres et un algorithme décrivant comment de transformer les informations d’une observations en une prédiction. Lorsqu’un modèle est entraîné, l’objet résultant contient ces informations, de sorte que la fonction <code>predict</code> appliquée sur ce modèle permet d’obtenir les prédictions désirée.</p>
+<p>L’approche la plus naturelle sera donc de sauvegarder le modèle désiré à l’intérieur de la librairie et de le rendre accessible aux fonctions de la librairie d’inférence.</p>
+<p>La méthode recommandée consiste en la création d’un script générant un fichier <code>.Rda</code> qui contient les modèles et autres objets R nécessaires à l’inférence. Ce script sera localisé dans le dossier <code>data-raw</code>.</p>
+<p>Par exemple, ce script sera le suivant pour rendre disponible le modèle développé à la section précédente:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">source</span>(<span class="st">&quot;../../../src/collecte/load-merging-data.R&quot;</span>)
+<span class="kw">source</span>(<span class="st">&quot;../../../src/init.R&quot;</span>)
+init_objects &lt;-<span class="st"> </span><span class="kw">init</span>(<span class="dt">path_data =</span> <span class="st">&quot;../../../data/&quot;</span>, <span class="dt">path_objects =</span> <span class="st">&quot;../../../data/models/&quot;</span>)
+usethis<span class="op">::</span><span class="kw">use_data</span>(init_objects, <span class="dt">internal =</span> T, <span class="dt">overwrite =</span> T)</code></pre>
+<p>Une fonction d’inférence peut maintenant être construite.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co">#&#39; @export</span>
+bixikwargs &lt;-<span class="st"> </span><span class="cf">function</span>(start_date, start_station_code, is_member) {
+
+  <span class="co"># arranger en un data.table</span>
+  dt_pred &lt;-<span class="st"> </span><span class="kw">data.table</span>(start_date, start_station_code, is_member)
+
+  dt_pred &lt;-<span class="st"> </span><span class="kw">merge_data</span>(dt_pred, init_objects<span class="op">$</span>merging_data<span class="op">$</span>data_stations)
+  data_pred &lt;-<span class="st"> </span><span class="kw">preprocessing_main</span>(<span class="kw">copy</span>(dt_pred), <span class="dt">train_mode =</span> <span class="ot">FALSE</span>, <span class="dt">list_objects =</span> init_objects)
+  data_pred_regression &lt;-<span class="st"> </span>data_pred<span class="op">$</span>data_regression
+  data_pred_classif &lt;-<span class="st"> </span>data_pred<span class="op">$</span>data_classif
+
+  duree =<span class="st"> </span><span class="kw">predict</span>(init_objects<span class="op">$</span>model_glm, <span class="kw">as.matrix</span>(data_pred_regression), <span class="dt">s =</span> <span class="st">&quot;lambda.min&quot;</span>)
+  meme_station =<span class="st"> </span><span class="kw">predict</span>(init_objects<span class="op">$</span>model_xgb, <span class="kw">as.matrix</span>(data_pred_classif)) <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span>
+
+  <span class="kw">return</span>(<span class="kw">list</span>(<span class="dt">duree =</span> duree, <span class="dt">meme_station =</span> meme_station))
+}</code></pre>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">curl</span> http://localhost:5656/ocpu/library/model.ocpu/R/bixikwargs/json -d <span class="st">&quot;start_date=&#39;2017-04-15 00:48&#39;&amp;start_station_code=6079&amp;is_member=1&quot;</span></code></pre>
+<ul>
+<li>Ajouter des fonctions et dépendances</li>
+</ul>
+</div>
+</div>
+<div id="plumber" class="section level2">
+<h2><span class="header-section-number">7.2</span> Plumber</h2>
+<p>L’approche prise par Plumber repose sur l’ajout d’annotations au code. La technologie sous-jacente est similaire à OpenCPU, l’idée étant de convertir du code R en des services accessibles via le protocole HTTP.</p>
+<div id="debuter-avec-plumber" class="section level3">
+<h3><span class="header-section-number">7.2.1</span> Débuter avec Plumber</h3>
+<ul>
+<li>Installer la librairie: <code>install.packages("plumber")</code><br />
+</li>
+<li>La charger: <code>library(plumber)</code></li>
+</ul>
+<p>Une exemple minimaliste est founi dans le dossier <code>src/deploiement/model.plumber/plumber_ini.R</code>.
+Ce code peut être servi comme un service plumber de la manière suivante:</p>
+<pre class="sourceCode r"><code class="sourceCode r">pr &lt;-<span class="st"> </span>plumber<span class="op">::</span><span class="kw">plumb</span>(<span class="st">&quot;src/deploiement/plumber/assets/plumber_ini.R&quot;</span>)
+pr<span class="op">$</span><span class="kw">run</span>(<span class="dt">port=</span><span class="dv">8985</span>)</code></pre>
+<p>Il est alors possible d’accéder au service:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">curl</span> http://127.0.0.1:8985/message?msg=Salut!</code></pre>
+</div>
+<div id="inference-de-modele-predictif" class="section level3">
+<h3><span class="header-section-number">7.2.2</span> Inférence de modèle prédictif</h3>
+<pre class="sourceCode r"><code class="sourceCode r">pr &lt;-<span class="st"> </span>plumber<span class="op">::</span><span class="kw">plumb</span>(<span class="st">&quot;src/deploiement/plumber/assets/pred_bixi.R&quot;</span>)
+pr<span class="op">$</span><span class="kw">run</span>(<span class="dt">port =</span> <span class="dv">8985</span>)</code></pre>
+</div>
+</div>
+<div id="details-sur-les-requetes-http" class="section level2">
+<h2><span class="header-section-number">7.3</span> Détails sur les requêtes HTTP</h2>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">curl</span> -d msg=Salut! -G http://127.0.0.1:8985/message</code></pre>
+<p>Passer les paramètres individuellement:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">curl</span> -X GET --data <span class="st">&#39;{</span>
+<span class="st">    &quot;start_date&quot;: &quot;2017-04-15 00:48&quot;,</span>
+<span class="st">    &quot;start_station_code&quot;: 6079,</span>
+<span class="st">    &quot;is_member&quot;: 1</span>
+<span class="st">  }&#39;</span> http://localhost:8985/bixikwargs</code></pre>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">curl</span> -X GET --data @src/deploiement/data_test_elements.json http://localhost:8985/bixikwargs</code></pre>
+<p>Passer un fichier json en argument.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">curl</span> -X GET --data <span class="st">&#39;{&quot;data&quot;:[</span>
+<span class="st">  {</span>
+<span class="st">    &quot;start_date&quot;: &quot;2017-04-15 00:48&quot;,</span>
+<span class="st">    &quot;start_station_code&quot;: 6079,</span>
+<span class="st">    &quot;is_member&quot;: 1</span>
+<span class="st">  }</span>
+<span class="st">]}&#39;</span> <span class="st">&quot;http://localhost:8985/bixidata&quot;</span></code></pre>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">curl</span> -X GET --data @src/deploiement/data_test.json <span class="st">&quot;http://localhost:8985/bixidata&quot;</span></code></pre>
+<p>La commande <code>-X</code> est utilisée pour forcer le remplacement des instructions par défaut. La méthode <code>--data</code> ou <code>-d</code> est en effet associés par défaut à une commande POST. Puisqu’on ne cherche ici qu’à retourner une réponse à une instruction, le verbe <code>GET</code> est approprié.</p>
+</div>
+<div id="deploiement-avec-docker" class="section level2">
+<h2><span class="header-section-number">7.4</span> Déploiement avec Docker</h2>
+<p>Docker est une technologie permettant la containerization d’applications, faciliant leur portabilité sur différentes plateformes.</p>
+<p><img src="static-files/deploiement/docker.png" /></p>
+<p>Une image Docker est formée de différentes couches contenant les libraries et configurations requises pour l’exécution de l’application. On peut construire une image à partir d’une racine très générique comme d’une installation générique de Ubuntu, ou encore d’une image intégrant déjà plusieurs fonctionnalités adaptées à notre domaine.</p>
+<p>La recette pour la construction de ces images est spécifiée dans un fichier texte nommé Dockerfile.</p>
+<pre><code>docker build ./src/deploiement/plumber/ -t jeremiedb/dot-layer:plumber</code></pre>
+<p>Lancer une image.</p>
+<pre><code>docker run --rm -p 8080:8080 jeremiedb/dot-layer:plumber</code></pre>
+</div>
+<div id="integration-continue-et-webhook" class="section level2">
+<h2><span class="header-section-number">7.5</span> Intégration continue et webhook</h2>
+
+<div id="refs" class="references">
+<div>
+<p>Charest, Anne-Sophie. 2018a. “Analyse En Composantes Principales.” In <em>STT-7330: Méthode d’analyse de Données</em>. Québec, Canada: Université Laval.</p>
+</div>
+<div>
+<p>———. 2018b. “Données Manquantes.” In <em>STT-7330: Méthode d’analyse de Données</em>. Québec, Canada: Université Laval.</p>
+</div>
+<div>
+<p>Friedman, Jerome, Trevor Hastie, and Robert Tibshirani. 2001. <em>The Elements of Statistical Learning</em>. Vol. 1. 10. Springer series in statistics New York.</p>
+</div>
+<div>
+<p>Hotelling, Harold. 1933. “Analysis of a Complex of Statistical Variables into Principal Components.” <em>Journal of Educational Psychology</em> vol 24: 417–41, 498–520.</p>
+</div>
+<div>
+<p>James, Gareth, Daniela Witten, Trevor Hastie, and Robert Tibshirani. 2014. <em>An Introduction to Statistical Learning: With Applications in R</em>. Springer Publishing Company, Incorporated.</p>
+</div>
+<div>
+<p>Khrunin, Denis V. AND Filippova, Andrey V. AND Khokhrin. 2013. “A Genome-Wide Analysis of Populations from European Russia Reveals a New Pole of Genetic Diversity in Northern Europe.” <em>PLOS ONE</em> 8 (3): 1–9. <a href="https://doi.org/10.1371/journal.pone.0058552">https://doi.org/10.1371/journal.pone.0058552</a>.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="metho.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
