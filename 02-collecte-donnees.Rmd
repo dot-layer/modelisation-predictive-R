@@ -1,7 +1,7 @@
 
 # Collecte de données {#collecte}
 
-``` {r, echo = FALSE}
+``` {r, echo = FALSE, warning=FALSE}
 library(sf)
 library(magrittr)
 library(sf)
@@ -242,7 +242,7 @@ Notons pour terminer que les packages suivants facilitent la communication avec 
 #### Web Scraping
 Le principal obstacle du web scraping est l'aspect légal. Néanmoins, les packages suivants facilitent la collecte d'information par web scraping : [rvest](http://rvest.tidyverse.org/), [googlesheets](https://github.com/jennybc/googlesheets).
 
-#### Accès aux données historiques et en temps réel {acces-historique-temps-reel}
+#### Accès aux données historiques et en temps réel {#acces-historique-temps-reel}
 Nous avons discarté le service de disponibilité des vélos par absence d'historique. Voyons maintenant comment pourrait s'orchestrer l'utilisation de sources différentes en entraînement et en production.
 
 Le site [weatherstats.ca](https://montreal.weatherstats.ca/download.html) permet de télécharger un historique des températures à Montréal.
