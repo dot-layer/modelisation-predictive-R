@@ -618,25 +618,25 @@ C'est pourquoi il est plus sage de faire une évaluation finale de notre modèle
 Avec nos données bixi, on ne devrait pas voir trop de différence toutefois.
 L'étape est très simple :
 ```{r, include = F}
-X_test <- read.fst("src/modelisation/X_regression_test.fst", as.data.table = T)
-y_test <- readRDS("src/modelisation/y_regression_test.rds")
+# X_test <- read.fst("src/modelisation/X_regression_test.fst", as.data.table = T)
+# y_test <- readRDS("src/modelisation/y_regression_test.rds")
 ```
 ```{r, echo = T}
-X_test[,glm_pred := predict(object = glms, newx = as.matrix(X_test), s=0)]
-X_test[,glm_error := abs(y_test - glm_pred)]
-mean(X_test$glm_error)/60 # (en minutes)
+# X_test[,glm_pred := predict(object = glms, newx = as.matrix(X_test), s=0)]
+# X_test[,glm_error := abs(y_test - glm_pred)]
+# mean(X_test$glm_error)/60 # (en minutes)
 ```
 Ce chiffre nous donne idée de l'erreur moyenne qu'on fera (en minutes) sur la durée d'un trajet lorsqu'on mettra notre modèle en production.
 
 Pour une analyse plus détaillée, on peut se pencher sur l'erreur par quartier de départ.
 ```{r, echo = T}
-X_test_long <- melt(X_test, measure.vars = grep("start_quartier", names(X_test)),
-                                  variable.name = "start_quartier",
-                                  value.name = "ind_quartier")
-
-X_test_long <- X_test_long[ind_quartier == 1,]
-
-X_test_long[, mean(glm_error)/60, .(start_quartier)]
+# X_test_long <- melt(X_test, measure.vars = grep("start_quartier", names(X_test)),
+#                                   variable.name = "start_quartier",
+#                                   value.name = "ind_quartier")
+# 
+# X_test_long <- X_test_long[ind_quartier == 1,]
+# 
+# X_test_long[, mean(glm_error)/60, .(start_quartier)]
 ```
 La plus grande variabilité des durées dans les quartiers "autre" se fait ressentir.
 
@@ -809,12 +809,12 @@ Les valeurs "sensitivity", "specificity", etc. sont toutes récupérables à par
 
 Ça fonctionne sur notre test aussi?
 ```{r, include = F}
-X_test <- read.fst("src/modelisation/X_classif_test.fst", as.data.table = T)
-y_test <- readRDS("src/modelisation/y_classif_test.rds")
+# X_test <- read.fst("src/modelisation/X_classif_test.fst", as.data.table = T)
+# y_test <- readRDS("src/modelisation/y_classif_test.rds")
 ```
 ```{r, echo = T}
-pred <- predict(xgb, newdata = as.matrix(X_test))
-caret::confusionMatrix(as.factor(as.numeric(pred > .1)),as.factor(y_test))
+# pred <- predict(xgb, newdata = as.matrix(X_test))
+# caret::confusionMatrix(as.factor(as.numeric(pred > .1)),as.factor(y_test))
 ```
 Il ne reste qu'à jouer avec le seuil (ici $.1$).
 Est-ce qu'on aurait obtenu ces résultats en considérant une séparation entraînement/test respéctant la chronologie?
