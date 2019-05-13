@@ -1,3 +1,16 @@
 # Introduction
 
+**Modélisation prédictive en R** est un livre proposant un proposant complet de modélisation, de l'extraction des données jusqu'au déploiement d'un modèle. Il comprend autant des notions théoriques que des considérations techniques nécessaires au déploiement d'un modèle dans un contexte de production. À des fins pédagogiques, nous avons séparé le processus en 5 grandes étapes. Tout d'abord, la collecte de données, souvent délaissée; ensuite les 3 étapes classiques d'exploration, prétraitement et modélisation, auxquelles nous ajoutons l'étape de déploiement. 
+
+## Considérations {#intro-considerations}
+
+Les données peuvent prendre toutes sortes de formes. C'est la beauté du travail du scientifique des données, mais aussi son plus grand défi. Dans ce livre, nous présentons certaines notions et procédures que nous croyons applicables dans plusieurs contextes, mais quiconque a œuvré dans un domaine impliquant de la modélisation le sait, l'aventure est rarement linéaire. On progresse, on revient, on réessaie ... La présentation d'un processus linéaire ne fait donc évidemment pas honneur à la réalité. Une partie de ce va-et-vient est nécessaire et sain. Nous espérons que la méthodologie présentée permettra de minimiser le va-et-vient inutile autant que possible.
+
+De plus, en tant que document portant sur le langage R et la modélisation, nous utilisons, recommandons et citons plusieurs librairies et algorithmes. Le vaste étendu de méthodes disponibles en R rend impossible leur énumération. Nous avons choisit d'utiliser certaines librairies que nous recommandons, mais l'accent doit être mis sur le processus dans lequel elles sont insérées, et non sur les librairies elle-mêmes.
+
+
+## Jeu de données
+
+Pour illustrer différents exemples tout au long de ce document, nous avons utilisé un jeu de données ouvert et gratuit disponible sur le site de [BIXI Montréal](https://montreal.bixi.com/fr). BIXI Montréal est un organisme à but non lucratif créé en 2014 par la Ville de Montréal pour gérer le système de vélopartage à Montréal. Les données utilisées dans le cadre de ce livre sont en lien avec les trajets de bicyclette réalisés et enregistrés par le système de transport urbain.
+
 
