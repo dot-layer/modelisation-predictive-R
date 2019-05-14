@@ -5,11 +5,11 @@
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Chapitre 5 Prétraitements des données | Modélisation prédictive en R</title>
-  <meta name="description" content="Chapitre 5 Prétraitements des données | Modélisation prédictive en R">
-  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+  <title>Modélisation prédictive en R</title>
+  <meta name="description" content="Modélisation prédictive en R">
+  <meta name="generator" content="bookdown 0.7 and GitBook 2.6.7">
 
-  <meta property="og:title" content="Chapitre 5 Prétraitements des données | Modélisation prédictive en R" />
+  <meta property="og:title" content="Modélisation prédictive en R" />
   <meta property="og:type" content="book" />
   
   
@@ -17,7 +17,7 @@
   <meta name="github-repo" content="dot-layer/modelisation-predictive-R" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapitre 5 Prétraitements des données | Modélisation prédictive en R" />
+  <meta name="twitter:title" content="Modélisation prédictive en R" />
   
   
   
@@ -25,7 +25,7 @@
 <meta name="author" content=".Layer">
 
 
-<meta name="date" content="2019-05-13">
+<meta name="date" content="2019-05-14">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -36,7 +36,6 @@
 <link rel="next" href="metho.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
@@ -66,67 +65,41 @@
 
 
 <style type="text/css">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
-}
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {  }
-@media screen {
-a.sourceLine::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 </style>
 
 </head>
@@ -154,7 +127,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.1.1" data-path="collecte.html"><a href="collecte.html#obtenir-les-donnees-etiquetees"><i class="fa fa-check"></i><b>3.1.1</b> Obtenir les données etiquetées</a></li>
 <li class="chapter" data-level="3.1.2" data-path="collecte.html"><a href="collecte.html#obtenir-jointure"><i class="fa fa-check"></i><b>3.1.2</b> Obtenir les données de <em>jointure</em></a></li>
 <li class="chapter" data-level="3.1.3" data-path="collecte.html"><a href="collecte.html#effectuer-jointure"><i class="fa fa-check"></i><b>3.1.3</b> Effectuer la <em>jointure</em></a></li>
-<li class="chapter" data-level="3.1.4" data-path="collecte.html"><a href="collecte.html#collecte-historique-vs.-collecte-en-production"><i class="fa fa-check"></i><b>3.1.4</b> Collecte historique vs. collecte en production</a></li>
+<li class="chapter" data-level="3.1.4" data-path="collecte.html"><a href="collecte.html#collecte-historique-vs.collecte-en-production"><i class="fa fa-check"></i><b>3.1.4</b> Collecte historique vs. collecte en production</a></li>
 </ul></li>
 <li class="chapter" data-level="3.2" data-path="collecte.html"><a href="collecte.html#liste"><i class="fa fa-check"></i><b>3.2</b> Liste des données potentielles</a><ul>
 <li class="chapter" data-level="3.2.1" data-path="collecte.html"><a href="collecte.html#donnees-etiquetees"><i class="fa fa-check"></i><b>3.2.1</b> Données étiquetées</a></li>
@@ -241,11 +214,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="6.5.3" data-path="metho.html"><a href="metho.html#validation"><i class="fa fa-check"></i><b>6.5.3</b> Validation croisée</a></li>
 <li class="chapter" data-level="6.5.4" data-path="metho.html"><a href="metho.html#evaluation-finale"><i class="fa fa-check"></i><b>6.5.4</b> Évaluation finale</a></li>
 </ul></li>
-<li class="chapter" data-level="6.6" data-path="metho.html"><a href="metho.html#exemple-2-classification-avec-xgboost-en-construction"><i class="fa fa-check"></i><b>6.6</b> Exemple 2 : classification avec xgboost (en construction)</a><ul>
+<li class="chapter" data-level="6.6" data-path="metho.html"><a href="metho.html#exemple-2-classification-avec-xgboost-en-construction"><i class="fa fa-check"></i><b>6.6</b> Exemple 2 : classification avec xgboost (en construction!!)</a><ul>
 <li class="chapter" data-level="6.6.1" data-path="metho.html"><a href="metho.html#split-trainval"><i class="fa fa-check"></i><b>6.6.1</b> Split train/val</a></li>
 <li class="chapter" data-level="6.6.2" data-path="metho.html"><a href="metho.html#le-modele-en-bref"><i class="fa fa-check"></i><b>6.6.2</b> Le modèle en bref</a></li>
-<li class="chapter" data-level="6.6.3" data-path="metho.html"><a href="metho.html#estimation-1"><i class="fa fa-check"></i><b>6.6.3</b> Estimation</a></li>
-<li class="chapter" data-level="6.6.4" data-path="metho.html"><a href="metho.html#validation-1"><i class="fa fa-check"></i><b>6.6.4</b> Validation</a></li>
+<li class="chapter" data-level="6.6.3" data-path="metho.html"><a href="metho.html#estimation"><i class="fa fa-check"></i><b>6.6.3</b> Estimation</a></li>
+<li class="chapter" data-level="6.6.4" data-path="metho.html"><a href="metho.html#validation"><i class="fa fa-check"></i><b>6.6.4</b> Validation</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="7" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html"><i class="fa fa-check"></i><b>7</b> Déploiement de modèles</a><ul>
@@ -310,7 +283,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Dans le premier cas (MCAR), l’absence d’une donnée ne dépend pas de sa vraie valeur (non-observée). Par exemple, un système est défaillant dans la collecte de données et arrête de fonctionner en moyenne 5% du temps, et ce, de manière complètement aléatoire.</p>
 <p>Dans le deuxième cas (MAR), l’absence d’une donnée dépend uniquement de la valeur des variables qui ont été observées. Par exemple, des données ont été récoltées à partir de 2 systèmes différents et il est toujours connu de quel système les données proviennent. Pour un des deux systèmes, les données ont une plus grande probabilité d’être manquantes.</p>
 <p>Dans le troisième cas (NMAR), l’absence d’une donnée dépend également des données manquantes. La probabilité de non-réponse peut dépendre de la variable elle-même ou d’une autre variable. Par exemple, c’est le cas si les personnes ayant un salaire faible ont une probabilité plus faible de répondre à la question d’un sondage en lien avec le salaire gagné.</p>
-<p>Il existe différentes manières d’émettre une hypothèse quant au mécanisme de non-réponse. Certains tests<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> statistiques existent pour identifier un cas de MCAR. Cependant, il est difficile de différencier statistiquement MAR et NMAR. Pour se faire, on peut entres autres analyser le comportement des autres variables en fonction de l’absence ou la présence d’une donnée. Une connaissance du domaine d’affaire peut également être utile pour évaluer le mécanisme de non-réponse. Par la suite, il est possible de faire l’imputation selon différentes méthodes:</p>
+<p>Il existe différentes manières d’émettre une hypothèse quant au mécanisme de non-réponse. Certains tests<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> statistiques existent pour identifier un cas de MCAR. Cependant, il est difficile de différencier statistiquement MAR et NMAR. Pour se faire, on peut entres autres analyser le comportement des autres variables en fonction de l’absence ou la présence d’une donnée. Une connaissance du domaine d’affaire peut également être utile pour évaluer le mécanisme de non-réponse. Par la suite, il est possible de faire l’imputation selon différentes méthodes:</p>
 <ol style="list-style-type: decimal">
 <li><strong>Analyse des cas complets</strong>: Conserver uniquement les observations pour lesquelles toutes les variables sont présentes. Cette méthode est très simple, mais nécessite MCAR, sinon peut introduire un biais notable dans les estimateurs.</li>
 <li><strong>Imputation par une mesure de centralité</strong>: Utiliser la moyenne, la médiane ou le mode pour remplacer les données manquantes. Cette méthode est relativement simple, mais peu recommandée pour des variables ayant un pourcentage élevé de données manquantes (même pour MCAR). Cela diminue la variabilité et la corrélation entre les variables.</li>
@@ -351,7 +324,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 3:  3                 3
 ## 4:  4                 2</code></pre>
 <p>Dans l’exemple ci-dessus, il faut être <strong>prudent</strong>, car en encodant la variable de cette manière, on spécifie au modèle que la distance entre <code>'mauvais'</code> et <code>'moyen'</code> est la même qu’entre <code>'bon'</code> et <code>'excellent'</code>. Cette hypothèse n’est pas toujours valide selon le contexte. Les avantages avec cette méthode sont qu’elle est relativement simple, intuitive et qu’elle n’augmente pas le nombre de variables.</p>
-<p>Dans le cas d’une variable nominale, il faut généralement opter pour une autre stratégie. Une méthode classique d’encodage dans ce cas-ci est d’utiliser la méthode <em>un-chaud</em><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> (<em>one-hot encoding</em>). Cette méthode consiste à traiter chaque catégorie comme une variable indicatrice qui indique la présence de la catégorie:</p>
+<p>Dans le cas d’une variable nominale, il faut généralement opter pour une autre stratégie. Une méthode classique d’encodage dans ce cas-ci est d’utiliser la méthode <em>un-chaud</em><a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> (<em>one-hot encoding</em>). Cette méthode consiste à traiter chaque catégorie comme une variable indicatrice qui indique la présence de la catégorie:</p>
 <pre><code>##    Id quartier_centre.ville quartier_plateau.mont.royal quartier_verdun
 ## 1:  1                     1                           0               0
 ## 2:  2                     0                           1               0
@@ -421,15 +394,13 @@ x_{i,A}^{\prime}=\frac{x_{i,A}-\bar{x}_A}{\hat\sigma_A}
 </ol>
 <p><span class="math display">\[
 x_{i,A}^{\prime}=\frac{x_{i,A}-\min_A}{\max_A-\min_A}\big({\rm new\_max}_A-{\rm new\_min}_A\big)+{\rm new\_min}_A
-\]</span>
-où <span class="math inline">\(\min_A = \min_i x_{i,A}\)</span> et <span class="math inline">\(\max_A = \max_i x_{i,A}\)</span> sont calculés sur la distribution de l’attribut <span class="math inline">\(A\)</span>, alors que <span class="math inline">\({\rm new\_max}_A\)</span> et <span class="math inline">\({\rm new\_min}_A\)</span> correspondent aux bornes du nouvel intervalle désiré.</p>
+\]</span> où <span class="math inline">\(\min_A = \min_i x_{i,A}\)</span> et <span class="math inline">\(\max_A = \max_i x_{i,A}\)</span> sont calculés sur la distribution de l’attribut <span class="math inline">\(A\)</span>, alors que <span class="math inline">\({\rm new\_max}_A\)</span> et <span class="math inline">\({\rm new\_min}_A\)</span> correspondent aux bornes du nouvel intervalle désiré.</p>
 <ol start="3" style="list-style-type: decimal">
 <li>Normalisation pas décimation</li>
 </ol>
 <p><span class="math display">\[
 x_{i,A}^{\prime}=\frac{x_{i,A}}{10^j}
-\]</span>
-où <span class="math inline">\(j\)</span> est la plus petite valeur entière où <span class="math inline">\(max(|x_{i,A}|)&lt;1\)</span>.</p>
+\]</span> où <span class="math inline">\(j\)</span> est la plus petite valeur entière où <span class="math inline">\(max(|x_{i,A}|)&lt;1\)</span>.</p>
 </div>
 <div id="discretisation" class="section level3">
 <h3><span class="header-section-number">5.3.2</span> Discrétisation</h3>
@@ -452,22 +423,22 @@ où <span class="math inline">\(j\)</span> est la plus petite valeur entière o�
 <h3><span class="header-section-number">5.4.1</span> Séparation du jeu de données</h3>
 <p>Avant même d’effectuer les premiers prétraitements, il est primordial de garder en tête que nous cherchons à construire un modèle prédictif qui sera performant en généralisation. Pour se faire, il faut inévitablement garder de côté un jeu de données test que nous utiliserons à la toute fin pour avoir une idée plausible de la performance de notre modèle sur des données que celui-ci n’a jamais encore vues. Afin de ne pas induire de l’information de ce jeu de données dans notre entraînement, nous devrons d’abord effectuer cette séparation et ensuite faire les différents prétraitements sur le jeu de données d’entraînement seulement. À la toute fin, nous pourrons effectuer ces mêmes prétraitements sur le jeu de données test et ainsi simuler l’entrée de nouvelles données.</p>
 <p>Pour faire la séparation, il courant dans la pratique de prendre un pourcentage arbitraire des données, par exemple 10%, sélectionné aléatoirement pour le jeu de données test. Pour faire cela, il est possible d’utiliser des fonctions de base en R, comme la fonction <code>sample</code>:</p>
-<pre class="sourceCode r"><code class="sourceCode r">ind_train &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(data_bixi), <span class="dt">size =</span> <span class="fl">0.9</span> <span class="op">*</span><span class="st"> </span><span class="kw">nrow</span>(data_bixi), <span class="dt">replace =</span> <span class="ot">FALSE</span>)
-<span class="kw">head</span>(<span class="kw">sort</span>(ind_train), <span class="dv">10</span>)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ind_train &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(data_bixi), <span class="dt">size =</span> <span class="fl">0.9</span> <span class="op">*</span><span class="st"> </span><span class="kw">nrow</span>(data_bixi), <span class="dt">replace =</span> <span class="ot">FALSE</span>)
+<span class="kw">head</span>(<span class="kw">sort</span>(ind_train), <span class="dv">10</span>)</code></pre></div>
 <pre><code>##  [1]  1  2  3  4  5  6  7  8  9 10</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">lapply</span>(<span class="kw">list</span>(data_bixi[ind_train,]<span class="op">$</span>duration_sec, data_bixi[<span class="op">-</span>ind_train,]<span class="op">$</span>duration_sec), mean)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">lapply</span>(<span class="kw">list</span>(data_bixi[ind_train,]<span class="op">$</span>duration_sec, data_bixi[<span class="op">-</span>ind_train,]<span class="op">$</span>duration_sec), mean)</code></pre></div>
 <pre><code>## [[1]]
 ## [1] 818.2513
 ## 
 ## [[2]]
 ## [1] 817.3133</code></pre>
 <p>Dans certaines situations, il peut être utile de faire une séparation qui permet de s’assurer de la présence de certaines données dans chaque jeu de données. Pour faire ce genre de séparation, il est possible de faire un échantillonnage stratifié sur certaines variables, ce qui assure la cohérence entre les deux jeux de données vis-à-vis ces variables. Cela peut être notamment utile dans un contexte de données débalancées. Pour faciliter la mise en place de ce genre de séparation, il est possible d’utiliser la fonction <code>createDataPartition</code> du package <code>caret</code>:</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(caret)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(caret)</code></pre></div>
 <pre><code>## Loading required package: lattice</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r">ind_train &lt;-<span class="st"> </span><span class="kw">createDataPartition</span>(<span class="dt">y =</span> data_bixi<span class="op">$</span>duration_sec, <span class="dt">times =</span> <span class="dv">1</span>, <span class="dt">p =</span> <span class="fl">0.9</span>, <span class="dt">list =</span> <span class="ot">FALSE</span>)
-<span class="kw">head</span>(<span class="kw">sort</span>(ind_train), <span class="dv">10</span>)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ind_train &lt;-<span class="st"> </span><span class="kw">createDataPartition</span>(<span class="dt">y =</span> data_bixi<span class="op">$</span>duration_sec, <span class="dt">times =</span> <span class="dv">1</span>, <span class="dt">p =</span> <span class="fl">0.9</span>, <span class="dt">list =</span> <span class="ot">FALSE</span>)
+<span class="kw">head</span>(<span class="kw">sort</span>(ind_train), <span class="dv">10</span>)</code></pre></div>
 <pre><code>##  [1]  1  2  3  4  5  6  7  9 10 11</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">lapply</span>(<span class="kw">list</span>(data_bixi[ind_train,]<span class="op">$</span>duration_sec, data_bixi[<span class="op">-</span>ind_train,]<span class="op">$</span>duration_sec), mean)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">lapply</span>(<span class="kw">list</span>(data_bixi[ind_train,]<span class="op">$</span>duration_sec, data_bixi[<span class="op">-</span>ind_train,]<span class="op">$</span>duration_sec), mean)</code></pre></div>
 <pre><code>## [[1]]
 ## [1] 818.1882
 ## 
@@ -487,38 +458,38 @@ Figure 5.2: Processus de prétraitements des données
 <div id="imputations-de-donnees-manquantes" class="section level4">
 <h4><span class="header-section-number">5.4.2.1</span> Imputations de données manquantes</h4>
 <p>Pour l’imputation de données manquantes, il est nécessaire d’avoir une liste de variables à imputer avec une définition de comment calculer la valeur d’imputation. Le calcul de la valeur d’imputation se fait sur les données d’entraînement seulement. Il est possible de définir les valeurs d’imputations et de sauvegarder ces valeurs dans un fichier JSON en utilisant le package <code>jsonlite</code>:</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Définir les valeurs d&#39;imputation</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Définir les valeurs d&#39;imputation</span>
 valeurs_imputations &lt;-<span class="st"> </span><span class="kw">list</span>(
   <span class="dt">start_station_code =</span> <span class="kw">median</span>(data_bixi<span class="op">$</span>start_station_code),
   <span class="dt">start_wday =</span> <span class="kw">median</span>(data_bixi<span class="op">$</span>start_wday)
 )
 
 <span class="co"># Sauvegarder le fichier d&#39;imputations dans un JSON</span>
-<span class="kw">write</span>(jsonlite<span class="op">::</span><span class="kw">toJSON</span>(valeurs_imputations, <span class="dt">pretty =</span> <span class="ot">TRUE</span>), <span class="st">&quot;chemin/du/model/valeurs_imputations.json&quot;</span>)</code></pre>
+<span class="kw">write</span>(jsonlite<span class="op">::</span><span class="kw">toJSON</span>(valeurs_imputations, <span class="dt">pretty =</span> <span class="ot">TRUE</span>), <span class="st">&quot;chemin/du/model/valeurs_imputations.json&quot;</span>)</code></pre></div>
 <p>Dans le prétraitement des données lors de l’inférence, on peut désormais importer ces valeurs d’imputation et remplacer les données manquantes:</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Importer en mémoire les données d&#39;imputation</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Importer en mémoire les données d&#39;imputation</span>
 valeurs_imputations &lt;-<span class="st"> </span>jsonlite<span class="op">::</span><span class="kw">fromJSON</span>(<span class="st">&quot;chemin/du/model/valeurs_imputations.json&quot;</span>)
 
 <span class="co"># Remplacer les données manquantes par leur valeurs d&#39;imputation</span>
 <span class="cf">for</span> (col <span class="cf">in</span> <span class="kw">names</span>(valeurs_imputations)) {
     data_inference[<span class="kw">is.na</span>(<span class="kw">get</span>(col)), (col) <span class="op">:</span><span class="er">=</span><span class="st"> </span>list[[<span class="kw">eval</span>(col)]]]
-}</code></pre>
+}</code></pre></div>
 <p>Les fichiers JSON sont généralement faciles à traiter dans plusieurs logiciels et langages différents. En R, il est également intéressant d’utiliser ce format qui se marie bien avec les objets de type liste. C’est donc un format que nous recommandons d’utiliser. Notez que dans cet exemple, l’imputation est faite en sauvegardant une liste de valeurs d’imputation. Par contre, cela pourrait également être fait via un autre objet, comme un modèle, qui viendrait faire une prédiction en guise d’imputation.</p>
 </div>
 <div id="encodage-de-donnees-categoriques" class="section level4">
 <h4><span class="header-section-number">5.4.2.2</span> Encodage de données catégoriques</h4>
 <p>Pour être en mesure de répliquer l’encodage de données catégoriques, le principal défi est faire l’encodage <em>un-chaud</em>. La fonction <code>dummyVars</code> du package <code>caret</code> permet de réaliser assez facilement ce genre de transformation:</p>
-<pre class="sourceCode r"><code class="sourceCode r">objet_un_chaud &lt;-<span class="st"> </span><span class="kw">dummyVars</span>(<span class="st">&quot; ~ weekend_flag&quot;</span>, <span class="dt">data =</span> data_bixi)
-<span class="kw">saveRDS</span>(objet_un_chaud, <span class="st">&quot;chemin/du/model/objet_un_chaud.rds&quot;</span>)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">objet_un_chaud &lt;-<span class="st"> </span><span class="kw">dummyVars</span>(<span class="st">&quot; ~ weekend_flag&quot;</span>, <span class="dt">data =</span> data_bixi)
+<span class="kw">saveRDS</span>(objet_un_chaud, <span class="st">&quot;chemin/du/model/objet_un_chaud.rds&quot;</span>)</code></pre></div>
 <p>Lors de l’inférence, on peut importer cet objet en mémoire et transformer les variables pour les données à prédire:</p>
-<pre class="sourceCode r"><code class="sourceCode r">objet_un_chaud &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;chemin/du/model/objet_un_chaud.rds&quot;</span>)
-data_inference &lt;-<span class="st"> </span><span class="kw">predict</span>(objet_un_chaud, <span class="dt">newdata =</span> data_inference)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">objet_un_chaud &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;chemin/du/model/objet_un_chaud.rds&quot;</span>)
+data_inference &lt;-<span class="st"> </span><span class="kw">predict</span>(objet_un_chaud, <span class="dt">newdata =</span> data_inference)</code></pre></div>
 <p>Le package <code>caret</code> offre plusieurs fonctionnalités intéressantes dans un contexte de modélisation. La fonction <code>dummyVars</code> est assez intuitive à utiliser et offre certaines options comme la possibilité de nommer les variables indicatrices par un séparateur au choix (<code>sep</code>), comment gérer les nouvelles catégories (<code>na.action</code>), la possibilité d’enlever le niveau de base (<code>fullRank</code>), etc.</p>
 </div>
 <div id="valeurs-de-normalisation" class="section level4">
 <h4><span class="header-section-number">5.4.2.3</span> Valeurs de normalisation</h4>
 <p>Pour ce qui est de la normalisation des attributs, il faut encore une fois garder une trace de ces valeurs pour ainsi normaliser adéquatement les données lors de l’inférence. Un peu comme dans l’imputation, on peut calculer ces valeurs sur le jeu de données d’entraînement. Voici une manière de stocker ces valeurs, en utilisant encore une fois le package <code>jsonlite</code>:</p>
-<pre class="sourceCode r"><code class="sourceCode r">variables_a_normaliser &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;variable_1&quot;</span>, <span class="st">&quot;variable_2&quot;</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">variables_a_normaliser &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;variable_1&quot;</span>, <span class="st">&quot;variable_2&quot;</span>)
 moyennes &lt;-<span class="st"> </span><span class="kw">apply</span>(data[, (variables_a_normaliser), <span class="dt">with =</span> F], <span class="dv">2</span>, mean)
 ecarts_types &lt;-<span class="st"> </span><span class="kw">apply</span>(data[, (variables_a_normaliser), <span class="dt">with =</span> F], <span class="dv">2</span>, sd)
 valeurs_normalisation &lt;-<span class="st"> </span><span class="kw">list</span>(
@@ -527,20 +498,20 @@ valeurs_normalisation &lt;-<span class="st"> </span><span class="kw">list</span>
 )
 
 <span class="co"># Sauvegarder les valeurs de normalisation</span>
-<span class="kw">write</span>(jsonlite<span class="op">::</span><span class="kw">toJSON</span>(valeurs_normalisation, <span class="dt">pretty =</span> <span class="ot">TRUE</span>), <span class="st">&quot;chemin/du/model/valeurs_normalisation.json&quot;</span>)</code></pre>
+<span class="kw">write</span>(jsonlite<span class="op">::</span><span class="kw">toJSON</span>(valeurs_normalisation, <span class="dt">pretty =</span> <span class="ot">TRUE</span>), <span class="st">&quot;chemin/du/model/valeurs_normalisation.json&quot;</span>)</code></pre></div>
 <p>Une fois les valeurs calculées, on peut les importer et les appliquer sur les données à inférer:</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Importer en mémoire les valeurs de normalisation</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Importer en mémoire les valeurs de normalisation</span>
 valeurs_normalisation &lt;-<span class="st"> </span>jsonlite<span class="op">::</span><span class="kw">fromJSON</span>(<span class="st">&quot;chemin/du/model/valeurs_normalisation.json&quot;</span>)
 
 <span class="co"># Appliquer la normalisation pour les variables à normaliser</span>
 data &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="kw">names</span>(valeurs_normalisation<span class="op">$</span>moyennes), <span class="cf">function</span>(x) {
   data[, (x) <span class="op">:</span><span class="er">=</span><span class="st"> </span>(<span class="kw">get</span>(x) <span class="op">-</span><span class="st"> </span>valeurs_normalisation<span class="op">$</span>moyennes[[<span class="kw">eval</span>(x)]])<span class="op">/</span>valeurs_normalisation<span class="op">$</span>ecarts_types[[<span class="kw">eval</span>(x)]]]
-})[[<span class="dv">2</span>]]</code></pre>
+})[[<span class="dv">2</span>]]</code></pre></div>
 </div>
 <div id="creation-de-nouveaux-attributs" class="section level4">
 <h4><span class="header-section-number">5.4.2.4</span> Création de nouveaux attributs</h4>
 <p>Pour ce qui est de la création de nouveaux attributs et de la discrétisation, ces prétraitements sont généralement fait en appliquant une transformation directe aux données, par exemple, l’application d’une fonction <code>log</code>. Ces transformations peuvent donc être programmées via du code source qui sera appliqué de la même manière pour les données d’entraînement que pour les données de test. Voici un exemple de fonction qui permettrait de créer un nouvel attribut et en discrétiser un autre, et ce, pour les 2 jeux de données:</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Fonction qui crée de nouveaux attributs</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Fonction qui crée de nouveaux attributs</span>
 creation_attributs &lt;-<span class="st"> </span><span class="cf">function</span>(data){
   
   <span class="co"># Nouveaux attributs</span>
@@ -555,7 +526,7 @@ creation_attributs &lt;-<span class="st"> </span><span class="cf">function</span
 
 <span class="co"># La fonction s&#39;applique de la même maniere pour les 2 jeux de données</span>
 data_train &lt;-<span class="st"> </span><span class="kw">creation_attributs</span>(data_train)
-data_test &lt;-<span class="st"> </span><span class="kw">creation_attributs</span>(data_test)</code></pre>
+data_test &lt;-<span class="st"> </span><span class="kw">creation_attributs</span>(data_test)</code></pre></div>
 </div>
 </div>
 </div>
@@ -580,7 +551,7 @@ data_test &lt;-<span class="st"> </span><span class="kw">creation_attributs</spa
 <p>Hotelling, Harold. 1933. “Analysis of a Complex of Statistical Variables into Principal Components.” <em>Journal of Educational Psychology</em> vol 24: 417–41, 498–520.</p>
 </div>
 <div id="ref-10.1371/journal.pone.0058552">
-<p>Khrunin, Denis V. AND Filippova, Andrey V. AND Khokhrin. 2013. “A Genome-Wide Analysis of Populations from European Russia Reveals a New Pole of Genetic Diversity in Northern Europe.” <em>PLOS ONE</em> 8 (3): 1–9. <a href="https://doi.org/10.1371/journal.pone.0058552">https://doi.org/10.1371/journal.pone.0058552</a>.</p>
+<p>Khrunin, Denis V. AND Filippova, Andrey V. AND Khokhrin. 2013. “A Genome-Wide Analysis of Populations from European Russia Reveals a New Pole of Genetic Diversity in Northern Europe.” <em>PLOS ONE</em> 8 (3). Public Library of Science: 1–9. doi:<a href="https://doi.org/10.1371/journal.pone.0058552">10.1371/journal.pone.0058552</a>.</p>
 </div>
 <div id="ref-James:2014:ISL:2517747">
 <p>James, Gareth, Daniela Witten, Trevor Hastie, and Robert Tibshirani. 2014. <em>An Introduction to Statistical Learning: With Applications in R</em>. Springer Publishing Company, Incorporated.</p>
@@ -589,8 +560,8 @@ data_test &lt;-<span class="st"> </span><span class="kw">creation_attributs</spa
 <div class="footnotes">
 <hr />
 <ol start="1">
-<li id="fn1"><p>Voir le test de Welch et le test de Little. Les deux tests ne peuvent garantir l’hypothèse de MCAR.<a href="preprop.html#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>Traduction libre, crédit à <a href="https://github.com/jtbai">Jean-Thomas Baillargeon</a>.<a href="preprop.html#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn1"><p>Voir le test de Welch et le test de Little. Les deux tests ne peuvent garantir l’hypothèse de MCAR.<a href="preprop.html#fnref1">↩</a></p></li>
+<li id="fn2"><p>Traduction libre, crédit à <a href="https://github.com/jtbai">Jean-Thomas Baillargeon</a>.<a href="preprop.html#fnref2">↩</a></p></li>
 </ol>
 </div>
             </section>
@@ -619,7 +590,7 @@ gitbook.start({
 "google": false,
 "linkedin": false,
 "weibo": false,
-"instapaper": false,
+"instapper": false,
 "vk": false,
 "all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
 },
@@ -629,10 +600,6 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": null,
-"text": null
-},
-"history": {
 "link": null,
 "text": null
 },
@@ -649,8 +616,8 @@ gitbook.start({
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    var src = "true";
-    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    var src = "";
+    if (src === "" || src === "true") src = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
     if (location.protocol !== "file:" && /^https?:/.test(src))
       src = src.replace(/^https?:/, '');
     script.src = src;

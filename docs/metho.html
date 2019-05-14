@@ -5,11 +5,11 @@
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Chapitre 6 Construction de modèles | Modélisation prédictive en R</title>
-  <meta name="description" content="Chapitre 6 Construction de modèles | Modélisation prédictive en R">
-  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+  <title>Modélisation prédictive en R</title>
+  <meta name="description" content="Modélisation prédictive en R">
+  <meta name="generator" content="bookdown 0.7 and GitBook 2.6.7">
 
-  <meta property="og:title" content="Chapitre 6 Construction de modèles | Modélisation prédictive en R" />
+  <meta property="og:title" content="Modélisation prédictive en R" />
   <meta property="og:type" content="book" />
   
   
@@ -17,7 +17,7 @@
   <meta name="github-repo" content="dot-layer/modelisation-predictive-R" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapitre 6 Construction de modèles | Modélisation prédictive en R" />
+  <meta name="twitter:title" content="Modélisation prédictive en R" />
   
   
   
@@ -25,7 +25,7 @@
 <meta name="author" content=".Layer">
 
 
-<meta name="date" content="2019-05-13">
+<meta name="date" content="2019-05-14">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -36,7 +36,6 @@
 <link rel="next" href="deploiement-de-modeles.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
@@ -66,67 +65,41 @@
 
 
 <style type="text/css">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
-}
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {  }
-@media screen {
-a.sourceLine::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 </style>
 
 </head>
@@ -154,7 +127,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.1.1" data-path="collecte.html"><a href="collecte.html#obtenir-les-donnees-etiquetees"><i class="fa fa-check"></i><b>3.1.1</b> Obtenir les données etiquetées</a></li>
 <li class="chapter" data-level="3.1.2" data-path="collecte.html"><a href="collecte.html#obtenir-jointure"><i class="fa fa-check"></i><b>3.1.2</b> Obtenir les données de <em>jointure</em></a></li>
 <li class="chapter" data-level="3.1.3" data-path="collecte.html"><a href="collecte.html#effectuer-jointure"><i class="fa fa-check"></i><b>3.1.3</b> Effectuer la <em>jointure</em></a></li>
-<li class="chapter" data-level="3.1.4" data-path="collecte.html"><a href="collecte.html#collecte-historique-vs.-collecte-en-production"><i class="fa fa-check"></i><b>3.1.4</b> Collecte historique vs. collecte en production</a></li>
+<li class="chapter" data-level="3.1.4" data-path="collecte.html"><a href="collecte.html#collecte-historique-vs.collecte-en-production"><i class="fa fa-check"></i><b>3.1.4</b> Collecte historique vs. collecte en production</a></li>
 </ul></li>
 <li class="chapter" data-level="3.2" data-path="collecte.html"><a href="collecte.html#liste"><i class="fa fa-check"></i><b>3.2</b> Liste des données potentielles</a><ul>
 <li class="chapter" data-level="3.2.1" data-path="collecte.html"><a href="collecte.html#donnees-etiquetees"><i class="fa fa-check"></i><b>3.2.1</b> Données étiquetées</a></li>
@@ -241,11 +214,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="6.5.3" data-path="metho.html"><a href="metho.html#validation"><i class="fa fa-check"></i><b>6.5.3</b> Validation croisée</a></li>
 <li class="chapter" data-level="6.5.4" data-path="metho.html"><a href="metho.html#evaluation-finale"><i class="fa fa-check"></i><b>6.5.4</b> Évaluation finale</a></li>
 </ul></li>
-<li class="chapter" data-level="6.6" data-path="metho.html"><a href="metho.html#exemple-2-classification-avec-xgboost-en-construction"><i class="fa fa-check"></i><b>6.6</b> Exemple 2 : classification avec xgboost (en construction)</a><ul>
+<li class="chapter" data-level="6.6" data-path="metho.html"><a href="metho.html#exemple-2-classification-avec-xgboost-en-construction"><i class="fa fa-check"></i><b>6.6</b> Exemple 2 : classification avec xgboost (en construction!!)</a><ul>
 <li class="chapter" data-level="6.6.1" data-path="metho.html"><a href="metho.html#split-trainval"><i class="fa fa-check"></i><b>6.6.1</b> Split train/val</a></li>
 <li class="chapter" data-level="6.6.2" data-path="metho.html"><a href="metho.html#le-modele-en-bref"><i class="fa fa-check"></i><b>6.6.2</b> Le modèle en bref</a></li>
-<li class="chapter" data-level="6.6.3" data-path="metho.html"><a href="metho.html#estimation-1"><i class="fa fa-check"></i><b>6.6.3</b> Estimation</a></li>
-<li class="chapter" data-level="6.6.4" data-path="metho.html"><a href="metho.html#validation-1"><i class="fa fa-check"></i><b>6.6.4</b> Validation</a></li>
+<li class="chapter" data-level="6.6.3" data-path="metho.html"><a href="metho.html#estimation"><i class="fa fa-check"></i><b>6.6.3</b> Estimation</a></li>
+<li class="chapter" data-level="6.6.4" data-path="metho.html"><a href="metho.html#validation"><i class="fa fa-check"></i><b>6.6.4</b> Validation</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="7" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html"><i class="fa fa-check"></i><b>7</b> Déploiement de modèles</a><ul>
@@ -284,32 +257,36 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="metho" class="section level1">
 <h1><span class="header-section-number">Chapitre 6</span> Construction de modèles</h1>
-<p>En introduction du document, nous avons fait l’hypothèse qu’il existe une fonction <span class="math inline">\(f\)</span> connectant nos variables explicatives <span class="math inline">\(\mathbf{x}\)</span> à <span class="math inline">\(y\)</span> de telle sorte que
+<pre><code>## fst package v0.9.0</code></pre>
+<pre><code>## (OpenMP detected, using 4 threads)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;xgboost&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:plotly&#39;:
+## 
+##     slice</code></pre>
+<pre><code>## Loading required package: Matrix</code></pre>
+<pre><code>## Loading required package: foreach</code></pre>
+<pre><code>## Loaded glmnet 2.0-16</code></pre>
+<pre><code>## [1] &quot;36935 outliers ont Ã©tÃ© enlevÃ©s du jeu de donnÃ©es de rÃ©gression.&quot;</code></pre>
+En introduction du document, nous avons fait l’hypothèse qu’il existe une fonction <span class="math inline">\(f\)</span> connectant nos variables explicatives <span class="math inline">\(\mathbf{x}\)</span> à <span class="math inline">\(y\)</span> de telle sorte que
 <span class="math display" id="eq:approx">\[\begin{equation} 
   y \approx f(\mathbf{x}). \tag{6.1}
 \end{equation}\]</span>
-L’objectif principal, dans ce chapitre, est d’apprendre (ou plutôt d’approximer) la fonction <span class="math inline">\(f\)</span> à l’aide de la théorie de l’apprentissage statistique. Plusieurs éléments sont tirés des livres <em>An Introduction to Statistical Learning: with Application in R</em> de Gareth James, Daniela Witten, Trevor Hastie et Robert Tibshirani <span class="citation">(James et al. <a href="#ref-James:2014:ISL:2517747">2014</a>)</span>; <em>The Elements of Statistical Learning</em> de Trevor Hastie, Robert Tibshirani et Jerome H. Friedman <span class="citation">(Friedman, Hastie, and Tibshirani <a href="#ref-Friedman:2001:ESL">2001</a>)</span>. L’expression <em>apprentissage statstique</em> a été grandement popularisée par ces auteurs, qui donne la définition (traduction libre)</p>
+<p>L’objectif principal, dans ce chapitre, est d’apprendre (ou plutôt d’approximer) la fonction <span class="math inline">\(f\)</span> à l’aide de la théorie de l’apprentissage statistique. Plusieurs éléments sont tirés des livres <em>An Introduction to Statistical Learning: with Application in R</em> de Gareth James, Daniela Witten, Trevor Hastie et Robert Tibshirani <span class="citation">(James et al. <a href="#ref-James:2014:ISL:2517747">2014</a>)</span>; <em>The Elements of Statistical Learning</em> de Trevor Hastie, Robert Tibshirani et Jerome H. Friedman <span class="citation">(Friedman, Hastie, and Tibshirani <a href="#ref-Friedman:2001:ESL">2001</a>)</span>. L’expression <em>apprentissage statstique</em> a été grandement popularisée par ces auteurs, qui donne la définition (traduction libre)</p>
 <blockquote>
 <blockquote>
 <p>L’apprentissage statistique fait référence à un ensemble d’outils pour modéliser et comprendre des jeux de données complexes. C’est une sous-discipline récente de la statistique qui se développe en parallèle avec les avancées en informatique et, plus particulièrement, en apprentissage automatique. <span class="citation">(James et al. <a href="#ref-James:2014:ISL:2517747">2014</a>)</span></p>
 </blockquote>
 </blockquote>
-<p>Après le nettoyage des données du chapitre <a href="preprop.html#preprop">5</a>, nous avons à notre disposition des données prêtes pour utilisation avec le modèle de notre choix.
-Évidemment, le choix des variables explicatives reste préliminaire : on peut réaliser, après avoir tenté plusieurs modèles, qu’elles ne sont pas assez informatives pour permettre des prédictions satisfaisantes.
-Il faudra alors considérer d’autres options; transformer nos variables, ou en en collecter de nouvelles.</p>
-<p>En supposant que le lecteur possède des connaissances de base en statistique,
-les sujets suivants sont traités : l’identification de modèles adéquats; l’estimation de modèles (fonction de perte, compromis biais-variance); l’évaluation d’un modèle (validation croisée, erreur de généralisation).</p>
+<p>Après le nettoyage des données du chapitre <a href="preprop.html#preprop">5</a>, nous avons à notre disposition des données prêtes pour utilisation avec le modèle de notre choix. Évidemment, le choix des variables explicatives reste préliminaire : on peut réaliser, après avoir tenté plusieurs modèles, qu’elles ne sont pas assez informatives pour permettre des prédictions satisfaisantes. Il faudra alors considérer d’autres options; transformer nos variables, ou en en collecter de nouvelles.</p>
+<p>En supposant que le lecteur possède des connaissances de base en statistique, les sujets suivants sont traités : l’identification de modèles adéquats; l’estimation de modèles (fonction de perte, compromis biais-variance); l’évaluation d’un modèle (validation croisée, erreur de généralisation).</p>
 <p>Finalement, nous pointerons quelques fois vers la librairie (<code>caret</code>)[<a href="https://topepo.github.io/caret/index.html" class="uri">https://topepo.github.io/caret/index.html</a>], qui contient plusieurs fonctions permettant une modélisation fluide.</p>
 <div id="split" class="section level2">
 <h2><span class="header-section-number">6.1</span> Gestion des données</h2>
 <p><span style="color:fuchsia"><strong>Concepts clefs : entraînement/validation/test</strong></span></p>
 <div id="divisions-entrainementvalidationtest" class="section level3">
 <h3><span class="header-section-number">6.1.1</span> Divisions entraînement/validation/test</h3>
-<p>Pour plusieurs raisons, il est conseillé, avant même le pré-traitement des données de la Section <a href="preprop.html#preprop">5</a>, de séparer aléatoirement son jeu de données en deux (ou trois) partie distinctes : les jeux de données d’entraînement, (de validation) et de test.
-Chacune des trois parties est associées à une étape de la construction du modèle, qu’on effectue dans l’ordre mentionné.
-Les données d’entrainement serviront à estimer différents modèles; les données de validation à sélectionner un modèle; les données de test à évaluer le modèle final.
-Une <em>règle du pouce</em> est d’utiliser la moitié des observations pour l’entrainement et le quart pour chacune des deux autres étapes.
-<span class="math display">\[
+<p>Pour plusieurs raisons, il est conseillé, avant même le pré-traitement des données de la Section <a href="preprop.html#preprop">5</a>, de séparer aléatoirement son jeu de données en deux (ou trois) partie distinctes : les jeux de données d’entraînement, (de validation) et de test. Chacune des trois parties est associées à une étape de la construction du modèle, qu’on effectue dans l’ordre mentionné. Les données d’entrainement serviront à estimer différents modèles; les données de validation à sélectionner un modèle; les données de test à évaluer le modèle final. Une <em>règle du pouce</em> est d’utiliser la moitié des observations pour l’entrainement et le quart pour chacune des deux autres étapes. <span class="math display">\[
   {\Large \left(\mathbf{X}|\mathbf{y}\right)}
   \quad
   =
@@ -325,210 +302,132 @@ Une <em>règle du pouce</em> est d’utiliser la moitié des observations pour l
     \Big\} &amp; \stackrel{\approx 1/4}{\longrightarrow} &amp; (\mathbf{X}_{\rm val}|\mathbf{y}_{\rm val})\\
     \Big\} &amp; \stackrel{\approx 1/4}{\longrightarrow} &amp; (\mathbf{X}_{\rm test}|\mathbf{y}_{\rm test})
   \end{array}
-\]</span>
-<strong>Toutefois</strong> –particulièrement quand les données manquent– le jeu de validation est “éliminé” et intègré au jeu d’entraînement.
-L’étape de validation (décrite à la Section <a href="metho.html#selection">6.5</a>) est alors effectuée en partitionnant le jeu d’entraînement pour créer plusieurs paires <span class="math inline">\((X_{\rm train},X_{\rm val})\)</span>, au lieu d’une seule comme avec l’approche classique.</p>
-<p>Selon la situation, on peut effectuer une permutation aléatoire de nos données, pour éviter que notre division du jeu de données ne soit pollué par des effets indésirables de l’ordre de collecte; ou s’assurer de garder un ordre chronologique des jeux de données, pour réellement prédire des données futures avec les jeux de validation et de test.</p>
-<p>Finalement, <code>caret</code> permet de préserver la proportion des différentes réponses dans les jeux d’entraînement et de test avec <code>createDataPartition</code>.</p>
-<pre><code>ind_train &lt;- caret::createDataPartition(y_train, p = .8, # split 80/20, classique
-                                  list = FALSE, 
-                                  times = 1)</code></pre>
-<p>La fonction <code>caret::createResample</code> permet de faire des échantillons <a href="https://en.wikipedia.org/wiki/Bootstrapping_(statistics)"><em>bootstrap</em></a>, tandis que la fonction <code>caret::createFolds</code> permet de créer des échantillons pour la validation croisée.</p>
+\]</span> <strong>Toutefois</strong> –particulièrement quand les données manquent– le jeu de validation (et parfois même le jeu test) est “éliminé” et intègré au jeu d’entraînement. L’étape de validation (décrite à la Section <a href="metho.html#selection">6.5</a>) est alors effectuée en partitionnant le jeu d’entraînement pour créer plusieurs paires <span class="math inline">\((X_{\rm train},X_{\rm val})\)</span>, au lieu d’une seule comme avec l’approche classique. Ultimement, à moins que certaines considérations particulières nous suggèrent de faire autrement, on entraîne notre modèle à mettre en production sur l’entièreté des données.</p>
+<p>Selon la situation, on peut effectuer une permutation aléatoire de nos données, pour éviter que notre division du jeu de données ne soit polluée par des effets indésirables de l’ordre de collecte; ou s’assurer de garder un ordre chronologique des jeux de données, pour réellement prédire des données futures avec les jeux de validation et de test.</p>
+<p>Pour plus de détails sur la division du jeu de données, voir le Chapitre <a href="preprop.html#preprop">5</a>.</p>
 </div>
 <div id="utilite-des-differents-jeux" class="section level3">
 <h3><span class="header-section-number">6.1.2</span> Utilité des différents jeux</h3>
 <p>La différence entre les jeux de données se trouve essentiellement dans ce qu’on calcule avec ceux-ci.</p>
 <ul>
-<li>On associe au jeu d’entraînement l’<em>erreur d’entrainement</em>, qui quantifie la performance de notre modèle sur… les données d’entraînement!
-À cette étape, on estime les paramètres de notre modèle.</li>
-<li>Les jeux de validation et de test servent tous deux à estimer l’<em>erreur de généralisation</em>, c’est-à-dire l’erreur faite sur de <strong>nouvelles</strong> données.
-Dans la première c’est pour comparer des modèles (trouver les hyper-paramètres), la deuxième pour obtenir une estimation non biaisée de l’<em>erreur de généralisation</em>.
-Notez qu’on utilise souvent l’<em>erreur de généralisation</em>, l’<em>erreur test</em> et l’<em>erreur de validation</em> interchangeablement.</li>
+<li>On associe au jeu d’entraînement l’<em>erreur d’entrainement</em>, qui quantifie la performance de notre modèle sur… les données d’entraînement! À cette étape, on estime les paramètres de notre modèle.</li>
+<li>Les jeux de validation et de test servent tous deux à estimer l’<em>erreur de généralisation</em>, c’est-à-dire l’erreur faite sur de <strong>nouvelles</strong> données. Dans la première c’est pour comparer des modèles (trouver les hyper-paramètres), la deuxième pour obtenir une estimation non biaisée de l’<em>erreur de généralisation</em>. Notez qu’on utilise souvent l’<em>erreur de généralisation</em>, l’<em>erreur test</em> et l’<em>erreur de validation</em> interchangeablement.</li>
 </ul>
-<p>L’erreur d’entraînement quantifie la performance de notre modèle à prédire les données même sur lequel il a été/est entraîné.
-Dans ce cas, l’erreur obtenue ne sera pas représentative de l’erreur de généralisation.
-Il faut garder en tête que l’objectif est de prédire de <strong>nouvelles</strong> valeurs <span class="math inline">\(y\)</span> à l’aide de <strong>nouvelles</strong> valeurs <span class="math inline">\(\mathbf{x}\)</span>; l’<em>erreur de généralisation</em> est donc au coeur de nos préoccupations.
-<strong>Ainsi, s’il y a normalisation à faire (voir Section <a href="preprop.html#preprop">5</a>), on normalise le jeu d’entraînement sans utiliser les jeux de validation et de test.</strong></p>
+<p>L’erreur d’entraînement quantifie la performance de notre modèle à prédire les données même sur lequel il a été/est entraîné. Dans ce cas, l’erreur obtenue ne sera pas représentative de l’erreur de généralisation. Il faut garder en tête que l’objectif est de prédire de <strong>nouvelles</strong> valeurs <span class="math inline">\(y\)</span> à l’aide de <strong>nouvelles</strong> valeurs <span class="math inline">\(\mathbf{x}\)</span>; l’<em>erreur de généralisation</em> est donc au coeur de nos préoccupations. <strong>Ainsi, s’il y a normalisation à faire (voir Section <a href="preprop.html#preprop">5</a>), on normalise le jeu d’entraînement sans utiliser les jeux de validation et de test.</strong></p>
 </div>
 <div id="exemple-bixi" class="section level3">
 <h3><span class="header-section-number">6.1.3</span> Exemple bixi</h3>
-<p>Avec la quantité de données à notre disposition pour l’exemple bixi, il est raisonnable de séparer nos données en trois partie.
-À la section <a href="preprop.html#preprop">5</a>, nous avions déjà séparé notre jeu en deux (entr/test), sortons un troisième jeu de nos données d’entraînement.</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Nos données</span>
-<span class="co"># X_reg</span>
-
-<span class="co"># Enlevons-en masse, nous ne sommes pas à plaindre</span>
-<span class="co"># Sinon, des problèmes de mémoires pourraient être irritants.</span>
-ind_val &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">nrow</span>(X_reg), <span class="kw">nrow</span>(X_reg)<span class="op">/</span><span class="dv">2</span>)
-X_val &lt;-<span class="st"> </span>X_reg[ind_val,]
-X_train &lt;-<span class="st"> </span>X_reg[<span class="op">-</span>ind_val,]
-y_val &lt;-<span class="st"> </span>y_reg[ind_val]
-y_train &lt;-<span class="st"> </span>y_reg[<span class="op">-</span>ind_val]
-<span class="kw">rm</span>(X_reg)
-<span class="kw">rm</span>(y_reg)
-<span class="co"># On s&#39;occupera du test en temps et lieu.</span></code></pre>
+<p>Avec la quantité de données à notre disposition pour l’exemple bixi, il serait raisonnable de séparer nos données en trois partie, mais à des fins pédagogiques, nous utiliserons la validation croisée en fin de chapitre. <strong>Attention</strong> : Certaines considérations par rapport à la dimension temporelle des données sont laissées de côté. Celles-ci pourraient mettre en doute la validité de notre analyse…</p>
 </div>
 </div>
 <div id="description" class="section level2">
 <h2><span class="header-section-number">6.2</span> Description classique</h2>
 <p><span style="color:fuchsia"><strong>Concepts clefs : régression vs. classification</strong></span></p>
-<p>Commençons d’abord en reformulant l’équation <a href="metho.html#eq:approx">(6.1)</a> en tant qu’égalité stricte.
-Pour ce faire, on introduit une quantité aléatoire <span class="math inline">\(\varepsilon\)</span> qui représente la variabilité non captée par notre modèle.
-Cela donne l’équation
+Commençons d’abord en reformulant l’équation <a href="metho.html#eq:approx">(6.1)</a> en tant qu’égalité stricte. Pour ce faire, on introduit une quantité aléatoire <span class="math inline">\(\varepsilon\)</span> qui représente la variabilité non captée par notre modèle. Cela donne l’équation
 <span class="math display" id="eq:equal">\[\begin{equation}
   y = f(\mathbf{x}) + \varepsilon.
   \tag{6.2}
 \end{equation}\]</span>
-Pour une variable réponse <span class="math inline">\(y\)</span> continue, il est naturel de faire les deux hypothèses suivantes à propos de <span class="math inline">\(\varepsilon\)</span>:</p>
+<p>Pour une variable réponse <span class="math inline">\(y\)</span> continue, il est naturel de faire les deux hypothèses suivantes à propos de <span class="math inline">\(\varepsilon\)</span>:</p>
 <ul>
 <li>son espérance est nulle, c’est-à-dire <span class="math inline">\(\mathbf{E}(\varepsilon) = 0\)</span>; et</li>
 <li>elle est indépendante de <span class="math inline">\(\mathbf{x}\)</span>.</li>
 </ul>
-<p>Ceci nous permet entre autres d’ignorer <span class="math inline">\(\varepsilon\)</span> lorsque vient le temps de faire une prédiction.
-Étant donné <span class="math inline">\(\mathbf{x}\)</span>, on s’attend à ce qu’en moyenne <span class="math inline">\(y\)</span> soit égale à <span class="math inline">\(f(\mathbf{x})\)</span>, <em>i.e.</em> <span class="math inline">\(\mathbf{E}(y) = f(\mathbf{x})\)</span>.</p>
-<p>En introduisant <span class="math inline">\(\varepsilon\)</span>, on admet l’existence d’une erreur <em>irréductible</em> : même si nous réussissions à estimer <span class="math inline">\(f\)</span> parfaitement, il faudrait s’attendre à ce que nos prédictions ne soient pas nécéssairement parfaites.
-Par exemple, faisons comme si nous savions que nos données sont telles que <span class="math inline">\(y_i = 2x_i + \varepsilon_i\)</span> et générons <span class="math inline">\(n=25\)</span> observations à partir de ce modèle pour visualiser le phénomène.</p>
+<p>Ceci nous permet entre autres d’ignorer <span class="math inline">\(\varepsilon\)</span> lorsque vient le temps de faire une prédiction. Étant donné <span class="math inline">\(\mathbf{x}\)</span>, on s’attend à ce qu’en moyenne <span class="math inline">\(y\)</span> soit égale à <span class="math inline">\(f(\mathbf{x})\)</span>, <em>i.e.</em> <span class="math inline">\(\mathbf{E}(y) = f(\mathbf{x})\)</span>.</p>
+<p>En introduisant <span class="math inline">\(\varepsilon\)</span>, on admet l’existence d’une erreur <em>irréductible</em> : même si nous réussissions à estimer <span class="math inline">\(f\)</span> parfaitement, il faudrait s’attendre à ce que nos prédictions ne soient pas nécéssairement parfaites. Par exemple, faisons comme si nous savions que nos données sont telles que <span class="math inline">\(y_i = 2x_i + \varepsilon_i\)</span> et générons <span class="math inline">\(n=25\)</span> observations à partir de ce modèle pour visualiser le phénomène.</p>
 <center>
 <img src="static-files/irreducible.png" style="width:50.0%" />
 </center>
 <p>Aucune des prédictions (qui se trouvent sur la droite) ne correspond à la vraie valeur <span class="math inline">\(y\)</span> observée.</p>
-<p>L’intuition est qu’on admet la présence de facteurs influençant <span class="math inline">\(y\)</span> auxquels nous n’avons pas accès (qui ne sont pas mesurés) ou qui ne sont simplement pas mesurables.
-L’utilisation d’un modèle <span class="math inline">\(f\)</span> qui ne permet pas de capturer l’essentiel de la relation entre <span class="math inline">\(\mathbf{x}\)</span> et <span class="math inline">\(y\)</span> peut aussi limiter notre potentiel de réduction de l’erreur.
-Ce qui est en notre pouvoir (du moins, si on exclut la re-collecte de données) concerne la fonction <span class="math inline">\(f\)</span>.
-Il est donc important de choisir une famille de modèles appropriée pour le problème qui nous intéresse.</p>
+<p>L’intuition est qu’on admet la présence de facteurs influençant <span class="math inline">\(y\)</span> auxquels nous n’avons pas accès (qui ne sont pas mesurés) ou qui ne sont simplement pas mesurables. L’utilisation d’un modèle <span class="math inline">\(f\)</span> qui ne permet pas de capturer l’essentiel de la relation entre <span class="math inline">\(\mathbf{x}\)</span> et <span class="math inline">\(y\)</span> peut aussi limiter notre potentiel de réduction de l’erreur. Ce qui est en notre pouvoir (du moins, si on exclut la re-collecte de données) concerne la fonction <span class="math inline">\(f\)</span>. Il est donc important de choisir une famille de modèles appropriée pour le problème qui nous intéresse.</p>
 </div>
 <div id="famille" class="section level2">
 <h2><span class="header-section-number">6.3</span> Familles de modèles</h2>
-<p>Le choix d’une famille de modèles est intimement lié à la tâche qu’on souhaite résoudre et aux données à disposition.
-En se restreignant à une certaine famille, on impose un ensemble de contraintes à la fonction <span class="math inline">\(f\)</span> de l’équation <a href="metho.html#eq:equal">(6.2)</a>, ce qui limite le type de relation entre <span class="math inline">\(Y\)</span> et <span class="math inline">\(\mathbf{X}\)</span> qu’il sera possible d’apprendre ; paradoxalement, c’est aussi ce qui permet l’apprentissage.
-On divise généralement les problèmes en deux grandes catégories : la régression et la classification.
-La régression sous-entend une variable réponse continue, <em>e.g.</em> la grandeur d’une individue ; la classification sous-entend une variable réponse catégorique (une classe), <em>e.g.</em> chat ou chien.
-La différence entre les deux tâches est évidente, mais parfois la ligne peut être mince : par exemple pour classifier des observations/exemples, souvent on modélise la probabilité qu’une observation appartienne à certaine une classe, ce qui revient en quelque sorte à modéliser une variable réponse continue (une fréquence).
-On assigne ensuite l’observation à la classe la plus probable.</p>
+<p>Le choix d’une famille de modèles est intimement lié à la tâche qu’on souhaite résoudre et aux données à disposition. En se restreignant à une certaine famille, on impose un ensemble de contraintes à la fonction <span class="math inline">\(f\)</span> de l’équation <a href="metho.html#eq:equal">(6.2)</a>, ce qui limite le type de relation entre <span class="math inline">\(Y\)</span> et <span class="math inline">\(\mathbf{X}\)</span> qu’il sera possible d’apprendre ; paradoxalement, c’est aussi ce qui permet l’apprentissage. On divise généralement les problèmes en deux grandes catégories : la régression et la classification. La régression sous-entend une variable réponse continue, <em>e.g.</em> la grandeur d’une individue ; la classification sous-entend une variable réponse catégorique (une classe), <em>e.g.</em> chat ou chien. La différence entre les deux tâches est évidente, mais parfois la ligne peut être mince : par exemple pour classifier des observations/exemples, souvent on modélise la probabilité qu’une observation appartienne à certaine une classe, ce qui revient en quelque sorte à modéliser une variable réponse continue (une fréquence). On assigne ensuite l’observation à la classe la plus probable.</p>
 <div id="regression" class="section level3">
 <h3><span class="header-section-number">6.3.1</span> Régression</h3>
-<p>Par exemple, la (populaire) régression linéaire sous-entend une relation linéaire entre la variable réponse et les facteur explicatifs :
+Par exemple, la (populaire) régression linéaire sous-entend une relation linéaire entre la variable réponse et les facteur explicatifs :
 <span class="math display" id="eq:reg">\[\begin{equation}
   y = \beta_0 + \beta_1 x_1 + \dots + \beta_d x_d + \varepsilon
   \tag{6.3}
 \end{equation}\]</span>
-Ici, les paramètres <span class="math inline">\(\mathbf{\beta} = (\beta_0,\dots,\beta_d)\)</span> déterminent comment un changement porté aux variables explicatrices influencera la prédiction.</p>
-<p>Avec nos données bixi, faisons une régression linéaire pour prédire la durée d’un trajet et une classification binaire pour prédire si un utilisateur terminera sa course dans le même arondissement ou non.
-Nous l’effectuerons avec la librairie <code>glmnet</code>(vignette : <a href="https://web.stanford.edu/~hastie/glmnet/glmnet_alpha.html">glmnet</a>).</p>
+<p>Ici, les paramètres <span class="math inline">\(\mathbf{\beta} = (\beta_0,\dots,\beta_d)\)</span> déterminent comment un changement porté aux variables explicatrices influencera la prédiction.</p>
+<p>Avec nos données bixi, faisons une régression linéaire pour prédire la durée d’un trajet et une classification binaire pour prédire si un utilisateur terminera sa course dans le même arondissement ou non. Nous l’effectuerons avec la librairie <code>glmnet</code>(vignette : <a href="https://web.stanford.edu/~hastie/glmnet/glmnet_alpha.html">glmnet</a>).</p>
 </div>
 <div id="classification" class="section level3">
 <h3><span class="header-section-number">6.3.2</span> Classification</h3>
-<p>Pour une variable réponse catégorique (disons <span class="math inline">\(K\)</span> classes), la régression de <a href="metho.html#eq:reg">(6.3)</a> n’est pas conseillée.
-On peut toutefois la modifier légèrement pour trouver un modèle de classification très répandu : la régression logistique.
-Restons dans le cas binaire pour plus de clarté.
-La clef consiste à considérer non pas notre réponse <span class="math inline">\(Y\)</span>, mais <span class="math inline">\(y^* = \mathbb{P}[Y = 1 | \mathbf{X}]\)</span>, la probabilité que <span class="math inline">\(Y = 1\)</span> conditionellement aux valeurs des variables explicatives <span class="math inline">\(\mathbf{x}\)</span>.
-Un problème majeur avec la régression en <a href="metho.html#eq:reg">(6.3)</a> est son incapacité à contraindre la réponse entre 0 et 1, l’espace naturel pour une probabilité.
-Pour intégrer cette contrainte au modèle, on considère les <em>log-cotes</em> (<em>log-odds</em>) avec la fonction <em>logit</em> (<em>logistic unit</em>), ce qui donne
-<span class="math display">\[
+<p>Pour une variable réponse catégorique (disons <span class="math inline">\(K\)</span> classes), la régression de <a href="metho.html#eq:reg">(6.3)</a> n’est pas conseillée. On peut toutefois la modifier légèrement pour trouver un modèle de classification très répandu : la régression logistique. Restons dans le cas binaire pour plus de clarté. La clef consiste à considérer non pas notre réponse <span class="math inline">\(Y\)</span>, mais <span class="math inline">\(y^* = \mathbb{P}[Y = 1 | \mathbf{X}]\)</span>, la probabilité que <span class="math inline">\(Y = 1\)</span> conditionellement aux valeurs des variables explicatives <span class="math inline">\(\mathbf{x}\)</span>. Un problème majeur avec la régression en <a href="metho.html#eq:reg">(6.3)</a> est son incapacité à contraindre la réponse entre 0 et 1, l’espace naturel pour une probabilité. Pour intégrer cette contrainte au modèle, on considère les <em>log-cotes</em> (<em>log-odds</em>) avec la fonction <em>logit</em> (<em>logistic unit</em>), ce qui donne <span class="math display">\[
   \mathrm{ln}\left( \frac{y^*}{1-y^*} \right) = \beta_0 + \beta_1 x_1 + \dots + \beta_d x_d + \varepsilon.
-\]</span>
-Ce modèle est généralisable pour un problème de classification multi-classes.</p>
-<p>En fin de chapitre, un modèle de classification est effectué à l’aide de la librairie <code>xgboost</code> (vignette : <a href="https://xgboost.readthedocs.io/en/release_0.72/R-package/xgboostPresentation.html">XGBoost</a>), qui permet de faire du <em>boosting</em> d’arbres de décision.
-Le concept de <em>boosting</em> y est brièvement expliqué.</p>
+\]</span> Ce modèle est généralisable pour un problème de classification multi-classes.</p>
+<p>En fin de chapitre, un modèle de classification est effectué à l’aide de la librairie <code>xgboost</code> (vignette : <a href="https://xgboost.readthedocs.io/en/release_0.72/R-package/xgboostPresentation.html">XGBoost</a>), qui permet de faire du <em>boosting</em> d’arbres de décision. Le concept de <em>boosting</em> y est brièvement expliqué.</p>
 </div>
 <div id="complexite-et-disponibilite-des-donnees" class="section level3">
 <h3><span class="header-section-number">6.3.3</span> Complexité et disponibilité des données</h3>
-<p>La plupart du temps, les modèles plus contraignants sont favorisés lorsque peu d’observations sont disponibles pour prendre avantage d’une structure dans les données qui est connue (ou supposée) <em>à priori</em>.
-Certains modèles comme les réseaux de neurones profonds sont reconnus pour être efficaces dans des cas ou la relation entre les variables est très complexe, mais requierent généralement une grande quantité de données.
-Certains modèles plus simples, comme la régression linéaire, sont parfois choisient pour leur interprétabilité.</p>
-<p>Certains pourraient dire (avec raison) que que les modèles choisis pour la régression et la classification avec nos données bixi sont des <em>overkill</em> pour leur tâche respective, mais leur présentation en vaut la peine.
-D’autres librairies intéressantes (et nous passons à côté de beaucoup d’autres!) sont <code>mxnet</code> (deep learning, on prêche pour la paroisse!), <code>keras</code> (deep learning), <code>randomForest</code> (<em>random forests</em>) et <code>e1071</code> (<em>support vecteur machines</em>).</p>
+<p>La plupart du temps, les modèles plus contraignants sont favorisés lorsque peu d’observations sont disponibles pour prendre avantage d’une structure dans les données qui est connue (ou supposée) <em>à priori</em>. Certains modèles comme les réseaux de neurones profonds sont reconnus pour être efficaces dans des cas ou la relation entre les variables est très complexe, mais requierent généralement une grande quantité de données. Certains modèles plus simples, comme la régression linéaire, sont parfois choisient pour leur interprétabilité.</p>
+<p>Certains pourraient dire (avec raison) que que les modèles choisis pour la régression et la classification sur nos données bixi sont des <em>overkill</em> pour leur tâche respective, mais leur présentation en vaut la peine. D’autres librairies intéressantes (et nous passons à côté de beaucoup d’autres!) sont <code>mxnet</code> (deep learning, on prêche pour la paroisse!), <code>keras</code> (deep learning), <code>randomForest</code> (<em>random forests</em>) et <code>e1071</code> (<em>support vecteur machines</em>).</p>
 </div>
 <div id="variables-a-inclure" class="section level3">
 <h3><span class="header-section-number">6.3.4</span> Variables à inclure</h3>
-<p>Même lorsqu’on se limite à une famille de modèles, il reste à déterminer quelles variables seront incluses.
-L’option simple : toutes les inclure.
-On verra plus tard que ce n’est pas toujours souhaitable, en particulier si certaines d’entre elles ne sont pas pertinentes.
-Des procédures existent pour sélectionner les variables incluses ; nous en verrons à la sous-section <a href="metho.html#regularisation">6.4.1</a>.
-On peut aussi vouloir considérer des intéractions entre les variables, c’est-à-dire artificiellement ajouter des termes du style <span class="math inline">\(\beta_{*} x_{i} x_{j}\)</span>, ce qui fait exploser le nombre de modèles possibles.
-Laissons ces considérations de côté pour le moment et concentrons-nous sur l’estimation d’un modèle pour lequel les variables sont choisies et figées.</p>
+<p>Même lorsqu’on se limite à une famille de modèles, il reste à déterminer quelles variables seront incluses. L’option simple : toutes les inclure. On verra plus tard que ce n’est pas toujours souhaitable, en particulier si certaines d’entre elles ne sont pas pertinentes. Des procédures existent pour sélectionner les variables incluses ; nous en verrons à la sous-section <a href="metho.html#regularisation">6.4.1</a>. On peut aussi vouloir considérer des intéractions entre les variables, c’est-à-dire artificiellement ajouter des termes du style <span class="math inline">\(\beta_{*} x_{i} x_{j}\)</span>, ce qui fait exploser le nombre de modèles possibles. Laissons ces considérations de côté pour le moment et concentrons-nous sur l’estimation d’un modèle pour lequel les variables sont choisies et figées.</p>
 </div>
 </div>
 <div id="estimation" class="section level2">
 <h2><span class="header-section-number">6.4</span> Estimation d’un modèle</h2>
 <p><span style="color:fuchsia"><strong>Concepts clefs : fonction de perte, <code>predict</code>, pénalités ridge et lasso, sur-apprentissage, hyper-paramètre, compromis biais-variance</strong></span></p>
-<p>Estimer un modèle consiste à déterminer la valeur “optimale” de ses paramètres.
-On cherche donc à minimiser l’erreur d’entraîenement, qu’on quantifie à l’aide d’une fonction de perte <span class="math inline">\(L(y,\hat{y}) = L(y,f(x))\)</span>.
-Celle-ci détermine la pénalité associée à une mauvaise prédiction.
-Dans certains cas comme la détection de fraude, où une transaction identifiée comme frauduleuse sera vérifiée par un agent, on peut vouloir minimiser le nombre de faux négatifs (les transactions frauduleuses qui nous glissent entre les doigts), quitte à introduire plus de faux positifs (des transactions identifiées frauduleuses qui ne le sont pas réellement).
-En d’autres termes, le choix de <span class="math inline">\(L\)</span> doit être motivé par nos attentes par rapport au modèle.</p>
-<p>La fonction de perte la plus populaire est sans contredit l’erreur quadratique, <span class="math inline">\(L(y,\hat{y}) = (\hat{y} - y)^2\)</span>.
-Puisque nous avons à notre disposition plusieurs observations (supposées indépendantes), il s’agit de minimiser la somme des erreurs individuelles (une par observation).
-Par exemple, combinée à la régression linéaire, l’erreur quadratique donne
-<span class="math display">\[
+<p>Estimer un modèle consiste à déterminer la valeur “optimale” de ses paramètres. On cherche donc à minimiser l’erreur d’entraîenement, qu’on quantifie à l’aide d’une fonction de perte <span class="math inline">\(L(y,\hat{y}) = L(y,f(x))\)</span>. Celle-ci détermine la pénalité associée à une mauvaise prédiction. Dans certains cas comme la détection de fraude, où une transaction identifiée comme frauduleuse sera vérifiée par un agent, on peut vouloir minimiser le nombre de faux négatifs (les transactions frauduleuses qui nous glissent entre les doigts), quitte à introduire plus de faux positifs (des transactions identifiées frauduleuses qui ne le sont pas réellement). En d’autres termes, le choix de <span class="math inline">\(L\)</span> doit être motivé par nos attentes par rapport au modèle.</p>
+<p>La fonction de perte la plus populaire est sans contredit l’erreur quadratique, <span class="math inline">\(L(y,\hat{y}) = (\hat{y} - y)^2\)</span>. Puisque nous avons à notre disposition plusieurs observations (supposées indépendantes), il s’agit de minimiser la somme des erreurs individuelles (une par observation). Par exemple, combinée à la régression linéaire, l’erreur quadratique donne <span class="math display">\[
   \boldsymbol{L}(\mathbf{y},\mathbf{\hat{y}}) = \sum_{i=1}^n (y_i - \hat{y}_i)^2 = \sum_{i=1}^n \Big(y_i - (\beta_0 + \beta_1 x_{i1} + \dots + \beta_1 x_{id})\Big)^2.
-\]</span>
-où les variables en gras <span class="math inline">\(\mathbf{y}\)</span> et <span class="math inline">\(\mathbf{\hat{y}})\)</span> sont les vecteurs de réponses et de prédictions respectivement.
-En équation matricielle, classique :
-<span class="math display">\[
+\]</span> où les variables en gras <span class="math inline">\(\mathbf{y}\)</span> et <span class="math inline">\(\mathbf{\hat{y}})\)</span> sont les vecteurs de réponses et de prédictions respectivement. En équation matricielle, classique : <span class="math display">\[
   \boldsymbol{\hat\beta} = \mathrm{argmin}_{\mathbf{\beta}} \ (\mathbf{y} - \mathbf{X}^\top \boldsymbol{\beta})^{\top}(\mathbf{y} - \mathbf{X}^\top \boldsymbol{\beta}) = (\mathbf{X} \mathbf{X}^\top)^{-1} \mathbf{X} \mathbf{y},
-\]</span>
-appelé l’estimateur des moindres carrées.</p>
-<p>Plusieurs librairies R permettent l’ajustement de modèles linéaires généralisés.
-La méthode du maximum de vraisemblance, qui coincide avec la méthodes des moindres carrées pour la régression linéaire, est souvent utilisée pour l’estimation des paramètres (voir <em>e.g.</em> <span class="citation">(Friedman, Hastie, and Tibshirani <a href="#ref-Friedman:2001:ESL">2001</a>)</span> pour plus de détails).
-Nous utilisons ici <code>glmnet</code> pour modéliser la durée d’un trajet.</p>
-<pre class="sourceCode r"><code class="sourceCode r">glm_basic &lt;-<span class="st"> </span><span class="kw">glmnet</span>(<span class="dt">x =</span> <span class="kw">as.matrix</span>(X_train), <span class="dt">y =</span> y_train, <span class="dt">family =</span> <span class="st">&quot;gaussian&quot;</span>, <span class="dt">lambda=</span><span class="dv">0</span>) <span class="co"># On reviendra sur lambda...</span></code></pre>
-<p>L’option <code>family</code> sert à choisir une distribution pour l’erreur irréductible <span class="math inline">\(\varepsilon\)</span>.
-La distribution normale est l’option par défaut.
-Évidemment, on peut toujours ajouter des intéractions entre nos variables (<em>i.e.</em> ajouter à notre régression des termes <span class="math inline">\(\beta_{ij} x_i x_j\)</span>).
-Par exemple pour faire intéragir les zones de départ et moment de la journées :</p>
-<pre class="sourceCode r"><code class="sourceCode r">cols_moment &lt;-<span class="st"> </span><span class="kw">grep</span>(<span class="dt">pattern =</span> <span class="st">&quot;moment&quot;</span>, <span class="kw">names</span>(X_train)) <span class="co"># les nums de colones moment</span>
-cols_sqg &lt;-<span class="st"> </span><span class="kw">grep</span>(<span class="dt">pattern =</span> <span class="st">&quot;start_quartier_group&quot;</span>, <span class="kw">names</span>(X_train)) <span class="co">#les nums de colones</span>
+\]</span> appelé l’estimateur des moindres carrées.</p>
+<p>Plusieurs librairies R permettent l’ajustement de modèles linéaires généralisés. La méthode du maximum de vraisemblance, qui coincide avec la méthodes des moindres carrées pour la régression linéaire, est souvent utilisée pour l’estimation des paramètres (voir <em>e.g.</em> <span class="citation">(Friedman, Hastie, and Tibshirani <a href="#ref-Friedman:2001:ESL">2001</a>)</span> pour plus de détails). Nous utilisons ici <code>glmnet</code> pour modéliser la durée d’un trajet.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">glm_basic &lt;-<span class="st"> </span><span class="kw">glmnet</span>(<span class="dt">x =</span> <span class="kw">as.matrix</span>(X_reg_train), <span class="dt">y =</span> y_reg_train, <span class="dt">family =</span> <span class="st">&quot;gaussian&quot;</span>, <span class="dt">lambda=</span><span class="dv">0</span>) <span class="co"># On reviendra sur lambda...</span></code></pre></div>
+<p>L’option <code>family</code> sert à choisir une distribution pour l’erreur irréductible <span class="math inline">\(\varepsilon\)</span>. La distribution normale est l’option par défaut. Évidemment, on peut toujours ajouter des intéractions entre nos variables (<em>i.e.</em> ajouter à notre régression des termes <span class="math inline">\(\beta_{ij} x_i x_j\)</span>). Par exemple pour faire intéragir les zones de départ et moment de la journées :</p>
+<pre><code>cols_moment &lt;- grep(pattern = &quot;moment&quot;, names(X_reg_train)) # les nums de colones moment
+cols_sqg &lt;- grep(pattern = &quot;start_quartier_group&quot;, names(X_reg_train)) #les nums de colones
 
-cols_pair &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">rep</span>(cols_sqg,<span class="kw">length</span>(cols_moment)),
-                   <span class="kw">rep</span>(cols_moment,<span class="kw">length</span>(cols_sqg))) <span class="co"># toutes les paires</span>
+cols_pair &lt;- cbind(rep(cols_sqg,length(cols_moment)),
+                   rep(cols_moment,length(cols_sqg))) # toutes les paires
 
-<span class="co"># on get back les noms de colonnes et on les colle</span>
-new_names &lt;-<span class="st"> </span><span class="kw">apply</span>(<span class="kw">matrix</span>(<span class="kw">names</span>(X_train)[<span class="kw">c</span>(cols_pair)], <span class="dt">ncol =</span> <span class="dv">2</span>),
-                   <span class="dv">1</span>,
-                   paste0, <span class="dt">collapse =</span> <span class="st">&quot;:::&quot;</span>)
+# on get back les noms de colonnes et on les colle
+new_names &lt;- apply(matrix(names(X_reg_train)[c(cols_pair)], ncol = 2),
+                   1,
+                   paste0, collapse = &quot;:::&quot;)
 
-<span class="co"># Nouveau dataset avec intéractions</span>
-X_new &lt;-<span class="st"> </span><span class="kw">copy</span>(X_train)
-<span class="cf">for</span>(r <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(cols_pair)){
-  i &lt;-<span class="st"> </span>cols_pair[r,<span class="dv">1</span>]
-  j &lt;-<span class="st"> </span>cols_pair[r,<span class="dv">2</span>]
-  X_new[, (new_names[r]) <span class="op">:</span><span class="er">=</span><span class="st"> </span>X_train[,i,with=F]<span class="op">*</span>X_train[,j,with=F]]
+# Nouveau dataset avec intéractions
+X_new &lt;- copy(X_reg_train)
+for(r in 1:nrow(cols_pair)){
+  i &lt;- cols_pair[r,1]
+  j &lt;- cols_pair[r,2]
+  X_new[, (new_names[r]) := X_reg_train[,i,with=F]*X_reg_train[,j,with=F]]
 }</code></pre>
-<p>Tenons-nous en au modèle sans intéractions.
-Pour faire des prédictions avec nos modèles, la fonction <code>predict</code> est toute désignée.
-Il faut simplement lui fournir le modèle et les données explicatives concernées.
-Pour une petite idée de la diversité de nos prédictions par rapport aux réponses :</p>
-<pre class="sourceCode r"><code class="sourceCode r">y_pred &lt;-<span class="st"> </span><span class="kw">predict</span>(<span class="dt">object =</span> glm_basic, <span class="dt">newx =</span> <span class="kw">as.matrix</span>(X_train))
+<p>Tenons-nous en au modèle sans intéractions. Pour faire des prédictions avec nos modèles, la fonction <code>predict</code> est toute désignée. Il faut simplement lui fournir le modèle et les données explicatives concernées. Pour une petite idée de la diversité de nos prédictions par rapport aux réponses :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y_pred &lt;-<span class="st"> </span><span class="kw">predict</span>(<span class="dt">object =</span> glm_basic, <span class="dt">newx =</span> <span class="kw">as.matrix</span>(X_reg_train))
 
-<span class="kw">ggplot</span>(<span class="kw">data.table</span>(<span class="dt">y =</span> <span class="kw">c</span>(y_train,y_pred),
-                  <span class="dt">type=</span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;true&quot;</span>,<span class="kw">length</span>(y_train)),
+<span class="kw">ggplot</span>(<span class="kw">data.table</span>(<span class="dt">y =</span> <span class="kw">c</span>(y_reg_train,y_pred),
+                  <span class="dt">type=</span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;true&quot;</span>,<span class="kw">length</span>(y_reg_train)),
                          <span class="kw">rep</span>(<span class="st">&quot;pred&quot;</span>,<span class="kw">nrow</span>(y_pred)))),
        <span class="kw">aes</span>(<span class="dt">x=</span>y, <span class="dt">fill=</span>type)) <span class="op">+</span>
-<span class="st">  </span><span class="kw">geom_density</span>(<span class="dt">alpha =</span> <span class="fl">.5</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_minimal</span>()</code></pre>
-<p><img src="_main_files/figure-html/unnamed-chunk-41-1.png" width="50%" style="display: block; margin: auto;" />
-Évidemment, plus de variables explicatives sont nécessaires pour prédire les valeurs extrêmes.
-Aussi, il semble que les grandes valeurs (en réponse) influencent nos prédictions à la hausse.
-Un peu trop peut-être?
-Le modèle fait tout de même des prédictions personnalisées.</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># permet de voir la valeur des paramètres</span>
-<span class="kw">coef.glmnet</span>(glm_basic)</code></pre>
+<span class="st">  </span><span class="kw">geom_density</span>(<span class="dt">alpha =</span> .<span class="dv">5</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_minimal</span>()</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-38-1.png" width="50%" style="display: block; margin: auto;" /> Évidemment, plus de variables explicatives sont nécessaires pour prédire les valeurs extrêmes. Aussi, il semble que les grandes valeurs (en réponse) influencent nos prédictions à la hausse. Un peu trop peut-être? Le modèle fait tout de même des prédictions personnalisées.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># permet de voir la valeur des paramètres</span>
+<span class="kw">coef.glmnet</span>(glm_basic)</code></pre></div>
 <pre><code>## 10 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                                                  s0
-## (Intercept)                             1261.784932
-## is_member                               -466.672321
-## weekend_flag                              50.706616
-## start_quartier_group.plateau_mont_royal -170.911583
-## start_quartier_group.sud_ouest            53.463823
-## start_quartier_group.ville_marie         -40.096503
-## start_quartier_group.autre               344.321702
-## moment_journee.matin                      -9.716465
-## moment_journee.nuit                      -59.815929
-## moment_journee.soir                       -3.389197</code></pre>
+## (Intercept)                             1261.261321
+## is_member                               -465.522433
+## weekend_flag                              51.740226
+## start_quartier_group.plateau_mont_royal -171.929384
+## start_quartier_group.sud_ouest            53.525984
+## start_quartier_group.ville_marie         -40.623026
+## start_quartier_group.autre               329.454261
+## moment_journee.matin                     -10.429192
+## moment_journee.nuit                      -58.456705
+## moment_journee.soir                       -4.583453</code></pre>
 <div id="option-caret" class="section level4">
 <h4><span class="header-section-number">6.4.0.1</span> Option <code>caret</code></h4>
 <pre><code>on_y_reviendra &lt;- trainControl(method=&quot;none&quot;)
-glm_basic &lt;- train(X_train, y_train,
+glm_basic &lt;- train(X_reg_train, y_reg_train,
                     method = &quot;glmnet&quot;, 
                     trControl = on_y_reviendra,
                     metric = &quot;RMSE&quot;, # Peut-être aimerions-nous &quot;MAE&quot; ici?
@@ -537,70 +436,40 @@ glm_basic &lt;- train(X_train, y_train,
 </div>
 <div id="regularisation" class="section level3">
 <h3><span class="header-section-number">6.4.1</span> Un mot sur la régularisation</h3>
-<p>Lorsque beaucoup de variables explicatives (ou des fonctions de celles-ci) sont considérées simultanément, il est possible qu’un sous-ensemble d’entre elles ne soit pas pertinent pour la tâche à effectuer.
-Plus généralement, lorsqu’un modèle est sur-paramétrisé par rapport à la quantité d’observations disponible, les techniques classiques d’estimation doivent être revues pour éviter le sur-apprentissage (<em>overfit</em>).
-Le danger est que le modèle apprenne (en quelque sorte par coeur) le jeu de données d’entraînement, ce qui diminue son pouvoir de généralisation.</p>
-<p>Les techniques de régularisation permettent de mitiger ces effets négatifs en modulant l’importance de certaines variables pour la prédiction.
-Nous l’expliquons ici dans le contexte de la régression linéaire, mais l’idée est valide ou généralisable pour plusieurs modèles.
-L’approche consiste à ajouter une pénalité (appliquée aux paramètres <span class="math inline">\(\boldsymbol{\beta}\)</span>) à la fonction de perte <span class="math inline">\(L\)</span>, c’est-à-dire
-<span class="math display">\[
+<p>Lorsque beaucoup de variables explicatives (ou des fonctions de celles-ci) sont considérées simultanément, il est possible qu’un sous-ensemble d’entre elles ne soit pas pertinent pour la tâche à effectuer. Plus généralement, lorsqu’un modèle est sur-paramétrisé par rapport à la quantité d’observations disponible, les techniques classiques d’estimation doivent être revues pour éviter le sur-apprentissage (<em>overfit</em>). Le danger est que le modèle apprenne (en quelque sorte par coeur) le jeu de données d’entraînement, ce qui diminue son pouvoir de généralisation.</p>
+<p>Les techniques de régularisation permettent de mitiger ces effets négatifs en modulant l’importance de certaines variables pour la prédiction. Nous l’expliquons ici dans le contexte de la régression linéaire, mais l’idée est valide ou généralisable pour plusieurs modèles. L’approche consiste à ajouter une pénalité (appliquée aux paramètres <span class="math inline">\(\boldsymbol{\beta}\)</span>) à la fonction de perte <span class="math inline">\(L\)</span>, c’est-à-dire <span class="math display">\[
   \sum_{i=1}^n L(y_i,f(\mathbf{x}_i | \boldsymbol\beta )) + \lambda P(\beta), \qquad \lambda \in \mathbb{R}.
-\]</span>
-Le coefficient <span class="math inline">\(\lambda\)</span> est un <em>hyper-paramètre</em> controlant le degré de régularisation que nous souhaitons appliquer.
-La plupart du temps (par choix), la fonction <span class="math inline">\(P\)</span> pénalise davantage les vecteurs <span class="math inline">\(\boldsymbol{\beta}\)</span> avec de grandes valeurs.
-Encore une fois, la norme euclidienne (carrée) qu’on utilise aussi pour la fonction de perte est très populaire.
-<span class="math display">\[
+\]</span> Le coefficient <span class="math inline">\(\lambda\)</span> est un <em>hyper-paramètre</em> controlant le degré de régularisation que nous souhaitons appliquer. La plupart du temps (par choix), la fonction <span class="math inline">\(P\)</span> pénalise davantage les vecteurs <span class="math inline">\(\boldsymbol{\beta}\)</span> avec de grandes valeurs. Encore une fois, la norme euclidienne (carrée) qu’on utilise aussi pour la fonction de perte est très populaire. <span class="math display">\[
   P(\boldsymbol{\hat\beta}) = ||\boldsymbol{\hat\beta}||_2^2 = \sum_{j=1}^p \hat\beta_j^2.
-\]</span>
-Sa combinaison avec la régression porte le nom de régression <em>ridge</em>.
-On l’utilise pour atténuer l’impact du bruit (la variance introduite par les variables non-pertinentes).
-Intuitiviment, si certains coeficients <span class="math inline">\(\beta_j\)</span> sont artificiellement gonflés, alors on devrait obtenir une meilleure erreur de généralization lorsque ces derniers sont réduits.
-La librairie <code>glmnet</code> permet la régression ridge avec le paramètre <code>lambda</code> avec <em>e.g.</em></p>
-<pre><code>glmnet::glmnet(x = as.matrix(X_train), y = y_train, family = &quot;gaussian&quot;, lambda=1, alpha = 0) # alpha = 0 est necessaire</code></pre>
-<p>Pour des raisons computationelles (et de convergence), il n’est toutefois pas conseillé de fournir une valeur unique pour <code>lambda</code> à la fonction <code>glmnet</code>, mais plutôt un ensemble de valeurs pour chacunes desquelles l’algorithme ajustera un modèle.
-Si aucune valeur n’est fournie, la fonction en choisiera automatiquement 100 (ou moins).</p>
-<p>Une deuxième pénalité très populaire est la somme des valeurs absolues des paramètres (la méthode <em>lasso</em>) :
-<span class="math display">\[
+\]</span> Sa combinaison avec la régression porte le nom de régression <em>ridge</em>. On l’utilise pour atténuer l’impact du bruit (la variance introduite par les variables non-pertinentes). Intuitiviment, si certains coeficients <span class="math inline">\(\beta_j\)</span> sont artificiellement gonflés, alors on devrait obtenir une meilleure erreur de généralization lorsque ces derniers sont réduits. La librairie <code>glmnet</code> permet la régression ridge avec le paramètre <code>lambda</code> avec <em>e.g.</em></p>
+<pre><code>glmnet::glmnet(x = as.matrix(X_reg_train), y = y_reg_train, family = &quot;gaussian&quot;, lambda=1, alpha = 0) # alpha = 0 est necessaire</code></pre>
+<p>Pour des raisons computationelles (et de convergence), il n’est toutefois pas conseillé de fournir une valeur unique pour <code>lambda</code> à la fonction <code>glmnet</code>, mais plutôt un ensemble de valeurs pour chacunes desquelles l’algorithme ajustera un modèle. Si aucune valeur n’est fournie, la fonction en choisiera automatiquement 100 (ou moins).</p>
+<p>Une deuxième pénalité très populaire est la somme des valeurs absolues des paramètres (la méthode <em>lasso</em>) : <span class="math display">\[
   P(\boldsymbol{\hat\beta}) = \sum_{j=1}^p |\hat\beta_j|.
-\]</span>
-Son grand avantage est qu’elle force, pour une intensité <span class="math inline">\(\lambda\)</span> assez forte, certains paramètres à zéro exactement (et non pas seulement à être petits).
-Dans ce cas, il est ensuite plus facile d’identifier les variables explicatives significatives et d’interpréter le modèle.
-La fonction <code>glmnet</code> applique cette pénalité par défault avec <code>alpha = 1</code>.
-En fait, <code>alpha</code> permet de pondérer les pénalités <em>ridge</em> et <em>lasso</em>, et donc d’utiliser les deux à la fois (la technique <em>elastic net</em>).
-Notez que <code>lambda</code> est encore utilisé avec le <em>lasso</em>.</p>
-<p>D’une certaine façon, la méthode <em>lasso</em> généralise donc les méthodes de sélection de variables classique (<em>step-wise/forward/backward selection</em>).
-Par exemple, avec la <em>forward selection</em>, on commence avec <span class="math inline">\(\beta_0\)</span> seulement et on intègre une à une les variables en commençant par les plus significatives (selon un test statistique choisi).
+\]</span> Son grand avantage est qu’elle force, pour une intensité <span class="math inline">\(\lambda\)</span> assez forte, certains paramètres à zéro exactement (et non pas seulement à être petits). Dans ce cas, il est ensuite plus facile d’identifier les variables explicatives significatives et d’interpréter le modèle. La fonction <code>glmnet</code> applique cette pénalité par défault avec <code>alpha = 1</code>. En fait, <code>alpha</code> permet de pondérer les pénalités <em>ridge</em> et <em>lasso</em>, et donc d’utiliser les deux à la fois (la technique <em>elastic net</em>). Notez que <code>lambda</code> est encore utilisé avec le <em>lasso</em>.</p>
+D’une certaine façon, la méthode <em>lasso</em> généralise donc les méthodes de sélection de variables classique (<em>step-wise/forward/backward selection</em>). Par exemple, avec la <em>forward selection</em>, on commence avec <span class="math inline">\(\beta_0\)</span> seulement et on intègre une à une les variables en commençant par les plus significatives (selon un test statistique choisi).
 <span class="math display">\[\begin{equation}
   f_1(\mathbf{x}) = \beta0 \quad \rightarrow \quad f_2(\mathbf{x}) = \beta0 + \beta_7 x_7  \quad \rightarrow \dots \quad f_3(\mathbf{x}) = \beta0 + \beta_7 x_7  + \beta_2 x_2   \quad \rightarrow \dots
 \end{equation}\]</span>
-La <em>backward selection</em> est définie similairement, mais en partant du modèle complet et en éliminant des variables non-significatives.
-Finalement, ces dernières peuvent être combinées en une méthode qui, à chaque étape, peut entrer et/ou sortir des variables du modèle.
-Comme le nombre de variables incluses dans le modèle n’est pas directement un paramètre du modèle lui-même, on peut le considérer comme un hyper-paramètre, équivalent au <span class="math inline">\(\lambda\)</span> du <em>lasso</em>.</p>
+<p>La <em>backward selection</em> est définie similairement, mais en partant du modèle complet et en éliminant des variables non-significatives. Finalement, ces dernières peuvent être combinées en une méthode qui, à chaque étape, peut entrer et/ou sortir des variables du modèle. Comme le nombre de variables incluses dans le modèle n’est pas directement un paramètre du modèle lui-même, on peut le considérer comme un hyper-paramètre, équivalent au <span class="math inline">\(\lambda\)</span> du <em>lasso</em>.</p>
 </div>
 <div id="les-hyper-parametres-et-le-compromis-biais-variance" class="section level3">
 <h3><span class="header-section-number">6.4.2</span> Les hyper-paramètres et le compromis biais-variance</h3>
-<p>Pour comprendre pourquoi l’inclusion de toutes les variables n’est pas toujours avantageuse, ou plus généralement la pertinence de la régularisation, il faut s’attarder au concept de <em>compromis biais-variance</em>.
-Dans le cas de la régression linéaire, la fonction <span class="math inline">\(f(\cdot| \boldsymbol{\hat\beta})\)</span> estimée dépend des données par l’entremise de <span class="math inline">\(\boldsymbol{\hat\beta}\)</span>, c’est donc dire qu’avec un autre jeu de données (provenant de la même distribution) on obtiendrait un modèle différent.
-La variance inhérente au processus d’estimation est une composante importante de l’<em>erreur de généralisation</em>.
-L’erreur de généralisation au point <span class="math inline">\(\mathbf{x}_0\)</span> est donnée par
+Pour comprendre pourquoi l’inclusion de toutes les variables n’est pas toujours avantageuse, ou plus généralement la pertinence de la régularisation, il faut s’attarder au concept de <em>compromis biais-variance</em>. Dans le cas de la régression linéaire, la fonction <span class="math inline">\(f(\cdot| \boldsymbol{\hat\beta})\)</span> estimée dépend des données par l’entremise de <span class="math inline">\(\boldsymbol{\hat\beta}\)</span>, c’est donc dire qu’avec un autre jeu de données (provenant de la même distribution) on obtiendrait un modèle différent. La variance inhérente au processus d’estimation est une composante importante de l’<em>erreur de généralisation</em>. L’erreur de généralisation au point <span class="math inline">\(\mathbf{x}_0\)</span> est donnée par
 <span class="math display">\[\begin{equation}
   \mathbb{E}[(Y - \hat{f}(\mathbf{x}_0))^2 | \mathbf{x}_0] = \mathbb{V}{\rm ar}(\hat{f}(\mathbf{x}_0)) + {\rm Biais}
 [\hat{f}(\mathbf{x}_0)]^2 + \mathbb{V}{\rm ar}(\varepsilon).
 \end{equation}\]</span>
-Le dernier terme est l’erreur irréductible, sur laquelle (par définition) on n’a pas de contrôle.
-Les deux premiers termes sont le biais (au carré) et la variance de l’estimateur <span class="math inline">\(\hat{f}\)</span> de <span class="math inline">\(f\)</span> (<em>e.g.</em> l’estimateur <span class="math inline">\(f(\cdot | \hat\beta)\)</span> de <span class="math inline">\(f(\cdot | \beta)\)</span>).
-L’introduction d’une pénalité augmente le biais : certains paramètres se voient réduits injustement et on s’éloigne de leur vraie valeur.
-Par contre, l’effet sur la variance va dans l’autre sens : les modèles plus pénalisés auront tendance à moins changer lorsqu’entraînés sur de nouvelles données.</p>
+<p>Le dernier terme est l’erreur irréductible, sur laquelle (par définition) on n’a pas de contrôle. Les deux premiers termes sont le biais (au carré) et la variance de l’estimateur <span class="math inline">\(\hat{f}\)</span> de <span class="math inline">\(f\)</span> (<em>e.g.</em> l’estimateur <span class="math inline">\(f(\cdot | \hat\beta)\)</span> de <span class="math inline">\(f(\cdot | \beta)\)</span>). L’introduction d’une pénalité augmente le biais : certains paramètres se voient réduits injustement et on s’éloigne de leur vraie valeur. Par contre, l’effet sur la variance va dans l’autre sens : les modèles plus pénalisés auront tendance à moins changer lorsqu’entraînés sur de nouvelles données.</p>
 <p>Pour illustrer l’idée, considérons des données qui proviennet d’un mélange de deux populations normales avec des moyennes différentes.</p>
-<pre class="sourceCode r"><code class="sourceCode r">train_dummy &lt;-<span class="st"> </span><span class="kw">data.table</span>(<span class="dt">y =</span> <span class="kw">sample</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">1</span>, <span class="dv">50</span>, <span class="dt">replace =</span> T))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">train_dummy &lt;-<span class="st"> </span><span class="kw">data.table</span>(<span class="dt">y =</span> <span class="kw">sample</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">1</span>, <span class="dv">50</span>, <span class="dt">replace =</span> T))
 train_dummy[, x1 <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n=</span><span class="dv">50</span>, <span class="dt">mean=</span>y, <span class="dt">sd=</span><span class="dv">1</span><span class="op">/</span><span class="dv">2</span>)]
 train_dummy[, x2 <span class="op">:</span><span class="er">=</span><span class="st"> </span>x1 <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n=</span><span class="dv">50</span>, <span class="dt">mean=</span>y, <span class="dt">sd=</span><span class="dv">1</span><span class="op">/</span><span class="dv">4</span>)]
 g &lt;-<span class="st"> </span><span class="kw">ggplot</span>(train_dummy, <span class="kw">aes</span>(<span class="dt">x=</span>x1, <span class="dt">y=</span>x2, <span class="dt">col=</span><span class="kw">factor</span>(y))) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">size=</span><span class="dv">2</span>) <span class="op">+</span>
 <span class="st">  </span><span class="kw">theme_minimal</span>() <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">col =</span> <span class="st">&quot;classe&quot;</span>)
-g</code></pre>
-<p><img src="_main_files/figure-html/unnamed-chunk-43-1.png" width="60%" style="display: block; margin: auto;" />
-On peut utiliser ces données pour prédire la classe associée à un nouveau point <span class="math inline">\(x_0\)</span> en fonction des (disons) 3 points <span class="math inline">\(x_j\)</span> dans <code>data_dummy</code> les plus près de <span class="math inline">\(x_0\)</span>. C’est une méthode bien connue qui porte le nom de <em>k-nn</em> (<em>k nearest neighbours</em>, k plus proches voisins),</p>
-<pre class="sourceCode r"><code class="sourceCode r">test_dummy &lt;-<span class="st"> </span><span class="kw">data.table</span>(<span class="dt">y =</span> <span class="kw">sample</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">1</span>, <span class="dv">100</span>, <span class="dt">replace =</span> T))
+g</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-40-1.png" width="60%" style="display: block; margin: auto;" /> On peut utiliser ces données pour prédire la classe associée à un nouveau point <span class="math inline">\(x_0\)</span> en fonction des (disons) 3 points <span class="math inline">\(x_j\)</span> dans <code>data_dummy</code> les plus près de <span class="math inline">\(x_0\)</span>. C’est une méthode bien connue qui porte le nom de <em>k-nn</em> (<em>k nearest neighbours</em>, k plus proches voisins),</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test_dummy &lt;-<span class="st"> </span><span class="kw">data.table</span>(<span class="dt">y =</span> <span class="kw">sample</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">1</span>, <span class="dv">100</span>, <span class="dt">replace =</span> T))
 test_dummy[, x1 <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n=</span><span class="dv">100</span>, <span class="dt">mean=</span>y, <span class="dt">sd=</span><span class="dv">1</span><span class="op">/</span><span class="dv">2</span>)]
 test_dummy[, x2 <span class="op">:</span><span class="er">=</span><span class="st"> </span>x1 <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n=</span><span class="dv">100</span>, <span class="dt">mean=</span>y, <span class="dt">sd=</span><span class="dv">1</span><span class="op">/</span><span class="dv">4</span>)]
 
@@ -614,29 +483,22 @@ test_dummy[, succes <span class="op">:</span><span class="er">=</span><span clas
 
 g <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">data =</span> test_dummy, <span class="kw">aes</span>(<span class="dt">x=</span>x1, <span class="dt">y=</span>x2, <span class="dt">colour=</span><span class="kw">factor</span>(y), <span class="dt">shape =</span> <span class="kw">factor</span>(succes, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;non&quot;</span>,<span class="st">&quot;oui&quot;</span>))), <span class="dt">size=</span><span class="dv">2</span>) <span class="op">+</span>
 <span class="st">  </span><span class="kw">scale_shape_manual</span>(<span class="dt">values=</span><span class="kw">c</span>(<span class="dv">4</span>,<span class="dv">0</span>)) <span class="op">+</span>
-<span class="st">  </span><span class="kw">theme_minimal</span>() <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">col =</span> <span class="st">&quot;classe&quot;</span>, <span class="dt">shape =</span> <span class="st">&quot;bonne prédiction&quot;</span>)</code></pre>
-<p><img src="_main_files/figure-html/unnamed-chunk-44-1.png" width="60%" style="display: block; margin: auto;" />
-Ici, <code>k</code> est l’hyper-paramètre.
-Comme plusieurs hyper-paramètres, il sert à “lisser” nos prédictions.
-Plus <span class="math inline">\(k\)</span> est grand, plus on aggrège d’information pour faire notre prédiction.
-Par exemple lorsque <span class="math inline">\(k = n\)</span>, le nombre d’observations dans le jeu d’entraînement, on obtient toujours la même prédiction (la classe avec le plus de représentants, très embettant quand les classes sont de mêmes tailles).
-Approximons l’erreur de généralisation pour chaque valeur de <span class="math inline">\(k\)</span> au point <span class="math inline">\(x_0 = .75\)</span>.
-Notons que <span class="math inline">\(\mathbb{E}[Y|X_1 = .5, X_2 = 1]\)</span> est donné par</p>
-<pre class="sourceCode r"><code class="sourceCode r">x0 &lt;-<span class="st"> </span><span class="kw">c</span>(.<span class="dv">75</span>,.<span class="dv">75</span>)
+<span class="st">  </span><span class="kw">theme_minimal</span>() <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">col =</span> <span class="st">&quot;classe&quot;</span>, <span class="dt">shape =</span> <span class="st">&quot;bonne prédiction&quot;</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-41-1.png" width="60%" style="display: block; margin: auto;" /> Ici, <code>k</code> est l’hyper-paramètre. Comme plusieurs hyper-paramètres, il sert à “lisser” nos prédictions. Plus <span class="math inline">\(k\)</span> est grand, plus on aggrège d’information pour faire notre prédiction. Par exemple lorsque <span class="math inline">\(k = n\)</span>, le nombre d’observations dans le jeu d’entraînement, on obtient toujours la même prédiction (la classe avec le plus de représentants, très embettant quand les classes sont de mêmes tailles). Approximons l’erreur de généralisation pour chaque valeur de <span class="math inline">\(k\)</span> au point <span class="math inline">\(x_0 = .75\)</span>. Notons que <span class="math inline">\(\mathbb{E}[Y|X_1 = .5, X_2 = 1]\)</span> est donné par</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x0 &lt;-<span class="st"> </span><span class="kw">c</span>(.<span class="dv">75</span>,.<span class="dv">75</span>)
 Sig &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">1</span><span class="op">/</span><span class="dv">2</span><span class="op">^</span><span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>) <span class="co"># la matrice de variance-covariance pour la classe 1</span>
 Sig[<span class="dv">2</span>,<span class="dv">2</span>] &lt;-<span class="st"> </span>Sig[<span class="dv">2</span>,<span class="dv">2</span>] <span class="op">+</span><span class="st"> </span><span class="dv">1</span><span class="op">/</span><span class="dv">4</span><span class="op">^</span><span class="dv">2</span> <span class="co"># la variance de x2</span>
-Ex0 &lt;-<span class="st"> </span><span class="kw">dmvnorm</span>(x0, <span class="dt">mean =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="dt">sigma =</span> Sig)<span class="op">/</span>(<span class="kw">dmvnorm</span>(x0, <span class="dt">mean =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="dt">sigma =</span> Sig) <span class="op">+</span><span class="st"> </span><span class="kw">dmvnorm</span>(x0, <span class="dt">mean =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="dt">sigma =</span> Sig)) <span class="co"># la prob conditionnelle que x0 = 1</span></code></pre>
-<p>En générant des données d’entraînement, on peut estimer l’erreur au carré, la variance, et donc l’erreur de généralisation.
-Voici ce que ça donne en fonction de <span class="math inline">\(k\)</span> (2000 répétitions pour chaque valeur de <span class="math inline">\(k\)</span>).</p>
+Ex0 &lt;-<span class="st"> </span><span class="kw">dmvnorm</span>(x0, <span class="dt">mean =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="dt">sigma =</span> Sig)<span class="op">/</span>(<span class="kw">dmvnorm</span>(x0, <span class="dt">mean =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="dt">sigma =</span> Sig) <span class="op">+</span><span class="st"> </span><span class="kw">dmvnorm</span>(x0, <span class="dt">mean =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="dt">sigma =</span> Sig)) <span class="co"># la prob conditionnelle que x0 = 1</span></code></pre></div>
+<p>En générant des données d’entraînement, on peut estimer l’erreur au carré, la variance, et donc l’erreur de généralisation. Voici ce que ça donne en fonction de <span class="math inline">\(k\)</span> (2000 répétitions pour chaque valeur de <span class="math inline">\(k\)</span>).</p>
 <center>
 <img src="static-files/dummy-mse.png" style="width:50.0%" />
 </center>
-<p><strong>Particularité des hyper-paramètres :</strong> Les hyper-paramètres comme <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\lambda\)</span> et <span class="math inline">\(k\)</span> ne peuvent être estimés de façon traditionnelle.
-On détermine souvent leurs valeurs en faisant une recherche en grille (<em>grid search</em>).
-Ceci veut dire que, dans notre cas, nous tenterions plusieurs combinaisons de <code>alpha</code> et <code>lambda</code> pour trouver la <em>meilleure</em> paire.
-Fixons <code>alpha=1</code> et penchons-nous sur <code>lambda</code>.</p>
-<pre class="sourceCode r"><code class="sourceCode r">glms &lt;-<span class="st"> </span><span class="kw">glmnet</span>(<span class="dt">x =</span> <span class="kw">as.matrix</span>(X_train), <span class="dt">y =</span> y_train, <span class="dt">family =</span> <span class="st">&quot;gaussian&quot;</span>)</code></pre>
-<p>Puisque que notre objectif ultime est de minimiser l’erreur de généralisation, on utilise sur celle-ci pour comparer les différents modèles : c’est l’étape de validation des modèles.</p>
+<p><strong>Particularité des hyper-paramètres :</strong> Les hyper-paramètres comme <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\lambda\)</span> et <span class="math inline">\(k\)</span> ne peuvent être estimés de façon traditionnelle. On détermine souvent leurs valeurs en faisant une recherche en grille (<em>grid search</em>). Ceci veut dire que, dans notre cas, nous tenterions plusieurs combinaisons de <code>alpha</code> et <code>lambda</code> pour trouver la <em>meilleure</em> paire. Fixons <code>alpha=1</code> et penchons-nous sur <code>lambda</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">glms &lt;-<span class="st"> </span><span class="kw">glmnet</span>(<span class="dt">x =</span> <span class="kw">as.matrix</span>(X_reg_train), <span class="dt">y =</span> y_reg_train, <span class="dt">family =</span> <span class="st">&quot;gaussian&quot;</span>)
+
+<span class="co"># Qu&#39;est-ce que ça veut dire?</span>
+<span class="kw">plot</span>(glms)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-44-1.png" width="672" /> Puisque que notre objectif ultime est de minimiser l’erreur de généralisation, on utilise sur celle-ci pour comparer les différents modèles : c’est l’étape de validation des modèles.</p>
 </div>
 </div>
 <div id="selection" class="section level2">
@@ -645,50 +507,25 @@ Fixons <code>alpha=1</code> et penchons-nous sur <code>lambda</code>.</p>
 <p>La sélection du modèle finale, ayant comme but de minimiser l’erreur, passe généralement par un compromis entre le nombre de paramètres et la qualité de l’ajustement du modèle, ou directement par l’estimation de l’erreur de généralisation.</p>
 <div id="validation-directe" class="section level3">
 <h3><span class="header-section-number">6.5.1</span> Validation directe</h3>
-<p>La méthode la plus simple consiste à utiliser nos données de validation (si disponibles!)
-À moins qu’une autre fonction de perte ne se présente comme naturelle pour le problème en question, on calcule l’erreur de généralisation de la même façon que l’erreur sur le jeu d’entraînement, c’est-à-dire avec la fonction <span class="math inline">\(\boldsymbol{L}\)</span> ; cette fois-ci en utilisant les données de validation.</p>
-<p>Notre objet <code>glms</code> contient <span class="math inline">\(100\)</span> modèles différents, pour chacun d’eux, estimons l’erreur de généralisation.
-Encore une fois, c’est la fonction <code>predict</code> qui nous permet de faire des prédictions à partir d’un modèle et de variables explicatrices.
-Elle peut être utilisée avec plusieurs types de modèles, à chaque fois avec ses particularités.
-À titre d’exemple, utilisons ici – au lieu de l’erreur quadratique moyenne (<em>MSE</em>, <span class="math inline">\((y - f(x))^2\)</span>) – l’erreur absolue moyenne (<em>MAE</em>, <span class="math inline">\(|y - f(x)|\)</span>) pour quantifier la performance de nos modèles.</p>
-<pre class="sourceCode r"><code class="sourceCode r">pred &lt;-<span class="st"> </span><span class="kw">predict.glmnet</span>(glms, <span class="dt">newx =</span> <span class="kw">as.matrix</span>(X_val)) <span class="co"># avec le jeu de validation</span>
-erreur &lt;-<span class="st"> </span><span class="kw">colMeans</span>(<span class="kw">abs</span>(pred <span class="op">-</span><span class="st"> </span>y_val))
+<p>La méthode la plus simple consiste à utiliser nos données de validation (si disponibles!) À moins qu’une autre fonction de perte ne se présente comme naturelle pour le problème en question, on calcule l’erreur de généralisation de la même façon que l’erreur sur le jeu d’entraînement, c’est-à-dire avec la fonction <span class="math inline">\(\boldsymbol{L}\)</span> ; cette fois-ci en utilisant les données de validation.</p>
+<p>Notre objet <code>glms</code> contient <span class="math inline">\(68\)</span> modèles différents, pour chacun d’eux, estimons l’erreur de généralisation. Encore une fois, c’est la fonction <code>predict</code> qui nous permet de faire des prédictions à partir d’un modèle et de variables explicatrices. Elle peut être utilisée avec plusieurs types de modèles, à chaque fois avec ses particularités. À titre d’exemple, on pourrait utiliser – au lieu de l’erreur quadratique moyenne (<em>MSE</em>, <span class="math inline">\((y - f(x))^2\)</span>) – l’erreur absolue moyenne (<em>MAE</em>, <span class="math inline">\(|y - f(x)|\)</span>) pour quantifier la performance de nos modèles. Par exemple, (si on avait des données de validation)</p>
+<pre><code>pred &lt;- predict.glmnet(glms, newx = as.matrix(X_reg_val)) # avec le jeu de validation
+erreur &lt;- colMeans(abs(pred - y_val))
 
-<span class="kw">ggplot</span>(<span class="kw">data.table</span>(<span class="dt">lambda =</span> glms<span class="op">$</span>lambda, <span class="dt">erreur =</span> <span class="kw">c</span>(erreur)),
-       <span class="kw">aes</span>(<span class="dt">x=</span>lambda, <span class="dt">y=</span>erreur)) <span class="op">+</span>
-<span class="st">  </span><span class="kw">geom_line</span>()</code></pre>
-<p><img src="_main_files/figure-html/unnamed-chunk-48-1.png" width="672" />
-Sans surprise, la régularisation n’est pas particulièrement avantageuse pour notre problème.
-Une raison plausible est que nous avons amplement de données pour bien estimer chaque paramètres individuellement.
-Choisissons donc la régression non-pénalisée comme modèle final.
-Pour faire une prédiction avec ce modèle en particulier, on spécifie notre choix de <code>lambda</code> avec le paramètre <code>s</code>.</p>
-<pre><code>predict.glmnet(glms, newx = as.matrix(X_val[1,]), s = 0)</code></pre>
-<p>Un point laisser de côté jusqu’à présent est qu’on peut choisir comme modèle final non pas celui qui minimise l’erreur, mais le modèle le plus simple qui se trouve à une distance raisonnable (en termes d’erreur) du meilleur modèle.
-Pour ce faire, on doit avoir une idée de ce qui est <em>raisonnable</em>.
-Plusieurs librairies en R offrent cette possibilité.
-<code>glmnet</code> le permet avec la validation croisée, voir la Section <a href="metho.html#validation">6.5.3</a>.</p>
+ggplot(data.table(lambda = glms$lambda, erreur = c(erreur)),
+       aes(x=lambda, y=erreur)) +
+  geom_line()</code></pre>
 </div>
 <div id="criteres-classiques" class="section level3">
 <h3><span class="header-section-number">6.5.2</span> Critères classiques</h3>
-<p>Lorsqu’aucune donnée de validation n’est disponible, une alternative simple est d’utiliser des critères comme l’AIC (<em>Akaike Information Criterion</em>), le BIC (<em>Bayesian Information Criterion</em>), ou le <span class="math inline">\(C_p\)</span> de Mallows.
-Chacune de ses méthodes à ses particularités, mais elles s’opèrent similairement.
-Penchons nous brièvement sur l’AIC par exemple.
-Pour la régression linéaire,
-<span class="math display">\[
+<p>Lorsqu’aucune donnée de validation n’est disponible, une alternative simple est d’utiliser des critères comme l’AIC (<em>Akaike Information Criterion</em>), le BIC (<em>Bayesian Information Criterion</em>), ou le <span class="math inline">\(C_p\)</span> de Mallows. Chacune de ses méthodes à ses particularités, mais elles s’opèrent similairement. Penchons nous brièvement sur l’AIC par exemple. Pour la régression linéaire, <span class="math display">\[
    AIC(f) = 2 k - 2 \boldsymbol{L}(\boldsymbol{y},f(\boldsymbol{\boldsymbol{x}}))
-\]</span>
-où <span class="math inline">\(k\)</span> est le nombre de paramètres inclut la régression <span class="math inline">\(f\)</span> de <a href="metho.html#eq:reg">(6.3)</a> et <span class="math inline">\(\boldsymbol{L}\)</span> est la perte quadratique.
-Notez que ceci est valide justement parce que la perte quadratique, dans ce cas particulier, coincide avec la log-vraisemblance du modèle et que <span class="math inline">\(\boldsymbol{\hat\beta}\)</span> est le vecteur qui minimise la perte.
-L’utilisation de plus de paramètres permet un meilleur ajustement aux données d’entraînement (une valeur plus faible de <span class="math inline">\(\boldsymbol{L}\)</span>), mais cette amélioration, pour être acceptée, doit compenser l’augmentation qu’induit le terme <span class="math inline">\(2k\)</span>.</p>
-<p>Ces méthodes, quoique très simples, reposent en général sur certaines hypothèses qui peuvent rendre leur utilisation douteuse.
-Pour notre application, nous utilisons la validation croisée.</p>
+\]</span> où <span class="math inline">\(k\)</span> est le nombre de paramètres inclut la régression <span class="math inline">\(f\)</span> de <a href="metho.html#eq:reg">(6.3)</a> et <span class="math inline">\(\boldsymbol{L}\)</span> est la perte quadratique. Notez que ceci est valide justement parce que la perte quadratique, dans ce cas particulier, coincide avec la log-vraisemblance du modèle et que <span class="math inline">\(\boldsymbol{\hat\beta}\)</span> est le vecteur qui minimise la perte. L’utilisation de plus de paramètres permet un meilleur ajustement aux données d’entraînement (une valeur plus faible de <span class="math inline">\(\boldsymbol{L}\)</span>), mais cette amélioration, pour être acceptée, doit compenser l’augmentation qu’induit le terme <span class="math inline">\(2k\)</span>.</p>
+<p>Ces méthodes, quoique très simples, reposent en général sur certaines hypothèses qui peuvent rendre leur utilisation douteuse. Pour notre application, nous utilisons la validation croisée.</p>
 </div>
 <div id="validation" class="section level3">
 <h3><span class="header-section-number">6.5.3</span> Validation croisée</h3>
-<p>La validation croisée permet d’estimer l’erreur de généralisation à même le jeu de données d’entraînement.
-Pour ce faire, on se crée artificiellement des pairs <span class="math inline">\((\mathbf{X}_{\rm train},\mathbf{X}_{\rm val})\)</span> est divisant le jeu d’entraîenement <span class="math inline">\(\mathbf{X}\)</span> en (disons) <span class="math inline">\(K = 10\)</span> partie de même taille.
-De là le nom anglophone <em><span class="math inline">\(K\)</span>-fold cross-validation</em>.
-<span class="math display">\[
+<p>La validation croisée permet d’estimer l’erreur de généralisation à même le jeu de données d’entraînement. Pour ce faire, on se crée artificiellement des pairs <span class="math inline">\((\mathbf{X}_{\rm train},\mathbf{X}_{\rm val})\)</span> est divisant le jeu d’entraîenement <span class="math inline">\(\mathbf{X}\)</span> en (disons) <span class="math inline">\(K = 10\)</span> partie de même taille. De là le nom anglophone <em><span class="math inline">\(K\)</span>-fold cross-validation</em>. <span class="math display">\[
   {\Large \left(\mathbf{X}|\mathbf{y}\right)}
   \quad
   =
@@ -704,62 +541,43 @@ De là le nom anglophone <em><span class="math inline">\(K\)</span>-fold cross-v
     \vdots &amp;   &amp; \vdots\\
     \Big\} &amp; \stackrel{\approx 1/10}{\longrightarrow} &amp; (\mathbf{X}^{10}|\mathbf{y}^{10})
   \end{array}
-\]</span>
-Pour chaque valeur de <span class="math inline">\(k \in \{1,\dots,10\}\)</span>, l’idée est d’entraîner nos modèles sur les données <span class="math inline">\((\mathbf{X}^{-k}|\mathbf{y}^{-k})\)</span>, c’est-à-dire toutes les données sauf <span class="math inline">\((\mathbf{X}^{k}|\mathbf{y}^{k})\)</span>.
-Le but est de prédire, avec ces modèles, les réponses <span class="math inline">\(\mathbf{y}_{\rm train}^{k}\)</span> laissées de côté pour l’entraînement à partir des variables explicatrices <span class="math inline">\(\mathbf{X}^{k}\)</span>.</p>
-<p>Comme précédemment, utilisons <span class="math inline">\(f(\mathbf{x})\)</span> pour référer au modèle théorique et <span class="math inline">\(f^{(-k)}(\mathbf{x})\)</span> pour les modèles estimés sur <span class="math inline">\((\mathbf{X}^{-k}|\mathbf{y}^{-k})\)</span>.
-L’erreur de généralisation de <span class="math inline">\(f(\mathbf{x})\)</span> est estimée par la moyenne obtenue des erreurs obtenues sur les <span class="math inline">\(K\)</span> <em>folds</em> :
+\]</span> Pour chaque valeur de <span class="math inline">\(k \in \{1,\dots,10\}\)</span>, l’idée est d’entraîner nos modèles sur les données <span class="math inline">\((\mathbf{X}^{-k}|\mathbf{y}^{-k})\)</span>, c’est-à-dire toutes les données sauf <span class="math inline">\((\mathbf{X}^{k}|\mathbf{y}^{k})\)</span>. Le but est de prédire, avec ces modèles, les réponses <span class="math inline">\(\mathbf{y}_{\rm train}^{k}\)</span> laissées de côté pour l’entraînement à partir des variables explicatrices <span class="math inline">\(\mathbf{X}^{k}\)</span>.</p>
+Comme précédemment, utilisons <span class="math inline">\(f(\mathbf{x})\)</span> pour référer au modèle théorique et <span class="math inline">\(f^{(-k)}(\mathbf{x})\)</span> pour les modèles estimés sur <span class="math inline">\((\mathbf{X}^{-k}|\mathbf{y}^{-k})\)</span>. L’erreur de généralisation de <span class="math inline">\(f(\mathbf{x})\)</span> est estimée par la moyenne obtenue des erreurs obtenues sur les <span class="math inline">\(K\)</span> <em>folds</em> :
 <span class="math display">\[\begin{equation}
   \frac{1}{K} \sum_{k=1}^K \mathbf{L}(f^{(-k)}(\mathbf{x}_i^k), \mathbf{y}^k).
-\end{equation}\]</span></p>
-<p>L’élément essentiel de la procédure est qu’en aucun cas les observations “à prédire” ne doivent être utilisées pour l’estimation.
-C’est l’erreur la plus commune est commise.
-Les méthodes comme <em>lasso</em> et les régressions <em>step-wise</em>, en combinant la sélection de variables avec l’estimation, utilisent le jeu de données d’entraînement.
-<strong>L’étape de sélection doit donc faire partie de la routine de validation croisée.</strong>
-Ce n’est donc pas seulement les modèles que nous évaluons, mais les procédures d’estimation.
-Pour notre exemple principal avec la libraire <code>glmnet</code>, cela signifie q’on doit donc appliquer la fonction <code>glmnet</code> à chaque jeu d’entraînement <span class="math inline">\((\mathbf{X}^{-k}|\mathbf{y}^{-k})\)</span>.</p>
-<p>Il peut être difficile de choisir les valeurs à tester.
-Par exemple pour <code>lambda</code> dans notre modèle pour bixi, on peut simplement prendre les valeurs présentes dans <code>glms</code>.
-Toutefois, il est plus facile d’utiliser la fonction <em>built-in</em> de la librairie pour faire la validation croisée en entier : <code>cv.glmnet</code>.
-Pour l’exemple, utilisons “seulement” <span class="math inline">\(500,000\)</span> observations et faisons un 5-fold.</p>
-<pre class="sourceCode r"><code class="sourceCode r">ind_sub &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">nrow</span>(X_train), <span class="dv">500000</span>)
-
-X_sub &lt;-<span class="st"> </span>X_train[ind_sub,]
-y_sub &lt;-<span class="st"> </span>y_train[ind_sub]
-
-glms_cv &lt;-<span class="st"> </span><span class="kw">cv.glmnet</span>(<span class="dt">x =</span> <span class="kw">as.matrix</span>(X_sub),
-                     <span class="dt">y =</span> y_sub,
-                     <span class="dt">type.measure =</span> <span class="st">&quot;mae&quot;</span>, <span class="co"># utilisons l&#39;erreur absolue moyenne</span>
-                     <span class="dt">alpha =</span> <span class="dv">1</span>)
-<span class="kw">plot</span>(glms_cv)</code></pre>
-<p><img src="_main_files/figure-html/unnamed-chunk-49-1.png" width="60%" style="display: block; margin: auto;" />
-Des intervalles de confiances sont fournies, ce qui permet non seulement d’identifier la valeur de lambda qui minimise l’erreur, mais aussi la plus grande valeur pour laquelle l’erreur se trouve à moins d’un écart-type du minimum.
-Ces valeurs sont indiquées par les traits verticaux et s’obtiennent avec</p>
-<pre class="sourceCode r"><code class="sourceCode r">glms_cv<span class="op">$</span>lambda.min</code></pre>
-<pre><code>## [1] 0.9442917</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r">glms_cv<span class="op">$</span>lambda<span class="fl">.1</span>se</code></pre>
-<pre><code>## [1] 8.806496</code></pre>
+\end{equation}\]</span>
+<p>L’élément essentiel de la procédure est qu’en aucun cas les observations “à prédire” ne doivent être utilisées pour l’estimation. C’est l’erreur la plus commune est commise. Les méthodes comme <em>lasso</em> et les régressions <em>step-wise</em>, en combinant la sélection de variables avec l’estimation, utilisent le jeu de données d’entraînement. <strong>L’étape de sélection doit donc faire partie de la routine de validation croisée.</strong> Ce n’est donc pas seulement les modèles que nous évaluons, mais les procédures d’estimation. Pour notre exemple principal avec la libraire <code>glmnet</code>, cela signifie q’on doit donc appliquer la fonction <code>glmnet</code> à chaque jeu d’entraînement <span class="math inline">\((\mathbf{X}^{-k}|\mathbf{y}^{-k})\)</span>.</p>
+<p>Il peut être difficile de choisir les valeurs à tester. Par exemple pour <code>lambda</code> dans notre modèle pour bixi, on peut simplement prendre les valeurs présentes dans <code>glms</code>. Toutefois, il est plus facile d’utiliser la fonction <em>built-in</em> de la librairie pour faire la validation croisée en entier : <code>cv.glmnet</code>. Pour l’exemple, faisons un 5-fold.</p>
+<p>``` glms_cv &lt;- cv.glmnet(x = as.matrix(X_reg_train), y = y_reg_train, type.measure = “mae”, # utilisons l’erreur absolue moyenne alpha = 1, nfolds = 5)</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(glms_cv)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-46-1.png" width="60%" style="display: block; margin: auto;" /> Des intervalles de confiances sont fournies, ce qui permet non seulement d’identifier la valeur de lambda qui minimise l’erreur, mais aussi la plus grande valeur pour laquelle l’erreur se trouve à moins d’un écart-type du minimum. Ces valeurs sont indiquées par les traits verticaux et s’obtiennent avec</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">glms_cv<span class="op">$</span>lambda.min</code></pre></div>
+<pre><code>## [1] 0.8554904</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">glms_cv<span class="op">$</span>lambda.1se</code></pre></div>
+<pre><code>## [1] 6.623752</code></pre>
+<p>C’est <strong>un point laisser de côté jusqu’à présent</strong> : on peut choisir comme modèle final non pas celui qui minimise l’erreur, mais le modèle le plus simple qui se trouve à une distance raisonnable (en termes d’erreur) du meilleur modèle. Pour ce faire, on doit avoir une idée de ce qui est <em>raisonnable</em>. Plusieurs librairies en R offrent cette possibilité ; et c’est ce que <code>glmnet</code> permet avec <code>glms_cv$lambda.1se</code>.</p>
 <p>Si on voulait appliquer la procédure pour d’autres valeurs de <code>alpha</code> (ce qu’on aurait à faire manuellement), il serait important d’utiliser les même <em>folds</em>, c’est-à-dire de garder la même partition du jeu d’entraînement pour chaque valeur de <code>alpha</code>.</p>
 <pre><code>nfolds &lt;- 5
-foldid &lt;- sample(length(y_train), nfolds)
+foldid &lt;- sample(length(y_reg_train), nfolds)
 
-glms_cv &lt;- cv.glmnet(x = as.matrix(X_train),
-                     y = y_train,
+glms_cv &lt;- cv.glmnet(x = as.matrix(X_reg_train),
+                     y = y_reg_train,
                      type.measure = &quot;mae&quot;, # utilisons l&#39;erreur absolue moyenne
                      lambda = des_valeurs,
                      alpha = une_valeur,  
-                     foldid = foldid)</code></pre>
-<div id="option-caret-1" class="section level4">
-<h4><span class="header-section-number">6.5.3.1</span> Option <code>caret</code></h4>
-<p>La dernière étape, l’ajustement de <code>alpha</code>, implique un peu plus de travail.
-La librairie <code>caret</code> peut nous faciliter la vie :</p>
-<pre><code># 5-fold
+                     foldid = foldid,
+                     nfolds = nfolds)</code></pre>
+<p>Pour d’autres options intéressantes : voir la fonction <code>caret::createResample</code> qui permet de faire des échantillons <a href="https://en.wikipedia.org/wiki/Bootstrapping_(statistics)"><em>bootstrap</em></a>, et la fonction <code>caret::createFolds</code> qui permet de créer des échantillons pour la validation croisée.</p>
+<div id="option-caret-pour-validation" class="section level4">
+<h4><span class="header-section-number">6.5.3.1</span> Option <code>caret</code> pour validation</h4>
+<p>La dernière étape, l’ajustement de <code>alpha</code>, implique un peu plus de travail. La librairie <code>caret</code> peut nous faciliter la vie :</p>
+<pre><code># 5-fold &quot;cv&quot;&quot;
 val_setup &lt;- trainControl(method=&quot;cv&quot;, number=5, returnResamp=&quot;all&quot;)
-hparam_grid &lt;- expand.grid(alpha = c(0,.5,1),
-                          lambda = seq(0.001, 0.1, 0.001))
+hparam_grid &lt;- expand.grid(alpha = c(0,.5,1), # ridge, elastic net, lasso
+                          lambda = seq(0.001, 0.1, 0.001)) # valeurs populaires pour lambda
                           
 # Attention, avec trop de données ça peut être long (voir impossible)
-glm_cv &lt;- train(X_train, y_train,
+glm_cv &lt;- train(X_reg_train, y_reg_train,
                 method = &quot;glmnet&quot;, 
                 trControl = val_setup,
                 metric = &quot;MAE&quot;,
@@ -768,152 +586,108 @@ glm_cv &lt;- train(X_train, y_train,
 </div>
 <div id="evaluation-finale" class="section level3">
 <h3><span class="header-section-number">6.5.4</span> Évaluation finale</h3>
-<p>Puisque l’erreur de généralisation fut estimée pour sélectionner le modèle, il semble inutile de refaire l’exercice avec le jeu de données test.
-Pour comprendre l’utilité de cette étape finale, considérons la régression linéaire
+Puisque l’erreur de généralisation fut estimée pour sélectionner le modèle, il semble inutile de refaire l’exercice avec le jeu de données test. Pour comprendre l’utilité de cette étape finale, considérons la régression linéaire
 <span class="math display" id="eq:reg-dummy">\[\begin{equation}
   y = x_1 + x_2 + x_3 + x_4 + x_5 + \varepsilon
   \tag{6.4}
 \end{equation}\]</span>
-où <span class="math inline">\(x_1,\dots,x_5,\varepsilon \stackrel{\rm iid}{\sim} U(0,1)\)</span>. (Les variables sont toutes distribuées uniformément sur l’intervalle <span class="math inline">\((0,1)\)</span>, vraiment des données bidons quoi.)
-Supposons que, pour une raison quelconque, nous puissions seulement utiliser une variable pour faire nos prédictions.
-Les modèles en compétitions (en supposant en plus que nous sachions que les coefficients sont égaux à <span class="math inline">\(1\)</span> dans <a href="metho.html#eq:reg-dummy">(6.4)</a> – aucune estimation requise!) seraient donc, pour <span class="math inline">\(k=1,\dots,5\)</span>,
+où <span class="math inline">\(x_1,\dots,x_5,\varepsilon \stackrel{\rm iid}{\sim} U(0,1)\)</span>. (Les variables sont toutes distribuées uniformément sur l’intervalle <span class="math inline">\((0,1)\)</span>, vraiment des données bidons quoi.) Supposons que, pour une raison quelconque, nous puissions seulement utiliser une variable pour faire nos prédictions. Les modèles en compétitions (en supposant en plus que nous sachions que les coefficients sont égaux à <span class="math inline">\(1\)</span> dans <a href="metho.html#eq:reg-dummy">(6.4)</a> – aucune estimation requise!) seraient donc, pour <span class="math inline">\(k=1,\dots,5\)</span>,
 <span class="math display">\[\begin{equation}
   f(\mathbf{x}) = x_k + 2.5 = \mathbb{E}[y|x_k].
 \end{equation}\]</span>
-Évidemment, on doit s’attendre à ce que tous nos modèles soient équivalents.
-Estimons leur erreur de généralisation (sur des données simulées).</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">666</span>)
+<p>Évidemment, on doit s’attendre à ce que tous nos modèles soient équivalents. Estimons leur erreur de généralisation (sur des données simulées).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">666</span>)
 X_test &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">runif</span>(<span class="dv">10</span><span class="op">*</span><span class="dv">6</span>), <span class="dv">10</span>, <span class="dv">6</span>)
 y_test &lt;-<span class="st"> </span><span class="kw">rowSums</span>(X_test)
 
-<span class="kw">colMeans</span>(( y_test <span class="op">-</span><span class="st"> </span>(X_test[,<span class="op">-</span><span class="dv">6</span>]<span class="op">+</span><span class="fl">2.5</span>) )<span class="op">^</span><span class="dv">2</span>)</code></pre>
+<span class="kw">colMeans</span>(( y_test <span class="op">-</span><span class="st"> </span>(X_test[,<span class="op">-</span><span class="dv">6</span>]<span class="op">+</span><span class="fl">2.5</span>) )<span class="op">^</span><span class="dv">2</span>)</code></pre></div>
 <pre><code>## [1] 0.7516437 0.2738359 0.5429150 0.5810867 0.6176490</code></pre>
-<p>Selon nos estimations, le modèle utilisant <span class="math inline">\(x_2\)</span> est clairement meilleur que les autres.
-Refaisons le test.</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">667</span>)
+<p>Selon nos estimations, le modèle utilisant <span class="math inline">\(x_2\)</span> est clairement meilleur que les autres. Refaisons le test.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">667</span>)
 X_test &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">runif</span>(<span class="dv">10</span><span class="op">*</span><span class="dv">6</span>), <span class="dv">10</span>, <span class="dv">6</span>)
 y_test &lt;-<span class="st"> </span><span class="kw">rowSums</span>(X_test)
 
-<span class="kw">colMeans</span>(( y_test <span class="op">-</span><span class="st"> </span>(X_test[,<span class="op">-</span><span class="dv">6</span>]<span class="op">+</span><span class="fl">2.5</span>) )<span class="op">^</span><span class="dv">2</span>)</code></pre>
+<span class="kw">colMeans</span>(( y_test <span class="op">-</span><span class="st"> </span>(X_test[,<span class="op">-</span><span class="dv">6</span>]<span class="op">+</span><span class="fl">2.5</span>) )<span class="op">^</span><span class="dv">2</span>)</code></pre></div>
 <pre><code>## [1] 0.2626966 0.3012172 0.2360650 0.2104903 0.2803220</code></pre>
-<p>Maintenant, le modèle 4 qui semble bien meilleur!
-Au fond, puisque dans ce cas nous savons que tous les modèles sont équivalent, on peut obtenir une meilleure estimation de l’erreur de généralisation en moyennant celles de chacun des modèles.
-On obtient</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(<span class="kw">colMeans</span>(( y_test <span class="op">-</span><span class="st"> </span>(X_test[,<span class="op">-</span><span class="dv">6</span>]<span class="op">+</span><span class="fl">2.5</span>) )<span class="op">^</span><span class="dv">2</span>))</code></pre>
+<p>Maintenant, le modèle 4 qui semble bien meilleur! Au fond, puisque dans ce cas nous savons que tous les modèles sont équivalent, on peut obtenir une meilleure estimation de l’erreur de généralisation en moyennant celles de chacun des modèles. On obtient</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(<span class="kw">colMeans</span>(( y_test <span class="op">-</span><span class="st"> </span>(X_test[,<span class="op">-</span><span class="dv">6</span>]<span class="op">+</span><span class="fl">2.5</span>) )<span class="op">^</span><span class="dv">2</span>))</code></pre></div>
 <pre><code>## [1] 0.2581582</code></pre>
-<p>qui est vraiment au-dessus de nos estimations pour les meilleurs modèles.
-La morale de ces petits tests est la suivante : si nos modèles sont équivalents, on va nécéssairement sélectionner le modèle qui performe le mieux sur nos données de validation.
-La supériorité du modèle choisit est illusoire et on risque donc de sous-estimer l’erreur de généralisation.
-C’est pourquoi il est plus sage de faire une évaluation finale de notre modèle gagnant après l’étape de sélection.</p>
-<p>Avec nos données bixi, on ne devrait pas voir trop de différence toutefois.
-L’étape est très simple :</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># X_test[,glm_pred := predict(object = glms, newx = as.matrix(X_test), s=0)]</span>
-<span class="co"># X_test[,glm_error := abs(y_test - glm_pred)]</span>
-<span class="co"># mean(X_test$glm_error)/60 # (en minutes)</span></code></pre>
+<p>qui est vraiment au-dessus de nos estimations pour les meilleurs modèles. La morale de ces petits tests est la suivante : si nos modèles sont équivalents, on va nécéssairement sélectionner le modèle qui performe le mieux sur nos données de validation. La supériorité du modèle choisit est illusoire et on risque donc de sous-estimer l’erreur de généralisation. C’est pourquoi il est plus sage de faire une évaluation finale de notre modèle gagnant après l’étape de sélection.</p>
+<p>Avec nos données bixi, on ne devrait pas voir trop de différence toutefois. L’étape est très simple :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">X_reg_test[,glm_pred <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">predict</span>(<span class="dt">object =</span> glms_cv, <span class="dt">newx =</span> <span class="kw">as.matrix</span>(X_reg_test), <span class="dt">s=</span><span class="st">&quot;lambda.min&quot;</span>)]
+X_reg_test[,glm_error <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">abs</span>(y_reg_test <span class="op">-</span><span class="st"> </span>glm_pred)]
+<span class="kw">mean</span>(X_reg_test<span class="op">$</span>glm_error)<span class="op">/</span><span class="dv">60</span> <span class="co"># (en minutes)</span></code></pre></div>
+<pre><code>## [1] 7.231186</code></pre>
 <p>Ce chiffre nous donne idée de l’erreur moyenne qu’on fera (en minutes) sur la durée d’un trajet lorsqu’on mettra notre modèle en production.</p>
 <p>Pour une analyse plus détaillée, on peut se pencher sur l’erreur par quartier de départ.</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># X_test_long &lt;- melt(X_test, measure.vars = grep(&quot;start_quartier&quot;, names(X_test)),</span>
-<span class="co">#                                   variable.name = &quot;start_quartier&quot;,</span>
-<span class="co">#                                   value.name = &quot;ind_quartier&quot;)</span>
-<span class="co"># </span>
-<span class="co"># X_test_long &lt;- X_test_long[ind_quartier == 1,]</span>
-<span class="co"># </span>
-<span class="co"># X_test_long[, mean(glm_error)/60, .(start_quartier)]</span></code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">X_test_long &lt;-<span class="st"> </span><span class="kw">melt</span>(X_reg_test, <span class="dt">measure.vars =</span> <span class="kw">grep</span>(<span class="st">&quot;start_quartier&quot;</span>, <span class="kw">names</span>(X_reg_test)),
+                                  <span class="dt">variable.name =</span> <span class="st">&quot;start_quartier&quot;</span>,
+                                  <span class="dt">value.name =</span> <span class="st">&quot;ind_quartier&quot;</span>)
+
+X_test_long &lt;-<span class="st"> </span>X_test_long[ind_quartier <span class="op">==</span><span class="st"> </span><span class="dv">1</span>,] <span class="co"># on brûle les lignes dummies.</span>
+X_test_long[, <span class="kw">mean</span>(glm_error)<span class="op">/</span><span class="dv">60</span>, .(start_quartier)]</code></pre></div>
+<pre><code>##                             start_quartier        V1
+## 1: start_quartier_group.plateau_mont_royal  6.131940
+## 2:          start_quartier_group.sud_ouest  8.475094
+## 3:        start_quartier_group.ville_marie  7.655087
+## 4:              start_quartier_group.autre 11.755071</code></pre>
 <p>La plus grande variabilité des durées dans les quartiers “autre” se fait ressentir.</p>
-<p>Pour les modèles de classification binaires, un des outils les plus utiles est la matrice de confusion, qui nous permet de visualiser nos performances par classe (0 et 1).
-On l’utilise dans l’exemple avec <code>xgboost</code> qui suit.</p>
+<p>Pour les modèles de classification binaires, un des outils les plus utiles est la matrice de confusion, qui nous permet de visualiser nos performances par classe (0 et 1). On l’utilise dans l’exemple avec <code>xgboost</code> qui suit.</p>
 </div>
 </div>
 <div id="exemple-2-classification-avec-xgboost-en-construction" class="section level2">
-<h2><span class="header-section-number">6.6</span> Exemple 2 : classification avec xgboost (en construction)</h2>
+<h2><span class="header-section-number">6.6</span> Exemple 2 : classification avec xgboost (en construction!!)</h2>
 <p><span style="color:fuchsia"><strong>Concepts clefs : <em>boosting</em>, <em>early stopping</em>, matrice de confusion</strong></span></p>
-<p>Utilisons la librairie <code>xgboost</code> (<em>eXtreme Gradient Boosting</em>) pour faire un modèle de classification : déterminer si un utilisateur reviendra à la même station.
-Elle permet d’ajuster un modèle (“boosté”) construit à partir d’arbres de décisions.
-C’est clairement un <em>overkill</em> pour notre tâche, mais ça donne une idée du potentiel.
-Avec nos données, il y a peu (pas) de chances qu’on ait assez de signal pour clairement détecter qui reviendra à la station, mais il reste tout de même intéressant de quantitifer la possibilité.</p>
+<p>Utilisons la librairie <code>xgboost</code> (<em>eXtreme Gradient Boosting</em>) pour faire un modèle de classification : déterminer si un utilisateur reviendra à la même station. Elle permet d’ajuster un modèle (“boosté”) construit à partir d’arbres de décisions. C’est clairement un <em>overkill</em> pour notre tâche, mais ça donne une idée du potentiel. Avec nos données, il y a peu (pas) de chances qu’on ait assez de signal pour clairement détecter qui reviendra à la station, mais il reste tout de même intéressant de quantitifer la possibilité.</p>
 <div id="split-trainval" class="section level3">
 <h3><span class="header-section-number">6.6.1</span> Split train/val</h3>
-<p>Comme nous avons beaucoup de données par rapport à la tâche à effectuer, permettons-nous un (énorme!) jeu de validation.</p>
-<pre class="sourceCode r"><code class="sourceCode r">ind_val &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">nrow</span>(X_classif),<span class="kw">nrow</span>(X_classif)<span class="op">/</span><span class="dv">2</span>)
-
-X_val &lt;-<span class="st"> </span>X_classif[ind_val,]
-y_val &lt;-<span class="st"> </span>y_classif[ind_val]
-
-X_classif &lt;-<span class="st"> </span>X_classif[<span class="op">-</span>ind_val,]
-y_classif &lt;-<span class="st"> </span>y_classif[<span class="op">-</span>ind_val]</code></pre>
+<p>Comme nous avons beaucoup de données par rapport à la tâche à effectuer, permettons-nous un (énorme!) jeu de validation</p>
 </div>
 <div id="le-modele-en-bref" class="section level3">
 <h3><span class="header-section-number">6.6.2</span> Le modèle en bref</h3>
-<p>Ce modèle est l’un des plus populaires auprès des participants des concours <a href="https://www.kaggle.com/">Kaggle</a>.
-L’idée (très générale) est de créer des <a href="https://en.wikipedia.org/wiki/Decision_tree_learning">arbres de décisions</a>, qui forment un bassin de <em>weak learners</em>, et d’effectuer un vote pondéré en tant que prédiction.
-Un <em>weak learners</em> est un algorithme de classification qui performe légèrement mieux que le hasard.
-Le <em>boosting</em>, dans notre cas, fait référence à la méthode employée pour créer les arbres ; nous y reviendrons brièvement à l’étape d’estimation.</p>
-<p>On peut percevoir les modèle de <em>boosted trees</em> comme un modèle additif ; une sorte de modèle linéaire généralisée, mais avec des fonctions plus complexes insérées dans la formule.
-Pour notre cas,
+<p>Ce modèle est l’un des plus populaires auprès des participants des concours <a href="https://www.kaggle.com/">Kaggle</a>. L’idée (très générale) est de créer des <a href="https://en.wikipedia.org/wiki/Decision_tree_learning">arbres de décisions</a>, qui forment un bassin de <em>weak learners</em>, et d’effectuer un vote pondéré en tant que prédiction. Un <em>weak learners</em> est un algorithme de classification qui performe légèrement mieux que le hasard. Le <em>boosting</em>, dans notre cas, fait référence à la méthode employée pour créer les arbres ; nous y reviendrons brièvement à l’étape d’estimation.</p>
+On peut percevoir les modèle de <em>boosted trees</em> comme un modèle additif ; une sorte de modèle linéaire généralisée, mais avec des fonctions plus complexes insérées dans la formule. Pour notre cas,
 <span class="math display" id="eq:boosted-trees">\[\begin{equation}
   g(y^*) = f(\mathbf{x}) = \sum_{m=1}^M \beta_m f_m(\mathbf{x}) \tag{6.5}
 \end{equation}\]</span>
-ou les fonctions <span class="math inline">\(f_m\)</span> sont des arbres de décisions qui retournent soit <span class="math inline">\(0\)</span> soit <span class="math inline">\(1\)</span>.
-Nous utiliserons la fonction <em>logit</em> pour <span class="math inline">\(g\)</span>.
-La prédiction finale (l’utilisateur reviendra oui (1) ou non (0)) sera <span class="math inline">\(\mathbb{1}(f(\mathbf{x}) &gt; .5)\)</span>.
-En fait, on peut vouloir jouer avec le seuil de décision, disons <span class="math inline">\(\alpha\)</span> (un hyper-paramètre), et donc considérer <span class="math inline">\(\mathbb{1}(f(\mathbf{x}) &gt; \alpha)\)</span>.
-Les paramètres <span class="math inline">\(\beta_m\)</span> permettent de donner plus d’importances (un vote qui pèse plus) aux arbres qui sont plus performants.</p>
+<p>ou les fonctions <span class="math inline">\(f_m\)</span> sont des arbres de décisions qui retournent soit <span class="math inline">\(0\)</span> soit <span class="math inline">\(1\)</span>. Nous utiliserons la fonction <em>logit</em> pour <span class="math inline">\(g\)</span>. La prédiction finale (l’utilisateur reviendra oui (1) ou non (0)) sera <span class="math inline">\(\mathbb{1}(f(\mathbf{x}) &gt; .5)\)</span>. En fait, on peut vouloir jouer avec le seuil de décision, disons <span class="math inline">\(\alpha\)</span> (un hyper-paramètre), et donc considérer <span class="math inline">\(\mathbb{1}(f(\mathbf{x}) &gt; \alpha)\)</span>. Les paramètres <span class="math inline">\(\beta_m\)</span> permettent de donner plus d’importances (un vote qui pèse plus) aux arbres qui sont plus performants.</p>
 </div>
-<div id="estimation-1" class="section level3">
+<div id="estimation" class="section level3">
 <h3><span class="header-section-number">6.6.3</span> Estimation</h3>
-<p>Pour certain, l’estimation du modèle peut paraître un peu non-conventionelle.
-On ajuste d’abord un seul arbre de décision et identifions les observations pour lesquelles nos prédictions sont mauvaises.
-Lors de la construction du deuxième arbre, on met l’emphase (plus de poids) sur ces observations “problématiques” pour forcer l’arbre à les considérer plus sérieusement.
-On répète la procédure un nombre déterminé de fois, disons <span class="math inline">\(M\)</span>.
-La procédure est automatisée par la fonction <code>xgboost</code>.
-Pour ajuster un modèle avec disons <span class="math inline">\(M=15\)</span> (voir <a href="metho.html#eq:boosted-trees">(6.5)</a>) :</p>
-<pre><code>xgb_naive &lt;- xgboost(data = as.matrix(X_classif), label = y_classif,
+<p>Pour certain, l’estimation du modèle peut paraître un peu non-conventionelle. On ajuste d’abord un seul arbre de décision et identifions les observations pour lesquelles nos prédictions sont mauvaises. Lors de la construction du deuxième arbre, on met l’emphase (plus de poids) sur ces observations “problématiques” pour forcer l’arbre à les considérer plus sérieusement. On répète la procédure un nombre déterminé de fois, disons <span class="math inline">\(M\)</span>. La procédure est automatisée par la fonction <code>xgboost</code>. Pour ajuster un modèle avec disons <span class="math inline">\(M=15\)</span> (voir <a href="metho.html#eq:boosted-trees">(6.5)</a>) :</p>
+<pre><code>xgb_naive &lt;- xgboost(data = as.matrix(X_classif_train), label = y_classif_train,
                      booster = &quot;gbtree&quot;,
                      objective = &quot;binary:logistic&quot;,
                      nrounds = 15, verbose = F)</code></pre>
-<p>Les fonctions de pertes classiques (<em>mse</em>, <em>mae</em>) peuvent être utilisées en classification, surtout que notre prédiction est (en quelque sorte) une probabilité et est donc “continue”.
-Toutefois, il est possible d’utiliser des mesures plus “discrètes” comme l’erreur de classification :
+Les fonctions de pertes classiques (<em>mse</em>, <em>mae</em>) peuvent être utilisées en classification, surtout que notre prédiction est (en quelque sorte) une probabilité et est donc “continue”. Toutefois, il est possible d’utiliser des mesures plus “discrètes” comme l’erreur de classification :
 <span class="math display">\[\begin{equation}
   L(y,f(\mathbf{x})) = 1 - \mathbb{1}\{f(\mathbf{x}) = y\}
 \end{equation}\]</span>
-C’est l’erreur utilisé par <code>xgboost</code> avec <code>binary:logistic</code>.</p>
-<p>Plusieurs autres options existent : <code>eta</code> (entre 0 et 1) qui est le paramètre de <em>learning rate</em> peut être très utile pour éviter le sur-entraînement.
-Brièvement, des petites valeurs de <code>eta</code> empêche l’algorithme de construire des arbres avec trop de poids (et donc ralenti son apprentissage).
-En contrepartie, il faudra utiliser une valeur de <span class="math inline">\(M\)</span> plus grande, <em>i.e.</em> intégrer plus d’arbres au modèle.
-<code>maxdepth</code> (profondeur maximale des arbres) et <code>subsample</code> (utilisation d’un sous-ensemble des données pour créer les arbres) sont deux autres options qui valent la peine d’être considérées.
-<code>verbose = TRUE</code> permet d’avoir un suivi en continue (des <em>prints</em>) de l’estimation.</p>
-<p>Abordons plutôt une option générale (aussi disponible avec <code>glmnet</code>), intéressante pour les jeux de données débalancés (nous avons beaucoup plus de <code>y_classif == 0</code> que de <code>y_classif == 1</code>), ce qui est particulièrement pertinent pour la détection de fraudes.
-L’option <code>weight</code> nous permet de donner plus d’importance à certaines observations dans la fonction de perte (à ne pas confondre avec ce qui est fait pour construire les arbres de décision, quoique l’idée est en fait très similaire).
-Concrètement, on définit des poids <span class="math inline">\(w_i\)</span> qu’on introduit comme suit dans la fonction de perte
+<p>C’est l’erreur utilisé par <code>xgboost</code> avec <code>binary:logistic</code>.</p>
+<p>Plusieurs autres options existent : <code>eta</code> (entre 0 et 1) qui est le paramètre de <em>learning rate</em> peut être très utile pour éviter le sur-entraînement. Brièvement, des petites valeurs de <code>eta</code> empêche l’algorithme de construire des arbres avec trop de poids (et donc ralenti son apprentissage). En contrepartie, il faudra utiliser une valeur de <span class="math inline">\(M\)</span> plus grande, <em>i.e.</em> intégrer plus d’arbres au modèle. <code>maxdepth</code> (profondeur maximale des arbres) et <code>subsample</code> (utilisation d’un sous-ensemble des données pour créer les arbres) sont deux autres options qui valent la peine d’être considérées. <code>verbose = TRUE</code> permet d’avoir un suivi en continue (des <em>prints</em>) de l’estimation.</p>
+Abordons plutôt une option générale (aussi disponible avec <code>glmnet</code>), intéressante pour les jeux de données débalancés (nous avons beaucoup plus de <code>y_classif_train == 0</code> que de <code>y_classif_train == 1</code>), ce qui est particulièrement pertinent pour la détection de fraudes. L’option <code>weight</code> nous permet de donner plus d’importance à certaines observations dans la fonction de perte (à ne pas confondre avec ce qui est fait pour construire les arbres de décision, quoique l’idée est en fait très similaire). Concrètement, on définit des poids <span class="math inline">\(w_i\)</span> qu’on introduit comme suit dans la fonction de perte
 <span class="math display">\[\begin{equation}
   \boldsymbol{L}(\mathbf{y},\mathbf{X}) = \sum_{i=1}^n w_i L(y_i, \mathbf{x}_i)
 \end{equation}\]</span>
-où <span class="math inline">\(L(y_i, \mathbf{x}_i)\)</span> est la perte calculée pour l’observation <span class="math inline">\(i\)</span>.
-Pour donner des poids totaux égaux pour les deux classes :</p>
-<pre><code>prop_1 &lt;- mean(y_classif == 1) # proportion de 1
-poids &lt;- (1-prop_1)*y_classif + prop_1*(1-y_classif)
+<p>où <span class="math inline">\(L(y_i, \mathbf{x}_i)\)</span> est la perte calculée pour l’observation <span class="math inline">\(i\)</span>. Pour donner des poids totaux égaux pour les deux classes :</p>
+<pre><code>prop_1 &lt;- mean(y_classif_train == 1) # proportion de 1
+poids &lt;- (1-prop_1)*y_classif_train + prop_1*(1-y_classif_train)
 
-xgb_w &lt;- xgboost(data = as.matrix(X_classif), label = y_classif,
+xgb_w &lt;- xgboost(data = as.matrix(X_classif_train), label = y_classif_train,
                  booster = &quot;gbtree&quot;,
                  objective = &quot;binary:logistic&quot;,
                  nrounds = 15, verbose = F,
                  weight = poids)
 </code></pre>
 </div>
-<div id="validation-1" class="section level3">
+<div id="validation" class="section level3">
 <h3><span class="header-section-number">6.6.4</span> Validation</h3>
 <p>Avec beaucoup de temps, nous pourrions faire une recherche en grille du style :</p>
 <pre><code>param_grid &lt;- expand.grid(eta = seq(.1,1,.15), nrounds = 10:100, maxdepth = 5:20)</code></pre>
-<p>soit en utilisant le jeu de données de validation ou la validation croisée.
-(<strong>Note</strong> : encore une fois, une fonction existe pour faire la validation croisée, <code>xgb.cv</code>, voir le <em>help</em>.)
-Il est évident qu’une meilleure grille peut être définie : la plupart des combinaisons présentées ci-haut produiraient des modèles médiocres, en particulier quand <code>eta</code> et <code>nrounds</code> seraient tous les deux petits.
-Nous contournerons ce problème en gérant <code>nrounds</code> avec du <em>early stopping</em>.</p>
-<p>Si on possède un jeu de validation, on peut le fournir à <code>xgboost</code> pour garder un oeil sur l’erreur de généralisation pendant l’entraînement.
-La méthode du <em>early stopping</em> consiste à arrêter l’entraînement quand l’erreur de validation ne s’améliore plus.
-Nous n’avons donc pas à gérer <code>nrounds</code>, mais il nous faut une perte pour la validation…
-Au lieu de prendre une des pertes par défault, tentons quelque chose mieux aligné avec notre objectif “détection de fraude”.</p>
+<p>soit en utilisant le jeu de données de validation ou la validation croisée. (<strong>Note</strong> : encore une fois, une fonction existe pour faire la validation croisée, <code>xgb.cv</code>, voir le <em>help</em>.) Il est évident qu’une meilleure grille peut être définie : la plupart des combinaisons présentées ci-haut produiraient des modèles médiocres, en particulier quand <code>eta</code> et <code>nrounds</code> seraient tous les deux petits. Nous contournerons ce problème en gérant <code>nrounds</code> avec du <em>early stopping</em>.</p>
+<p>Si on possède un jeu de validation, on peut le fournir à <code>xgboost</code> pour garder un oeil sur l’erreur de généralisation pendant l’entraînement. La méthode du <em>early stopping</em> consiste à arrêter l’entraînement quand l’erreur de validation ne s’améliore plus. Nous n’avons donc pas à gérer <code>nrounds</code>, mais il nous faut une perte pour la validation… Au lieu de prendre une des pertes par défault, tentons quelque chose mieux aligné avec notre objectif “détection de fraude”.</p>
 <pre><code># Pour utiliser xgb.train, on doit se créer un data de la classe xgb.DMatrix
-dtrain &lt;- xgb.DMatrix(as.matrix(X_classif), label = y_classif)
+dtrain &lt;- xgb.DMatrix(as.matrix(X_classif_train), label = y_classif_train)
 dval &lt;- xgb.DMatrix(as.matrix(X_val), label = y_val)
 
 # Elle fait quoi cette perte?
@@ -938,43 +712,15 @@ xgb &lt;- xgb.train(data = dtrain,
                 feval = perte_val)
 </code></pre>
 <p>La matrice de confusion nous donne une meilleure idée de ce qui se passe :</p>
-<pre class="sourceCode r"><code class="sourceCode r">pred &lt;-<span class="st"> </span><span class="kw">predict</span>(xgb, <span class="dt">newdata =</span> <span class="kw">as.matrix</span>(X_val))
-
-<span class="co"># Encore caret! Notez que le treshold </span>
-caret<span class="op">::</span><span class="kw">confusionMatrix</span>(<span class="kw">as.factor</span>(<span class="kw">as.numeric</span>(pred <span class="op">&gt;</span><span class="st"> </span><span class="fl">.1</span>)),<span class="kw">as.factor</span>(y_val))</code></pre>
-<pre><code>## Confusion Matrix and Statistics
-## 
-##           Reference
-## Prediction       0       1
-##          0 1741001   36133
-##          1     407      93
-##                                           
-##                Accuracy : 0.9794          
-##                  95% CI : (0.9792, 0.9797)
-##     No Information Rate : 0.9796          
-##     P-Value [Acc &gt; NIR] : 0.9523          
-##                                           
-##                   Kappa : 0.0045          
-##                                           
-##  Mcnemar&#39;s Test P-Value : &lt;2e-16          
-##                                           
-##             Sensitivity : 0.999766        
-##             Specificity : 0.002567        
-##          Pos Pred Value : 0.979668        
-##          Neg Pred Value : 0.186000        
-##              Prevalence : 0.979621        
-##          Detection Rate : 0.979392        
-##    Detection Prevalence : 0.999719        
-##       Balanced Accuracy : 0.501167        
-##                                           
-##        &#39;Positive&#39; Class : 0               
-## </code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># pred &lt;- predict(xgb, newdata = as.matrix(X_val))</span>
+<span class="co"># </span>
+<span class="co"># # Encore caret! Notez que le treshold </span>
+<span class="co"># caret::confusionMatrix(as.factor(as.numeric(pred &gt; .1)),as.factor(y_val))</span></code></pre></div>
 <p>Les valeurs “sensitivity”, “specificity”, etc. sont toutes récupérables à partir de la matrice.</p>
 <p>Ça fonctionne sur notre test aussi?</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># pred &lt;- predict(xgb, newdata = as.matrix(X_test))</span>
-<span class="co"># caret::confusionMatrix(as.factor(as.numeric(pred &gt; .1)),as.factor(y_test))</span></code></pre>
-<p>Il ne reste qu’à jouer avec le seuil (ici <span class="math inline">\(.1\)</span>).
-Est-ce qu’on aurait obtenu ces résultats en considérant une séparation entraînement/test respéctant la chronologie?</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># pred &lt;- predict(xgb, newdata = as.matrix(X_classif_test))</span>
+<span class="co"># caret::confusionMatrix(as.factor(as.numeric(pred &gt; .1)),as.factor(y_classif_test))</span></code></pre></div>
+<p>Il ne reste qu’à jouer avec le seuil (ici <span class="math inline">\(.1\)</span>). Est-ce qu’on aurait obtenu ces résultats en considérant une séparation entraînement/test respéctant la chronologie?</p>
 
 </div>
 </div>
@@ -1014,7 +760,7 @@ gitbook.start({
 "google": false,
 "linkedin": false,
 "weibo": false,
-"instapaper": false,
+"instapper": false,
 "vk": false,
 "all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
 },
@@ -1024,10 +770,6 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": null,
-"text": null
-},
-"history": {
 "link": null,
 "text": null
 },
@@ -1044,8 +786,8 @@ gitbook.start({
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    var src = "true";
-    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    var src = "";
+    if (src === "" || src === "true") src = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
     if (location.protocol !== "file:" && /^https?:/.test(src))
       src = src.replace(/^https?:/, '');
     script.src = src;
