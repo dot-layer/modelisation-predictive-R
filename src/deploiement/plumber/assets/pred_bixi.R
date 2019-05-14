@@ -9,37 +9,33 @@ library(lubridate)
 library(xgboost)
 library(glmnet)
 
-# load("sysdata.rda")
-# source("merge-data.R")
-# source("preprocessing_base.R")
-# source("preprocessing_classif.R")
-# source("preprocessing_regression.R")
-# source("preprocessing_main.R")
+load("sysdata.rda")
+source("merge-data.R")
+source("preprocessing_base.R")
+source("preprocessing_classif.R")
+source("preprocessing_regression.R")
+source("preprocessing_main.R")
 
-load("src/deploiement/plumber/assets/sysdata.rda")
-source("src/deploiement/plumber/assets/merge-data.R")
-source("src/deploiement/plumber/assets/preprocessing_base.R")
-source("src/deploiement/plumber/assets/preprocessing_classif.R")
-source("src/deploiement/plumber/assets/preprocessing_regression.R")
-source("src/deploiement/plumber/assets/preprocessing_main.R")
+# load("src/deploiement/plumber/assets/sysdata.rda")
+# source("src/deploiement/plumber/assets/merge-data.R")
+# source("src/deploiement/plumber/assets/preprocessing_base.R")
+# source("src/deploiement/plumber/assets/preprocessing_classif.R")
+# source("src/deploiement/plumber/assets/preprocessing_regression.R")
+# source("src/deploiement/plumber/assets/preprocessing_main.R")
 
 #' Classification from individually specified features
 #' @param start_date start_date
 #' @param start_station_code start_station_code
-#' @param end_date end_date
-#' @param end_station_code end_station_code
-#' @param duration_sec duration_sec
 #' @param is_member is_member
-#' @param start_date_time start_date_time
-#' @param end_date_time end_date_time
-#' @param start_quartier start_quartier
-#' @param end_quartier end_quartier
 #' @get /bixikwargs
+#' @post /bixikwargs
 #' @json
 function(start_date="2017-04-15 00:48", start_station_code=6079, is_member=1) {
   
   # arranger en un data.table
-  dt_pred <- data.table(start_date, start_station_code, is_member)
+  dt_pred <- data.table(start_date = as.character(start_date), 
+                        start_station_code = as.integer(start_station_code), 
+                        is_member = as.numeric(is_member))
   
   dt_pred <- merge_data(dt_pred, init_objects$merging_data$data_stations)
   data_pred <- preprocessing_main(copy(dt_pred), train_mode = FALSE, list_objects = init_objects)
@@ -55,6 +51,7 @@ function(start_date="2017-04-15 00:48", start_station_code=6079, is_member=1) {
 #' Classification from a vector of features
 #' @param data data au format json
 #' @get /bixidata
+#' @post /bixidata
 #' @json
 function(data) {
   

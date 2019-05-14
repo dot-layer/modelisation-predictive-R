@@ -6,7 +6,7 @@ Les exemples de déploiement de modèles sont omniprésents. Il peut s'agir de c
 
 De par la diversité des cas de consommation des modèles, il n'existe pas de solution unique applicable à toutes les situations. Parmi les considérations, notons: 
 
- - nombre de requêtes qui devra être supporté: l'application est-elle destinée à un groupe d'employé ou à une masse de consommateurs localisés partout sur le globe?)
+ - nombre de requêtes qui devra être supporté: l'application est-elle destinée à un groupe d'employés ou à une masse de consommateurs localisés partout sur le globe?)
  - besoins en latence: cherche-t-on simplement à assurer une expérience client dynamique ou doit-on exécuter un ordre d'achat dans un contexte d'arbitrage boursier à haute fréquence?
  - les contraintes de la plateforme qui supoprtera les prédictions: par exemple un système de contrôle intelligent qui a des resources processeurs et mémoires limités
   - besoins de stabilité dy système: est-ce qu'une défaillance ou une latence non-déterministe due aux collecteur de déchet pourrait entraîner une collision aérienne? 
@@ -55,7 +55,7 @@ Il a été possible de faire la précédente requête puisque par défaut, la li
 
 Avant d'illustrer le déploiement d'un modèle, nous allons présenter comment utiliser OpenCPU à partir d'un exemple le plus minimal possible.
 
-La première étape est d'avoir le code structuré en une librairie. Une librairie peut être initialisée à l'aide de la commande: 
+La première étape est d'avoir le code structuré en une librairie. Le livre en ligne [R packages](http://r-pkgs.had.co.nz/) par Hadley Wikham constitue excellente resource pour comprendre leur fonctionnement plus en détail. Une librairie peut être initialisée à l'aide de la commande: 
 
 ``````{r, eval=FALSE}
 usethis::create_package("~/<nom_de_la_librairie>/")
@@ -64,7 +64,7 @@ usethis::create_package("~/model.ocpu/")
 
 Alternativement, Rstudio offre la fonctionnalité à partir du menu: `File -> New Project -> New Directory -> R Package`. 
 
-Une librarie en R n'est qu'un projet qui contient un fichier `DESCRIPTION`, un fichier `NAMESPACE` ainsi qu'un dossier `R/` à l'intérieur duquel se trouvent les codes R. Les fonctions d'initialisation ci-haut ne sont que des aides facilitant la création de cette structure. 
+Une librarie R n'est qu'un projet qui contient un fichier `DESCRIPTION`, un fichier `NAMESPACE` ainsi qu'un dossier `R/` à l'intérieur duquel se trouvent les codes R. Les fonctions d'initialisation ci-haut ne sont que des aides facilitant la création de cette structure.
 
 Une fois la création du squelette complétée, une fonction de test peut être créée. Par exemple, avec le code suivant dans le fichier `./R/salut.R`:
 
@@ -145,14 +145,27 @@ curl http://localhost:5656/ocpu/library/model.ocpu/R/bixikwargs/json -d "start_d
 
 ## Plumber
 
-L'approche prise par Plumber repose sur l'ajout d'annotations au code. La technologie sous-jacente est similaire à OpenCPU, l'idée étant de convertir du code R en des services accessibles via le protocole HTTP.
+L'approche prise par Plumber repose sur l'ajout d'annotations au code. La technologie sous-jacente est similaire à OpenCPU, l'idée étant de convertir du code R en des services accessibles via le protocole HTTP. 
+
 
 ### Débuter avec Plumber
- 
+
 - Installer la librairie: `install.packages("plumber")`  
 - La charger: `library(plumber)`
 
+ 
+Plumber permet de définir des Endopints et des filtres au moyen de décorations associés à des functions. 
+
 Une exemple minimaliste est founi dans le dossier `src/deploiement/model.plumber/plumber_ini.R`. 
+
+```
+#' @param msg Le message a retourner
+#' @get /message
+function(msg=""){
+  list(msg = paste0("Le message est : ", msg))
+}
+```
+
 Ce code peut être servi comme un service plumber de la manière suivante: 
 
 ```R
@@ -225,21 +238,59 @@ Docker est une technologie permettant la containerization d’applications, faci
 ![](./static-files/deploiement/docker.png)
 
 
-Une image Docker est formée de différentes couches contenant les libraries et configurations requises pour l'exécution de l'application. On peut construire une image à partir d'une racine très générique comme d'une installation générique de Ubuntu, ou encore d'une image intégrant déjà plusieurs fonctionnalités adaptées à notre domaine. 
+Une image Docker est formée de différentes couches contenant les libraries et configurations requises pour l'exécution de l'application. On peut construire une image à partir d'une racine très générique comme une installation de Ubuntu, ou encore d'une image intégrant déjà plusieurs fonctionnalités adaptées à notre domaine. Les environnement Linux sont la norme en Docker (Ubuntu, Debian, CentOS, etc.).
 
-La recette pour la construction de ces images est spécifiée dans un fichier texte nommé Dockerfile.
+Le principal répertoire d'imaegs publiques se trouve sur [Dockerhub](https://hub.docker.com/). 
 
+ - Ubuntu: https://hub.docker.com/_/ubuntu
+ - R/Rstudio: https://hub.docker.com/u/rocker/
+ - OpenCPU: https://hub.docker.com/u/opencpu/
+ - Plumber: https://hub.docker.com/r/trestletech/plumber
+
+
+La recette pour la construction de ces images est spécifiée dans un fichier texte nommé Dockerfile. 
+
+Par exemple, le Dockerfile pour Plumber reprend une image créée dans le répertoire de `rocker`: 
+
+```
+FROM rocker/r-base
+MAINTAINER Jeff Allen <docker@trestletech.com>
+
+RUN apt-get update -qq && apt-get install -y \
+  git-core \
+  libssl-dev \
+  libcurl4-gnutls-dev
+
+## RUN R -e 'install.packages(c("devtools"))'
+## RUN R -e 'devtools::install_github("trestletech/plumber")'
+RUN install2.r plumber
+
+EXPOSE 8000
+ENTRYPOINT ["R", "-e", "pr <- plumber::plumb(commandArgs()[4]); pr$run(host='0.0.0.0', port=8000)"]
+CMD ["/usr/local/lib/R/site-library/plumber/examples/04-mean-sum/plumber.R"]
+```
+
+Une image pour être construire à l'aide de la commande `docker build`:
 
 ```
 docker build ./src/deploiement/plumber/ -t jeremiedb/dot-layer:plumber
 ```
 
-Lancer une image. 
+Lancer une image:
 
 ```
 docker run --rm -p 8080:8080 jeremiedb/dot-layer:plumber
 ```
 
 ## Intégration continue et webhook
+
+Un webhook est une instruction HTTP qui est générée au moement d'événements prédéfinis. 
+Cette instruction sert typiquement à déclancher certains services lorsqu'un répertoire de code est mis à jour. 
+
+Il peut s'agir d'appeler un service d'intégration continue, une application qui permet de valider que le code a pu être installé et que les différents test ont été passés avec succès. 
+
+Un autre cas d'utilisation consiste en l'automatisation d'un déploiement. Le service de prédiction peut effectivement mettre se mettre à jour suite à réception d'une message envoyé par le webhhok. 
+
+
 
 
