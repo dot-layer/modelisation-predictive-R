@@ -1,16 +1,7 @@
 # Construction de modèles {#metho}
 
 ```{r, include = F}
-library(data.table)
-library(ggplot2)
-library(fst)
-
-library(glmnet)
-library(xgboost)
-library(mvtnorm)
-library(class)
-
-path_objects <- "data/models/"
+source("src/modelisation/partial-preprocessing.R")
 ```
 
 En introduction du document, nous avons fait l'hypothèse qu'il existe une fonction $f$ connectant nos variables explicatives $\mathbf{x}$ à $y$ de telle sorte que
@@ -58,18 +49,13 @@ $$
     \Big\} & \stackrel{\approx 1/4}{\longrightarrow} & (\mathbf{X}_{\rm test}|\mathbf{y}_{\rm test})
   \end{array}
 $$
-**Toutefois** --particulièrement quand les données manquent-- le jeu de validation est "éliminé" et intègré au jeu d'entraînement.
+**Toutefois** --particulièrement quand les données manquent-- le jeu de validation (et parfois même le jeu test) est "éliminé" et intègré au jeu d'entraînement.
 L'étape de validation (décrite à la Section \@ref(selection)) est alors effectuée en partitionnant le jeu d'entraînement pour créer plusieurs paires $(X_{\rm train},X_{\rm val})$, au lieu d'une seule comme avec l'approche classique.
+Ultimement, à moins que certaines considérations particulières nous suggèrent de faire autrement, on entraîne notre modèle à mettre en production sur l'entièreté des données.
 
-Selon la situation, on peut effectuer une permutation aléatoire de nos données, pour éviter que notre division du jeu de données ne soit pollué par des effets indésirables de l'ordre de collecte; ou s'assurer de garder un ordre chronologique des jeux de données, pour réellement prédire des données futures avec les jeux de validation et de test.
+Selon la situation, on peut effectuer une permutation aléatoire de nos données, pour éviter que notre division du jeu de données ne soit polluée par des effets indésirables de l'ordre de collecte; ou s'assurer de garder un ordre chronologique des jeux de données, pour réellement prédire des données futures avec les jeux de validation et de test.
 
-Finalement, `caret` permet de préserver la proportion des différentes réponses dans les jeux d'entraînement et de test avec `createDataPartition`.
-```
-ind_train <- caret::createDataPartition(y_train, p = .8, # split 80/20, classique
-                                  list = FALSE, 
-                                  times = 1)
-```
-La fonction `caret::createResample` permet de faire des échantillons [*bootstrap*](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)), tandis que la fonction `caret::createFolds` permet de créer des échantillons pour la validation croisée.
+Pour plus de détails sur la division du jeu de données, voir le Chapitre \@ref(preprop).
 
 
 ### Utilité des différents jeux
@@ -90,27 +76,9 @@ Il faut garder en tête que l'objectif est de prédire de **nouvelles** valeurs 
 
 ### Exemple bixi
 
-Avec la quantité de données à notre disposition pour l'exemple bixi, il est raisonnable de séparer nos données en trois partie.
-À la section \@ref(preprop), nous avions déjà séparé notre jeu en deux (entr/test), sortons un troisième jeu de nos données d'entraînement.
-```{r, include = F}
-X_reg <- read.fst("src/modelisation/X_regression.fst", as.data.table = T)
-y_reg <- readRDS("src/modelisation/y_regression.rds")
-```
-```{r, echo=T}
-# Nos données
-# X_reg
-
-# Enlevons-en masse, nous ne sommes pas à plaindre
-# Sinon, des problèmes de mémoires pourraient être irritants.
-ind_val <- sample(nrow(X_reg), nrow(X_reg)/2)
-X_val <- X_reg[ind_val,]
-X_train <- X_reg[-ind_val,]
-y_val <- y_reg[ind_val]
-y_train <- y_reg[-ind_val]
-rm(X_reg)
-rm(y_reg)
-# On s'occupera du test en temps et lieu.
-```
+Avec la quantité de données à notre disposition pour l'exemple bixi, il serait raisonnable de séparer nos données en trois partie, mais à des fins pédagogiques, nous utiliserons la validation croisée en fin de chapitre.
+**Disclaimer** : Certaines considérations par rapport à la dimension temporelle des données sont laissées de côté.
+Celles-ci pourraient mettre en doute la validité de notre analyse...
 
 
 ## Description classique {#description}
@@ -203,7 +171,7 @@ La plupart du temps, les modèles plus contraignants sont favorisés lorsque peu
 Certains modèles comme les réseaux de neurones profonds sont reconnus pour être efficaces dans des cas ou la relation entre les variables est très complexe, mais requierent généralement une grande quantité de données.
 Certains modèles plus simples, comme la régression linéaire, sont parfois choisient pour leur interprétabilité.
 
-Certains pourraient dire (avec raison) que que les modèles choisis pour la régression et la classification avec nos données bixi sont des *overkill* pour leur tâche respective, mais leur présentation en vaut la peine.
+Certains pourraient dire (avec raison) que que les modèles choisis pour la régression et la classification sur nos données bixi sont des *overkill* pour leur tâche respective, mais leur présentation en vaut la peine.
 D'autres librairies intéressantes (et nous passons à côté de beaucoup d'autres!) sont `mxnet` (deep learning, on prêche pour la paroisse!), `keras` (deep learning), `randomForest` (*random forests*) et `e1071` (*support vecteur machines*).
 
 
@@ -244,30 +212,30 @@ Plusieurs librairies R permettent l'ajustement de modèles linéaires générali
 La méthode du maximum de vraisemblance, qui coincide avec la méthodes des moindres carrées pour la régression linéaire, est souvent utilisée pour l'estimation des paramètres (voir *e.g.* [@Friedman:2001:ESL] pour plus de détails).
 Nous utilisons ici `glmnet` pour modéliser la durée d'un trajet. 
 ```{r, echo=T}
-glm_basic <- glmnet(x = as.matrix(X_train), y = y_train, family = "gaussian", lambda=0) # On reviendra sur lambda...
+glm_basic <- glmnet(x = as.matrix(X_reg_train), y = y_reg_train, family = "gaussian", lambda=0) # On reviendra sur lambda...
 ```
 L'option `family` sert à choisir une distribution pour l'erreur irréductible $\varepsilon$.
 La distribution normale est l'option par défaut.
 Évidemment, on peut toujours ajouter des intéractions entre nos variables (*i.e.* ajouter à notre régression des termes $\beta_{ij} x_i x_j$).
 Par exemple pour faire intéragir les zones de départ et moment de la journées :
-```{r, echo = T}
-cols_moment <- grep(pattern = "moment", names(X_train)) # les nums de colones moment
-cols_sqg <- grep(pattern = "start_quartier_group", names(X_train)) #les nums de colones
+```
+cols_moment <- grep(pattern = "moment", names(X_reg_train)) # les nums de colones moment
+cols_sqg <- grep(pattern = "start_quartier_group", names(X_reg_train)) #les nums de colones
 
 cols_pair <- cbind(rep(cols_sqg,length(cols_moment)),
                    rep(cols_moment,length(cols_sqg))) # toutes les paires
 
 # on get back les noms de colonnes et on les colle
-new_names <- apply(matrix(names(X_train)[c(cols_pair)], ncol = 2),
+new_names <- apply(matrix(names(X_reg_train)[c(cols_pair)], ncol = 2),
                    1,
                    paste0, collapse = ":::")
 
 # Nouveau dataset avec intéractions
-X_new <- copy(X_train)
+X_new <- copy(X_reg_train)
 for(r in 1:nrow(cols_pair)){
   i <- cols_pair[r,1]
   j <- cols_pair[r,2]
-  X_new[, (new_names[r]) := X_train[,i,with=F]*X_train[,j,with=F]]
+  X_new[, (new_names[r]) := X_reg_train[,i,with=F]*X_reg_train[,j,with=F]]
 }
 ```
 Tenons-nous en au modèle sans intéractions.
@@ -275,10 +243,10 @@ Pour faire des prédictions avec nos modèles, la fonction `predict` est toute d
 Il faut simplement lui fournir le modèle et les données explicatives concernées.
 Pour une petite idée de la diversité de nos prédictions par rapport aux réponses :
 ```{r, echo=T, out.width = "50%",fig.align='center'}
-y_pred <- predict(object = glm_basic, newx = as.matrix(X_train))
+y_pred <- predict(object = glm_basic, newx = as.matrix(X_reg_train))
 
-ggplot(data.table(y = c(y_train,y_pred),
-                  type=c(rep("true",length(y_train)),
+ggplot(data.table(y = c(y_reg_train,y_pred),
+                  type=c(rep("true",length(y_reg_train)),
                          rep("pred",nrow(y_pred)))),
        aes(x=y, fill=type)) +
   geom_density(alpha = .5) + theme_minimal()
@@ -296,7 +264,7 @@ coef.glmnet(glm_basic)
 
 ```
 on_y_reviendra <- trainControl(method="none")
-glm_basic <- train(X_train, y_train,
+glm_basic <- train(X_reg_train, y_reg_train,
                     method = "glmnet", 
                     trControl = on_y_reviendra,
                     metric = "RMSE", # Peut-être aimerions-nous "MAE" ici?
@@ -327,7 +295,7 @@ On l'utilise pour atténuer l'impact du bruit (la variance introduite par les va
 Intuitiviment, si certains coeficients $\beta_j$ sont artificiellement gonflés, alors on devrait obtenir une meilleure erreur de généralization lorsque ces derniers sont réduits.
 La librairie `glmnet` permet la régression ridge avec le paramètre `lambda` avec *e.g.*
 ```
-glmnet::glmnet(x = as.matrix(X_train), y = y_train, family = "gaussian", lambda=1, alpha = 0) # alpha = 0 est necessaire
+glmnet::glmnet(x = as.matrix(X_reg_train), y = y_reg_train, family = "gaussian", lambda=1, alpha = 0) # alpha = 0 est necessaire
 ```
 Pour des raisons computationelles (et de convergence), il n'est toutefois pas conseillé de fournir une valeur unique pour `lambda` à la fonction `glmnet`, mais plutôt un ensemble de valeurs pour chacunes desquelles l'algorithme ajustera un modèle.
 Si aucune valeur n'est fournie, la fonction en choisiera automatiquement 100 (ou moins).
@@ -420,7 +388,10 @@ On détermine souvent leurs valeurs en faisant une recherche en grille (*grid se
 Ceci veut dire que, dans notre cas, nous tenterions plusieurs combinaisons de `alpha` et `lambda` pour trouver la *meilleure* paire.
 Fixons `alpha=1` et penchons-nous sur `lambda`.
 ```{r, echo = T}
-glms <- glmnet(x = as.matrix(X_train), y = y_train, family = "gaussian")
+glms <- glmnet(x = as.matrix(X_reg_train), y = y_reg_train, family = "gaussian")
+
+# Qu'est-ce que ça veut dire?
+plot(glms)
 ```
 Puisque que notre objectif ultime est de minimiser l'erreur de généralisation, on utilise sur celle-ci pour comparer les différents modèles : c'est l'étape de validation des modèles.
 
@@ -437,31 +408,19 @@ La sélection du modèle finale, ayant comme but de minimiser l'erreur, passe g�
 La méthode la plus simple consiste à utiliser nos données de validation (si disponibles!)
 À moins qu'une autre fonction de perte ne se présente comme naturelle pour le problème en question, on calcule l'erreur de généralisation de la même façon que l'erreur sur le jeu d'entraînement, c'est-à-dire avec la fonction $\boldsymbol{L}$ ; cette fois-ci en utilisant les données de validation.
 
-Notre objet `glms` contient $100$ modèles différents, pour chacun d'eux, estimons l'erreur de généralisation.
+Notre objet `glms` contient $68$ modèles différents, pour chacun d'eux, estimons l'erreur de généralisation.
 Encore une fois, c'est la fonction `predict` qui nous permet de faire des prédictions à partir d'un modèle et de variables explicatrices.
 Elle peut être utilisée avec plusieurs types de modèles, à chaque fois avec ses particularités.
-À titre d'exemple, utilisons ici -- au lieu de l'erreur quadratique moyenne (*MSE*, $(y - f(x))^2$) -- l'erreur absolue moyenne (*MAE*, $|y - f(x)|$) pour quantifier la performance de nos modèles.
-```{r, echo = T}
-pred <- predict.glmnet(glms, newx = as.matrix(X_val)) # avec le jeu de validation
+À titre d'exemple, on pourrait utiliser -- au lieu de l'erreur quadratique moyenne (*MSE*, $(y - f(x))^2$) -- l'erreur absolue moyenne (*MAE*, $|y - f(x)|$) pour quantifier la performance de nos modèles.
+Par exemple, (si on avait des données de validation)
+```
+pred <- predict.glmnet(glms, newx = as.matrix(X_reg_val)) # avec le jeu de validation
 erreur <- colMeans(abs(pred - y_val))
 
 ggplot(data.table(lambda = glms$lambda, erreur = c(erreur)),
        aes(x=lambda, y=erreur)) +
   geom_line()
 ```
-Sans surprise, la régularisation n'est pas particulièrement avantageuse pour notre problème.
-Une raison plausible est que nous avons amplement de données pour bien estimer chaque paramètres individuellement.
-Choisissons donc la régression non-pénalisée comme modèle final.
-Pour faire une prédiction avec ce modèle en particulier, on spécifie notre choix de `lambda` avec le paramètre `s`.
-```
-predict.glmnet(glms, newx = as.matrix(X_val[1,]), s = 0)
-```
-
-Un point laisser de côté jusqu'à présent est qu'on peut choisir comme modèle final non pas celui qui minimise l'erreur, mais le modèle le plus simple qui se trouve à une distance raisonnable (en termes d'erreur) du meilleur modèle.
-Pour ce faire, on doit avoir une idée de ce qui est *raisonnable*.
-Plusieurs librairies en R offrent cette possibilité.
-`glmnet` le permet avec la validation croisée, voir la Section \@ref(validation).
-
 
 ### Critères classiques
 
@@ -521,17 +480,13 @@ Pour notre exemple principal avec la libraire `glmnet`, cela signifie q'on doit 
 Il peut être difficile de choisir les valeurs à tester.
 Par exemple pour `lambda` dans notre modèle pour bixi, on peut simplement prendre les valeurs présentes dans `glms`.
 Toutefois, il est plus facile d'utiliser la fonction *built-in* de la librairie pour faire la validation croisée en entier : `cv.glmnet`.
-Pour l'exemple, utilisons "seulement" $500,000$ observations et faisons un 5-fold.
+Pour l'exemple, faisons un 5-fold.
 ```{r, echo = T, out.width = "60%",fig.align='center'}
-ind_sub <- sample(nrow(X_train), 500000)
-
-X_sub <- X_train[ind_sub,]
-y_sub <- y_train[ind_sub]
-
-glms_cv <- cv.glmnet(x = as.matrix(X_sub),
-                     y = y_sub,
+glms_cv <- cv.glmnet(x = as.matrix(X_reg_train),
+                     y = y_reg_train,
                      type.measure = "mae", # utilisons l'erreur absolue moyenne
-                     alpha = 1)
+                     alpha = 1,
+                     nfolds = 5)
 plot(glms_cv)
 ```
 Des intervalles de confiances sont fournies, ce qui permet non seulement d'identifier la valeur de lambda qui minimise l'erreur, mais aussi la plus grande valeur pour laquelle l'erreur se trouve à moins d'un écart-type du minimum.
@@ -540,31 +495,37 @@ Ces valeurs sont indiquées par les traits verticaux et s'obtiennent avec
 glms_cv$lambda.min
 glms_cv$lambda.1se
 ```
+C'est **un point laisser de côté jusqu'à présent** : on peut choisir comme modèle final non pas celui qui minimise l'erreur, mais le modèle le plus simple qui se trouve à une distance raisonnable (en termes d'erreur) du meilleur modèle.
+Pour ce faire, on doit avoir une idée de ce qui est *raisonnable*.
+Plusieurs librairies en R offrent cette possibilité ; et c'est ce que
+`glmnet` permet avec `glms_cv$lambda.1se`.
 
 Si on voulait appliquer la procédure pour d'autres valeurs de `alpha` (ce qu'on aurait à faire manuellement), il serait important d'utiliser les même *folds*, c'est-à-dire de garder la même partition du jeu d'entraînement pour chaque valeur de `alpha`.
 ```
 nfolds <- 5
-foldid <- sample(length(y_train), nfolds)
+foldid <- sample(length(y_reg_train), nfolds)
 
-glms_cv <- cv.glmnet(x = as.matrix(X_train),
-                     y = y_train,
+glms_cv <- cv.glmnet(x = as.matrix(X_reg_train),
+                     y = y_reg_train,
                      type.measure = "mae", # utilisons l'erreur absolue moyenne
                      lambda = des_valeurs,
                      alpha = une_valeur,  
-                     foldid = foldid)
+                     foldid = foldid,
+                     nfolds = nfolds)
 ```
-#### Option `caret`
+Pour d'autres options intéressantes : voir la fonction `caret::createResample` qui permet de faire des échantillons [*bootstrap*](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)), et la fonction `caret::createFolds` qui permet de créer des échantillons pour la validation croisée.
 
+#### Option `caret` pour validation
 La dernière étape, l'ajustement de `alpha`, implique un peu plus de travail.
 La librairie `caret` peut nous faciliter la vie : 
 ```
-# 5-fold
+# 5-fold "cv""
 val_setup <- trainControl(method="cv", number=5, returnResamp="all")
-hparam_grid <- expand.grid(alpha = c(0,.5,1),
-                          lambda = seq(0.001, 0.1, 0.001))
+hparam_grid <- expand.grid(alpha = c(0,.5,1), # ridge, elastic net, lasso
+                          lambda = seq(0.001, 0.1, 0.001)) # valeurs populaires pour lambda
                           
 # Attention, avec trop de données ça peut être long (voir impossible)
-glm_cv <- train(X_train, y_train,
+glm_cv <- train(X_reg_train, y_reg_train,
                 method = "glmnet", 
                 trControl = val_setup,
                 metric = "MAE",
@@ -617,25 +578,20 @@ C'est pourquoi il est plus sage de faire une évaluation finale de notre modèle
 
 Avec nos données bixi, on ne devrait pas voir trop de différence toutefois.
 L'étape est très simple :
-```{r, include = F}
-X_test <- read.fst("src/modelisation/X_regression_test.fst", as.data.table = T)
-y_test <- readRDS("src/modelisation/y_regression_test.rds")
-```
 ```{r, echo = T}
-X_test[,glm_pred := predict(object = glms, newx = as.matrix(X_test), s=0)]
-X_test[,glm_error := abs(y_test - glm_pred)]
-mean(X_test$glm_error)/60 # (en minutes)
+X_reg_test[,glm_pred := predict(object = glms_cv, newx = as.matrix(X_reg_test), s="lambda.min")]
+X_reg_test[,glm_error := abs(y_reg_test - glm_pred)]
+mean(X_reg_test$glm_error)/60 # (en minutes)
 ```
 Ce chiffre nous donne idée de l'erreur moyenne qu'on fera (en minutes) sur la durée d'un trajet lorsqu'on mettra notre modèle en production.
 
 Pour une analyse plus détaillée, on peut se pencher sur l'erreur par quartier de départ.
 ```{r, echo = T}
-X_test_long <- melt(X_test, measure.vars = grep("start_quartier", names(X_test)),
+X_test_long <- melt(X_reg_test, measure.vars = grep("start_quartier", names(X_reg_test)),
                                   variable.name = "start_quartier",
                                   value.name = "ind_quartier")
 
-X_test_long <- X_test_long[ind_quartier == 1,]
-
+X_test_long <- X_test_long[ind_quartier == 1,] # on brûle les lignes dummies.
 X_test_long[, mean(glm_error)/60, .(start_quartier)]
 ```
 La plus grande variabilité des durées dans les quartiers "autre" se fait ressentir.
@@ -648,7 +604,7 @@ On l'utilise dans l'exemple avec `xgboost` qui suit.
 
 
 
-## Exemple 2 : classification avec xgboost (en construction)
+## Exemple 2 : classification avec xgboost (en construction!!)
 
 <span style="color:fuchsia">**Concepts clefs : *boosting*, *early stopping*, matrice de confusion**</span>
 
@@ -660,22 +616,7 @@ Avec nos données, il y a peu (pas) de chances qu'on ait assez de signal pour cl
 
 ### Split train/val
 
-Comme nous avons beaucoup de données par rapport à la tâche à effectuer, permettons-nous un (énorme!) jeu de validation.
-
-```{r, include = F}
-X_classif <- read.fst("src/modelisation/X_classif.fst", as.data.table = T)
-y_classif <- readRDS("src/modelisation/y_classif.rds")
-
-```
-```{r, echo = T}
-ind_val <- sample(nrow(X_classif),nrow(X_classif)/2)
-
-X_val <- X_classif[ind_val,]
-y_val <- y_classif[ind_val]
-
-X_classif <- X_classif[-ind_val,]
-y_classif <- y_classif[-ind_val]
-```
+Comme nous avons beaucoup de données par rapport à la tâche à effectuer, permettons-nous un (énorme!) jeu de validation
 
 ### Le modèle en bref
 Ce modèle est l'un des plus populaires auprès des participants des concours [Kaggle](https://www.kaggle.com/).
@@ -704,14 +645,10 @@ On répète la procédure un nombre déterminé de fois, disons $M$.
 La procédure est automatisée par la fonction `xgboost`.
 Pour ajuster un modèle avec disons $M=15$ (voir \@ref(eq:boosted-trees)) :
 ```
-xgb_naive <- xgboost(data = as.matrix(X_classif), label = y_classif,
+xgb_naive <- xgboost(data = as.matrix(X_classif_train), label = y_classif_train,
                      booster = "gbtree",
                      objective = "binary:logistic",
                      nrounds = 15, verbose = F)
-```
-```{r, include = F}
-# saveRDS(xgb_naive, "src/modelisation/xgb_naive.rds")
-# xgb_naive <- readRDS("src/modelisation/xgb_naive.rds")
 ```
 Les fonctions de pertes classiques (*mse*, *mae*) peuvent être utilisées en classification, surtout que notre prédiction est (en quelque sorte) une probabilité et est donc "continue".
 Toutefois, il est possible d'utiliser des mesures plus "discrètes" comme l'erreur de classification :
@@ -726,7 +663,7 @@ En contrepartie, il faudra utiliser une valeur de $M$ plus grande, *i.e.* intég
 `maxdepth` (profondeur maximale des arbres) et `subsample` (utilisation d'un sous-ensemble des données pour créer les arbres) sont deux autres options qui valent la peine d'être considérées.
 `verbose = TRUE` permet d'avoir un suivi en continue (des *prints*) de l'estimation.
 
-Abordons plutôt une option générale (aussi disponible avec `glmnet`), intéressante pour les jeux de données débalancés (nous avons beaucoup plus de `y_classif == 0` que de `y_classif == 1`), ce qui est particulièrement pertinent pour la détection de fraudes.
+Abordons plutôt une option générale (aussi disponible avec `glmnet`), intéressante pour les jeux de données débalancés (nous avons beaucoup plus de `y_classif_train == 0` que de `y_classif_train == 1`), ce qui est particulièrement pertinent pour la détection de fraudes.
 L'option `weight` nous permet de donner plus d'importance à certaines observations dans la fonction de perte (à ne pas confondre avec ce qui est fait pour construire les arbres de décision, quoique l'idée est en fait très similaire).
 Concrètement, on définit des poids $w_i$ qu'on introduit comme suit dans la fonction de perte
 \begin{equation}
@@ -735,21 +672,15 @@ Concrètement, on définit des poids $w_i$ qu'on introduit comme suit dans la fo
 où $L(y_i, \mathbf{x}_i)$ est la perte calculée pour l'observation $i$.
 Pour donner des poids totaux égaux pour les deux classes : 
 ```
-prop_1 <- mean(y_classif == 1) # proportion de 1
-poids <- (1-prop_1)*y_classif + prop_1*(1-y_classif)
+prop_1 <- mean(y_classif_train == 1) # proportion de 1
+poids <- (1-prop_1)*y_classif_train + prop_1*(1-y_classif_train)
 
-xgb_w <- xgboost(data = as.matrix(X_classif), label = y_classif,
+xgb_w <- xgboost(data = as.matrix(X_classif_train), label = y_classif_train,
                  booster = "gbtree",
                  objective = "binary:logistic",
                  nrounds = 15, verbose = F,
                  weight = poids)
 
-```
-```{r, include = F}
-# saveRDS(xgb_w, "src/modelisation/xgb_w.rds")
-# prop_1 <- mean(y_classif == 1) # proportion de 1
-# poids <- (1-prop_1)*y_classif + prop_1*(1-y_classif)
-# xgb_w <- readRDS("src/modelisation/xgb_w.rds")
 ```
 
 ### Validation
@@ -768,7 +699,7 @@ Nous n'avons donc pas à gérer `nrounds`, mais il nous faut une perte pour la v
 Au lieu de prendre une des pertes par défault, tentons quelque chose mieux aligné avec notre objectif "détection de fraude".
 ```
 # Pour utiliser xgb.train, on doit se créer un data de la classe xgb.DMatrix
-dtrain <- xgb.DMatrix(as.matrix(X_classif), label = y_classif)
+dtrain <- xgb.DMatrix(as.matrix(X_classif_train), label = y_classif_train)
 dval <- xgb.DMatrix(as.matrix(X_val), label = y_val)
 
 # Elle fait quoi cette perte?
@@ -793,28 +724,19 @@ xgb <- xgb.train(data = dtrain,
                 feval = perte_val)
 
 ```
-```{r, include = F}
-# saveRDS(xgb, "src/modelisation/xgb.rds")
-xgb <- readRDS("src/modelisation/xgb.rds")
-```
-
 La matrice de confusion nous donne une meilleure idée de ce qui se passe :
 ```{r, echo = T}
-pred <- predict(xgb, newdata = as.matrix(X_val))
-
-# Encore caret! Notez que le treshold 
-caret::confusionMatrix(as.factor(as.numeric(pred > .1)),as.factor(y_val))
+# pred <- predict(xgb, newdata = as.matrix(X_val))
+# 
+# # Encore caret! Notez que le treshold 
+# caret::confusionMatrix(as.factor(as.numeric(pred > .1)),as.factor(y_val))
 ```
 Les valeurs "sensitivity", "specificity", etc. sont toutes récupérables à partir de la matrice.
 
 Ça fonctionne sur notre test aussi?
-```{r, include = F}
-X_test <- read.fst("src/modelisation/X_classif_test.fst", as.data.table = T)
-y_test <- readRDS("src/modelisation/y_classif_test.rds")
-```
 ```{r, echo = T}
-pred <- predict(xgb, newdata = as.matrix(X_test))
-caret::confusionMatrix(as.factor(as.numeric(pred > .1)),as.factor(y_test))
+# pred <- predict(xgb, newdata = as.matrix(X_classif_test))
+# caret::confusionMatrix(as.factor(as.numeric(pred > .1)),as.factor(y_classif_test))
 ```
 Il ne reste qu'à jouer avec le seuil (ici $.1$).
 Est-ce qu'on aurait obtenu ces résultats en considérant une séparation entraînement/test respéctant la chronologie?
