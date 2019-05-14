@@ -11,11 +11,10 @@ source("src/collecte/merge-data.R")
 
 historical_data <- load_historical_data("data/")
 merging_data <- load_merging_data("data/")
-data <- merge_data(historical_data, merging_data$data_stations, merging_data$points_stations)
+data <- merge_data(historical_data, merging_data$data_stations)
 
 data_bixi <- fread("data/data_bixi.csv")
 data_stations <- fread("data/data_stations.csv")
-data_quartiers <- readOGR("data/LIMADMIN.shp")
 
 set.seed(20190513L)
 ```
@@ -24,27 +23,62 @@ set.seed(20190513L)
 
 Une étape souvent sous-estimée par les scientifiques de données amateurs est l'exploration initiale des données disponibles. Bien qu'il soit tout à fait possible de créer un modèle et de compléter le cycle complet de modélisation en négligeant cette étape, la garantie de qualité des résultats en serait alors fortement compromise.
 
-L'expression populaire *Garbage-in, garbage-out* est généralement interprétée comme quoi un modèle prédicitif, même s'il utilise un algorithme à la fine pointe de la technologie, produira des mauvais résultats s'il est entraîné sur des données de mauvaise qualité. L'exploration initiale des données est la phase dans laquelle on évalue cette qualité. Il est beaucoup moins dommageable de reconnaître rapidement qu'on ne dispose pas des données nécessaires pour construire un modèle que de mettre un mauvais modèle en production.
+L'expression populaire *Garbage-in, garbage-out* est généralement interprétée comme quoi un modèle prédicitif, même s'il utilise un algorithme à la fine pointe de la technologie, produira des mauvais résultats s'il est entraîné sur des données de mauvaise qualité. L'analyse préliminaire permet d'acquérir des connaissances indispensables pour la suite du processus de modélisation.
 
-Outre valider la qualité de nos données, l'analyse préliminaire permet d'acquérir des connaissances indispensables pour la suite du processus de modélisation. En effet, tel qu'on le verra dans le prochain chapitre, un élément clé pour obtenir un bon modèle prédictif est la création de nouvelles variables explicatives. Comme celle-ci seront basées sur des transformations des variables du jeu de données brut, il est impératif de bien en connaître les moindres détails.
+En effet, tel qu'on le verra dans le prochain chapitre, un élément clé pour obtenir un bon modèle prédictif est la création de nouvelles variables explicatives. Comme celle-ci seront basées sur des transformations des variables du jeu de données brut, il est impératif de bien en connaître les moindres détails.
 
 Le but de ce chapitre est donc simple, on veut remplir les deux objectifs expliqués ci-haut :
 
-1. Valider la quatlié des données brutes
-1. Suggérer des transformations de variables potentielles
+1. S'approprier le jeu de données sur lequel on travaille;
+1. Suggérer des transformations de variables pertinentes pour le prétraitement des données.
 
-Le chapitre sera découpé en quatre parties, chacune d'entre elle étant un stade différent du processus d'analyse de données. Dans la première partie, on ira de l'analyse la plus simple en explorant des observations individuelles. Ensuite, on poursuivra l'analyse en agrégeant ces observations individuelles selon certains axes. L'avant-dernière étape consistera à définir et évaluer différentes métriques basées sur nos données. Enfin, pour terminer le chapitre, on créera des représentations graphiques de nos données.
+```{r, eval=FALSE, echo=FALSE}
+# TO DO : Réécrire ce paragraphe avec la nouvelle structure proposée du chapitre.
+
+# Le chapitre sera découpé en quatre parties, chacune d'entre elle étant un stade différent du processus d'analyse de données. Dans la première partie, on ira de l'analyse la plus simple en explorant des observations individuelles. Ensuite, on poursuivra l'analyse en agrégeant ces observations individuelles selon certains axes. L'avant-dernière étape consistera à définir et évaluer différentes métriques basées sur nos données. Enfin, pour terminer le chapitre, on créera des représentations graphiques de nos données.
+```
+
+Structure du chapitre :
+
+- Distribution de chaque variable d'entrée;
+- Corrélation entre les variables d'entrée;
+- Effet one-way des variables d'entrée sur la variable réponse;
+- Effet multi-ways des variables d'entrée sur la variable réponse (interactions);
+- Propositions de transformations.
 
 Prendre note que le but de ce livre n'est pas de présenter une panoplie de solutions pour manipuler des données en R, mais bien d'avoir une vue d'ensemble sur le processus complet de modélisation. Pour des préférences personnelles, la minuplation des données sera effectuée en utilisant une combinaison des packages de base et du package `data.table` dans ce chapitre. Le lecteur est invité à consulter la documentation de base des packages pour mieux comprendre leur utilisation. Une autre solution populaire est l'utilisation de `dplyr` qui fait partie de la collection de packages du `tidyverse`.
 
+```{r, eval=FALSE, echo=FALSE}
+# TO DO : Réécrire ce paragraphe avec la nouvelle structure proposée du chapitre.
+
 ## Observations individuelles
 
-Pour commencer l'analyse des données, rien de trop compliqué. On se familiarise avec nos différents jeux de données en affichant les premières entrées qu'ils contiennent. Tel que vu dans le chapitre précédent, le jeu de données qu'on utilise pour le processus de modélisation contient deux tables, une contenant les données de trajet BIXI (`data_bixi`) et un contenant l'information géographique des différents stations (`data_stations`).
+# Pour commencer l'analyse des données, rien de trop compliqué. On se familiarise avec nos différents jeux de données en affichant les premières entrées qu'ils contiennent. Tel que vu dans le chapitre précédent, le jeu de données qu'on utilise pour le processus de modélisation contient deux tables, une contenant les données de trajet BIXI (`data_bixi`) et un contenant l'information géographique des différents stations (`data_stations`).
+```
 
-On commence par afficher les premières observations de `data_bixi` :
+- Avant de commencer, on observe le jeu de données;
+- Échantillon aléatoire pour éviter les biais
 
+Premières observations de `data` :
+```{r, explore_data}
+data[sample(.N, 5L)]
+```
+Les variables présentes dans le jeu de données sont :
+
+- `start_date` : jour du trajet; (ne devrait pas se retrouver ici, transformation de `start_date_time`)
+- `start_station_code` : code de la station de départ;
+- `end_date` : jour et heure de l'arrivée (post-fact, à enlever);
+- `end_station_code` : dode de la station d'arrivée (post-fact, à enlever);
+- `duration_sec` : durée du trajet en secondes (variable réponse);
+- `is_member` : indicateur de membre;
+- `start_date_time` : jour et heure du départ;
+- `start_quartier` : quartier dans lequel se trouve la station de départ.
+
+(Normalement, la collecte de données devrait devrait ramener l'ensemble des variables (sauf les post-fact), on aurait alors toute l'information qu'on a de besoin pour comprendre nos données. Comme certaines variables ont été enlevées, on explore les jeux de données bruts.)
+
+On affiche les premières observations de `data_bixi` :
 ```{r, explore_head_bixi}
-head(data_bixi)
+data_bixi[sample(.N, 5L)]
 ```
 
 Les variables présentes dans le jeu de données sont :
@@ -57,9 +91,8 @@ Les variables présentes dans le jeu de données sont :
 - `is_member` : indicateur de membre.
 
 On affiche ensuite les premières observations de `data_stations` :
-
 ```{r, explore_head_stations}
-head(data_stations)
+data_stations[sample(.N, 5L)]
 ```
 
 Les variables présentes dans le jeu de données sont :
@@ -69,28 +102,196 @@ Les variables présentes dans le jeu de données sont :
 - `latitude` : latitude de la station
 - `longitude`: longitude de la station
 
-Comme on peut facilement l'observer avec les premières observations de chaque jeu de données, les observations sont rarement ordonnées dans un ordre aléatoire. Quelqu'un de naïf pourrait légitimement croire, à première vue, que la majorité des trajets sont faits dans l'arrondissement de La Salle, les nuits de printemps par des membres réguliers. Bien que cela paraisse un peu ridicule dans ce contexte étant donné notre intuition face aux données, il faut garder en tête que le processus de modélisation doit être robuste peu importe le contexte dans lequel on l'utilise. Il n'est pas rare qu'un scientifique de données soit appelé à créer un modèle prédictif dans un contexte avec lequel il n'est pas familier.
 
-La morale du dernier paragraphe est qu'il est donc préférable de regarder un échantillon aléatoire des données au lieu de regarder les premières observations pour éviter de se créer un biais mental non intentionnel. On répète l'exercice précédent avec un échantillon aléatoire.
+## Distribution des variables d'entrée
 
-```{r, explore_random}
-data_bixi[sample(.N, 5L)]
-data_stations[sample(.N, 5L)]
+Dans la précédente section, on s'est familiarisé avec le format de nos données en regardant un échantillon aléatoire de nos observations. Bien que ce soit le point de départ, on est loin d'avoir suffisament apprivoisé notre jeu de données pour passer à la prochaine phase du cycle, le prétraitement des données. On pourrait toujours augmenter le nombre d'observations aléatoires jusqu'à ce qu'on regarde tout le jeu de données, mais on conviendra que ce n'est pas la solution idéale pour connaître toutes les valeurs que peuvent prendre chacune des variables.
+
+La première étape pour agréger des données est de se familiariser avec les distributions marginales de chacun des champs. On doit évidemment traîter différemment les variables selon leur type. Les variables peuvent être de type :
+
+- Numérique;
+- Catégorique;
+- Temporelle (donc fort probablement cyclique);
+- Spatiale.
+
+Il y a différentes manières de procéder, on propose une solution parmi tant d'autres dans le livre.
+
+- Préférence : `plotly` (puisque le livre est en HTML)
+- Alternatives : `base`, `ggplot2`, `lattice`
+
+### Status membre/non-membre (booléen/catégorique)
+
+```{r, status_exposure, warning=FALSE}
+library(plotly)
+
+data_member <- data[, .(
+  nb = .N,
+  mean = mean(duration_sec)
+), is_member][
+  , status:=as.factor(ifelse(is_member, "Membre", "Non-Membre"))
+]
+
+plot_ly(
+  data = data_member
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    x = ~status,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Status"
+      ),
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      fixedrange = TRUE,
+      exponentformat = "none"
+    )
+  )
 ```
 
-Comme on pouvait s'y en attendre, nos hypothèses précédentes, un peu loufoques avouons-le, sont majoritairement invalidées. Notre jeu de données semble maintenant contenir des trajets d'un peu partout sur l'île de Montréal effectués à tout moment au cours de la saison estivale 2017. Notre échantillon ne nous permet cependant pas d'infirmer notre hypothèse que tous les trajets sont effectués par des membres réguliers du programme BIXI. La prochaine section, le coeur du chapitre, nous permettra d'approfondir encore plus nos connaissances sur notre jeu de données.
+### Quartier de la station de départ (catégorique)
 
-## Observations agrégées
+```{r, quartier_exposure}
+data_quartiers <- data[, .(
+  nb = .N,
+  mean = mean(duration_sec)
+), start_quartier]
 
-Dans la précédente section, on s'est familiarisé avec le format de nos données en regardant un échantillon aléatoire de nos observations. Bien que ce soit le point de départ, on est loin d'avoir suffisament apprivoisé notre jeu de données pour passer à la prochaine phase du cycle, le prétraitement des données.
+data_quartiers[is.na(start_quartier), start_quartier:="Hors MTL"]
 
-La question qui reste en suspens pour le moment est de savoir si notre jeu de données ne contient que des observations des membres ou s'il contient aussi les observations des non-membres. Bien qu'on puisse augmenter le nombre d'observations aléatoires jusqu'à ce qu'on regarde tout le jeu de données, on conviendra que ce n'est pas la solution idéale pour connaître toutes les valeurs que peuvent prendre chacune des variables.
+plot_ly(
+  data = data_quartiers
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    x = ~start_quartier,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Status"
+      ),
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      fixedrange = TRUE,
+      exponentformat = "none"
+    )
+  )
+```
 
-La première étape pour agréger des données est de se familiariser avec les distributions marginales de chacun des champs. On doit évidemment traîter différemment les variables continues des variables discrètes. Il y a différentes manières de procéder, on propose une solution parmi tant d'autres dans le livre.
+### Date du trajet (temporelle)
+
+- Observer l'effet de la tampérature sur la distribution en comparant avec une source externe;
+- Suggère d'ajouter des données externes sur la température;
+- On doit être prudent lors de la modélisation puisque le poids des données est distortionné par la température...
+
+```{r, date_exposure}
+# Sommaire par date
+data_date <- data[, .(
+  nb = .N,
+  mean = mean(duration_sec)
+), start_date][order(start_date)]
+
+
+plot_ly(
+  data = data_date
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "x+y",
+    showlegend = FALSE,
+    x = ~start_date,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Date du trajet"
+      ),
+      rangeslider = TRUE,
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      fixedrange = TRUE,
+      exponentformat = "none"
+    ),
+    hovermode = "x"
+  )
+```
+
+### Heure du trajet (temporelle)
+
+```{r, time_exposure}
+data_time <- copy(data)
+data_time[, start_hour:=hour(start_date_time)]
+data_time <- data_time[, time_min:=strftime(start_date_time, format="%H:%M", tz="UTC")][, .(
+  nb = .N,
+  mean = mean(duration_sec)
+), .(time_min, start_hour)][order(time_min)]
+
+plot_ly(
+  data = data_time
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "x+y",
+    showlegend = FALSE,
+    x = ~time_min,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Heure du trajet"
+      ),
+      rangeslider = TRUE,
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      fixedrange = TRUE,
+      exponentformat = "none"
+    ),
+    hovermode = "x"
+  )
+```
+
+### Variables spatiales (stations + quartiers)
 
 ```{r, spatial_exposure, warning=FALSE}
 library(leaflet)
 library(magrittr)
+
+data_quartiers_geo <- readOGR("data/LIMADMIN.shp", verbose=FALSE)
 
 # Sommaire par station
 data_stations_rides <- data[, .(
@@ -103,13 +304,20 @@ data_stations_rides <- data[, .(
   start_quartier = NULL
 )]
 
+# Limiter moyenne des temps de trajet
+limits <- c(650, 1150)
+data_stations_rides[, capped_mean:=mean]
+data_stations_rides[mean<limits[1], capped_mean:=limits[1]]
+data_stations_rides[mean>limits[2], capped_mean:=limits[2]]
+
 # Agréger sommaire par station
 setkey(data_stations_rides, code)
 setkey(data_stations, code)
 data_stations[data_stations_rides, `:=`(
   quartier = quartier,
   rides_nb = nb,
-  rides_mean = mean
+  rides_mean = mean,
+  rides_capped_mean = capped_mean
 )]
 
 # Sommaire par quartier
@@ -121,7 +329,6 @@ data_quartiers_rides <- data_stations[!is.na(quartier), .(
 ), quartier][, quartier:=NULL]
 
 # Limiter moyenne des temps de trajet
-limits <- c(700, 1000)
 data_quartiers_rides[, rides_capped_mean:=rides_mean]
 data_quartiers_rides[rides_mean<limits[1], rides_capped_mean:=limits[1]]
 data_quartiers_rides[rides_mean>limits[2], rides_capped_mean:=limits[2]]
@@ -129,20 +336,21 @@ data_quartiers_rides[rides_mean>limits[2], rides_capped_mean:=limits[2]]
 # Agréger sommaire par quartier
 setkey(data_quartiers_rides, nom)
 #data_quartiers <- readOGR("data/LIMADMIN.shp")
-data_quartiers@data <- as.data.table(data_quartiers@data, keep.rownames="ID")
-data_quartiers@data[, ID:=as.integer(ID)]
-setkey(data_quartiers@data, NOM)
-data_quartiers@data[data_quartiers_rides, `:=`(
+data_quartiers_geo@data <- as.data.table(data_quartiers_geo@data, keep.rownames="ID")
+data_quartiers_geo@data[, ID:=as.integer(ID)]
+setkey(data_quartiers_geo@data, NOM)
+data_quartiers_geo@data[data_quartiers_rides, `:=`(
   stations_nb = stations_nb,
   rides_nb = rides_nb,
-  rides_mean = rides_mean
+  rides_mean = rides_mean,
+  rides_capped_mean = rides_capped_mean
 )]
-setorder(data_quartiers@data, ID)[, ID:=NULL]
+setorder(data_quartiers_geo@data, ID)[, ID:=NULL]
 
 # Création de la palette de couleur des quartiers
 categorical_pal <- colorFactor(
-  palette = rainbow(data_quartiers@data[!is.na(stations_nb), .N]),
-  domain = data_quartiers@data[!is.na(stations_nb), as.character(NOM)]
+  palette = rainbow(data_quartiers_geo@data[!is.na(stations_nb), .N]),
+  domain = data_quartiers_geo@data[!is.na(stations_nb), as.character(NOM)]
 )
 
 # Création de la carte
@@ -161,63 +369,823 @@ exposure_map <- leaflet() %>%
     popup = ~paste(
       paste0("<b>", name, "</b>"),
       paste0("Nombre de trajets : ", format(rides_nb, big.mark=" ")),
-      #paste0("Durée moyenne : ", format(rides_mean, digits=0, big.mark=" "), " sec"),
       sep = "<br/>"
     ),
     label = ~name
   ) %>%
   addPolygons(
-    data = data_quartiers,
+    data = data_quartiers_geo,
     group = "Quartiers",
     color = "black",
     weight = 2,
     fillColor = ~categorical_pal(NOM),
-    #fillOpacity = 0.5,
+    fillOpacity = 0.35,
     dashArray = "2 4",
     popup = ~paste(
       paste0("<b>", NOM, "</b>"),
       paste0("Nombre de stations : ", format(stations_nb, big.mark=" ")),
       paste0("Nombre de trajets : ", format(rides_nb, big.mark=" ")),
-      #paste0("Durée moyenne : ", format(rides_mean, digits=0, big.mark=" "), " sec"),
       sep = "<br/>"
     ),
     highlightOptions = highlightOptions(
       weight = 3,
       opacity = 1,
-      dashArray = FALSE,
-      bringToFront = TRUE
+      dashArray = FALSE
     )
   ) %>%
-  # addLegend(
-  #   data = data_quartiers@data[!is.na(stations_nb)],
-  #   position = "bottomright",
-  #   pal = categorical_pal,
-  #   values = ~NOM,
-  #   opacity = 1,
-  #   title = "Quartiers",
-  #   group = "Quartiers"
-  # ) %>%
+  addLegend(
+    data = data_quartiers_geo@data[!is.na(stations_nb)],
+    position = "bottomright",
+    pal = categorical_pal,
+    values = ~NOM,
+    opacity = 1,
+    labFormat = labelFormat(
+      transform = function(values){lapply(values, function(value){
+        data_quartiers_geo@data[NOM==value, as.character(ABREV)]
+      })}
+    ),
+    title = "Quartiers",
+    group = "Quartiers"
+  ) %>%
   addLayersControl(
     overlayGroups = c("Stations", "Quartiers"),
-    options = layersControlOptions(collapsed = FALSE)
-  )
+    options = layersControlOptions(
+      collapsed = FALSE
+    )
+  ) %>%
+  hideGroup("Quartiers")
 
 # Affichage de la carte
 exposure_map
 ```
 
+## Corrélation entre les variables d'entrée
 
+### Status (catégorique) vs Quartier de la station de départ (catégorique)
 
-```{r, spatial_one_way}
+```{r, quartiers_membre_exposure, warning=FALSE}
+data_quartiers_member <- data[, .(
+  nb = .N,
+  mean = mean(duration_sec)
+), .(is_member, start_quartier)]
 
+data_quartiers_member[is.na(start_quartier), start_quartier:="Hors MTL"]
+data_quartiers_member[, status:=as.factor(ifelse(is_member, "Membre", "Non-Membre"))]
 
-
-
-
+plot_ly(
+  data = data_quartiers_member
+) %>%
+  add_bars(
+    name = "Membres",
+    hoverinfo = "y",
+    showlegend = TRUE,
+    x = ~start_quartier[status=="Membre"],
+    y = ~nb[status=="Membre"],
+    colors = "#1f77b4",
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_bars(
+    name = "Non-membres",
+    hoverinfo = "y",
+    showlegend = TRUE,
+    x = ~start_quartier[status=="Non-Membre"],
+    y = ~nb[status=="Non-Membre"],
+    colors = "#ff7f0e"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Quartier"
+      ),
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      fixedrange = TRUE,
+      exponentformat = "none"
+    ),
+    legend = list(
+      y = 0
+    )
+  )
 ```
 
+## Effets *one-way*
 
-## Métriques des observations
+### Status membre/non-membre (booléen/catégoriqe)
 
-## Visualisation graphique
+```{r, status_oneway}
+data_member_quantiles <- data[, .(quantiles=quantile(duration_sec, seq(0, 1, 0.25))), is_member]
+data_member_quantiles[, status:=as.factor(ifelse(is_member, "Membre", "Non-Membre"))]
+
+plot_ly(
+  data = data_member
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    x = ~status,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y2"
+  ) %>%
+  add_trace(
+    data = data_member_quantiles,
+    type = "box",
+    name = "Quantiles",
+    hoverinfo = "y",
+    boxpoints = FALSE,
+    x = ~status,
+    y = ~quantiles,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    data = data_member,
+    type = "scatter",
+    mode = "markers",
+    name = "Moyenne",
+    hoverinfo = "y",
+    x = ~status,
+    y = ~mean,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Status"
+      ),
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Durée moyenne (sec)"
+      ),
+      side = "left",
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = list(-1000, 3000)
+    ),
+    yaxis2 = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      overlaying = "y",
+      side = "right",
+      showgrid = FALSE,
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = ~list(0, 4*max(nb))
+    )
+  )
+```
+
+### Quartier de la station de départ (catégorique)
+
+```{r, quartier_oneway}
+data_quartiers_quantiles <- data[, .(quantiles=quantile(duration_sec, seq(0, 1, 0.25))), start_quartier]
+data_quartiers_quantiles[is.na(start_quartier), start_quartier:="Hors MTL"]
+
+plot_ly(
+  data = data_quartiers
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    x = ~start_quartier,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y2"
+  ) %>%
+  add_trace(
+    data = data_quartiers_quantiles,
+    type = "box",
+    name = "Quantiles",
+    hoverinfo = "y",
+    boxpoints = FALSE,
+    x = ~start_quartier,
+    y = ~quantiles,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    data = data_quartiers,
+    type = "scatter",
+    mode = "markers",
+    name = "Moyenne",
+    hoverinfo = "y",
+    x = ~start_quartier,
+    y = ~mean,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Status"
+      ),
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Durée moyenne (sec)"
+      ),
+      side = "left",
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = list(-1000, 3000)
+    ),
+    yaxis2 = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      overlaying = "y",
+      side = "right",
+      showgrid = FALSE,
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = ~list(0, 4*max(nb))
+    )
+  )
+```
+
+### Date du trajet (temporelle)
+
+- Observer l'effet de la tampérature sur la variable réponse en comparant avec une source externe;
+- Suggère d'ajouter des transformations basées sur la température;
+
+*TO DO* : Déplacer la transformation semaine/fds dans la section **Transformations**.
+
+```{r, date_oneway}
+data_date[, weekend:=lubridate::wday(start_date, week_start = 7)%in%c(1, 7)]
+
+plot_ly(
+  data = data_date
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "x+y",
+    showlegend = FALSE,
+    x = ~start_date,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y2"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    name = "Durée moyenne",
+    hoverinfo = "y",
+    x = ~start_date,
+    y = ~mean,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    visible = "legendonly",
+    name = "Fin de semaine",
+    hoverinfo = "y",
+    legendgroup = "weekend",
+    x = ~start_date[weekend==TRUE],
+    y = ~mean[weekend==TRUE],
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    visible = "legendonly",
+    name = "Semaine",
+    hoverinfo = "y",
+    legendgroup = "weekend",
+    x = ~start_date[weekend==FALSE],
+    y = ~mean[weekend==FALSE],
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Date du trajet"
+      ),
+      rangeslider = TRUE,
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Durée moyenne (sec)"
+      ),
+      side = "left",
+      fixedrange = TRUE,
+      exponentformat = "none"
+    ),
+    yaxis2 = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      overlaying = "y",
+      side = "right",
+      showgrid = FALSE,
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = ~list(0, 4*max(nb))
+    ),
+    hovermode = "x",
+    legend = list(
+      y = -0.3
+    )
+  )
+```
+
+### Heure du trajet (temporelle)
+
+*TO DO* : Bouger la partie sur les moments de la journée dans la section **Transformations**.
+
+```{r, time_oneway}
+data_time[, moment_journee := "nuit"]
+data_time[start_hour >= 6 & start_hour < 11, moment_journee := "matin"]
+data_time[start_hour >= 11 & start_hour < 16, moment_journee := "journee"]
+data_time[start_hour >= 16 & start_hour < 23, moment_journee := "soir"]
+data_time[, moment_journee:=as.factor(moment_journee)]
+
+plot_ly(
+  data = data_time
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "x+y",
+    showlegend = FALSE,
+    x = ~time_min,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y2"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    name = "Durée moyenne",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    x = ~time_min,
+    y = ~mean,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    visible = "legendonly",
+    name = "Matin",
+    hoverinfo = "none",
+    legendgroup = "moment",
+    x = ~time_min,
+    y = ~ifelse(moment_journee=="matin", mean, NA),
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    visible = "legendonly",
+    name = "Journée",
+    hoverinfo = "none",
+    legendgroup = "moment",
+    x = ~time_min,
+    y = ~ifelse(moment_journee=="journee", mean, NA),
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    visible = "legendonly",
+    name = "Soir",
+    hoverinfo = "none",
+    legendgroup = "moment",
+    x = ~time_min,
+    y = ~ifelse(moment_journee=="soir", mean, NA),
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    type = "scatter",
+    mode = "lines",
+    visible = "legendonly",
+    name = "Nuit",
+    hoverinfo = "none",
+    legendgroup = "moment",
+    x = ~time_min,
+    y = ~ifelse(moment_journee=="nuit", mean, NA),
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Heure du trajet"
+      ),
+      rangeslider = TRUE,
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Durée moyenne (sec)"
+      ),
+      side = "left",
+      fixedrange = TRUE,
+      exponentformat = "none"
+    ),
+    yaxis2 = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      overlaying = "y",
+      side = "right",
+      showgrid = FALSE,
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = ~list(0, 4*max(nb))
+    ),
+    hovermode = "x",
+    legend = list(
+      y = -0.4
+    )
+  )
+```
+
+### Variables spatiales (stations + quartiers)
+
+```{r, spatial_one_way}
+# Création de la palette de couleur pour les one way
+oneway_pal <- colorNumeric(
+  palette = "YlGnBu",
+  domain = limits
+)
+
+# Création de la carte
+oneway_map <- leaflet() %>%
+  addTiles() %>%
+  addCircleMarkers(
+    data = data_stations,
+    group = "Stations",
+    lng = ~longitude,
+    lat = ~latitude,
+    radius = ~4+rides_nb/3000,
+    color = "black",
+    weight = 1,
+    fillColor = ~oneway_pal(rides_capped_mean),
+    fillOpacity = 0.5,
+    popup = ~paste(
+      paste0("<b>", name, "</b>"),
+      paste0("Nombre de trajets : ", format(rides_nb, big.mark=" ")),
+      paste0("Durée moyenne : ", format(rides_mean, digits=0, big.mark=" "), " sec"),
+      sep = "<br/>"
+    ),
+    label = ~name
+  ) %>%
+  addPolygons(
+    data = data_quartiers_geo,
+    group = "Quartiers",
+    color = "black",
+    weight = 2,
+    fillColor = ~oneway_pal(rides_capped_mean),
+    fillOpacity = 0.5,
+    dashArray = "2 4",
+    popup = ~paste(
+      paste0("<b>", NOM, "</b>"),
+      paste0("Nombre de stations : ", format(stations_nb, big.mark=" ")),
+      paste0("Nombre de trajets : ", format(rides_nb, big.mark=" ")),
+      paste0("Durée moyenne : ", format(rides_mean, digits=0, big.mark=" "), " sec"),
+      sep = "<br/>"
+    ),
+    highlightOptions = highlightOptions(
+      weight = 3,
+      opacity = 1,
+      dashArray = FALSE
+    )
+  ) %>%
+  addLegend(
+    data = data_stations,
+    position = "bottomright",
+    pal = oneway_pal,
+    values = ~rides_capped_mean,
+    opacity = 1,
+    labFormat = labelFormat(
+      suffix = " sec",
+      big.mark = " "
+    ),
+    title = "Durée moyenne"
+  ) %>%
+  addLayersControl(
+    overlayGroups = c("Stations", "Quartiers"),
+    options = layersControlOptions(
+      collapsed = FALSE
+    )
+  ) %>%
+  hideGroup("Quartiers")
+
+# Affichage de la carte
+oneway_map
+```
+
+## Effet *multi-ways*
+
+### Status (catégorique) vs Quartier de la station de départ (catégorique)
+
+```{r, quartiers_membre_twoways, warning=FALSE}
+data_quartiers_member_quantiles <- data[, .(quantiles=quantile(duration_sec, seq(0, 1, 0.25))), .(is_member, start_quartier)]
+data_quartiers_member_quantiles[is.na(start_quartier), start_quartier:="Hors MTL"]
+data_quartiers_member_quantiles[, status:=as.factor(ifelse(is_member, "Membre", "Non-Membre"))]
+
+plot_ly(
+  data = data_quartiers_member
+) %>%
+  add_bars(
+    name = "Membres",
+    hoverinfo = "y",
+    showlegend = TRUE,
+    legendgroup = "Membre",
+    x = ~start_quartier[status=="Membre"],
+    y = ~nb[status=="Membre"],
+    colors = "#1f77b4",
+    xaxis = "x",
+    yaxis = "y2"
+  ) %>%
+  add_bars(
+    name = "Non-membres",
+    hoverinfo = "y",
+    showlegend = TRUE,
+    legendgroup = "Non-Membre",
+    x = ~start_quartier[status=="Non-Membre"],
+    y = ~nb[status=="Non-Membre"],
+    colors = "#ff7f0e",
+    xaxis = "x",
+    yaxis = "y2"
+  ) %>%
+  add_trace(
+    data = data_quartiers_member_quantiles,
+    type = "box",
+    name = "Quantiles",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    legendgroup = "Membre",
+    boxpoints = FALSE,
+    x = ~start_quartier[status=="Membre"],
+    y = ~quantiles[status=="Membre"],
+    line = list(
+      color = "#1f77b4"
+    ),
+    fillcolor = "#7cbce9",
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    data = data_quartiers_member_quantiles,
+    type = "box",
+    name = "Quantiles",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    legendgroup = "Non-Membre",
+    boxpoints = FALSE,
+    x = ~start_quartier[status=="Non-Membre"],
+    y = ~quantiles[status=="Non-Membre"],
+    line = list(
+      color = "#ff7f0e"
+    ),
+    fillcolor = "#ffbb80",
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    data = data_quartiers_member,
+    type = "scatter",
+    mode = "markers",
+    name = "Moyenne",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    legendgroup = "Membre",
+    x = ~start_quartier[status=="Membre"],
+    y = ~mean[status=="Membre"],
+    marker = list(
+      color = "#1f77b4"
+    ),
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    data = data_quartiers_member,
+    type = "scatter",
+    mode = "markers",
+    name = "Moyenne",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    legendgroup = "Non-Membre",
+    x = ~start_quartier[status=="Non-Membre"],
+    y = ~mean[status=="Non-Membre"],
+    marker = list(
+      color = "#ff7f0e"
+    ),
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Quartier"
+      ),
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Durée moyenne (sec)"
+      ),
+      side = "left",
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = list(-1000, 3500)
+    ),
+    yaxis2 = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      overlaying = "y",
+      side = "right",
+      showgrid = FALSE,
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = ~list(0, 5*max(nb))
+    ),
+    boxmode = "group",
+    legend = list(
+      y = 0
+    )
+  )
+```
+
+## Proposition de transformations
+
+### Moment de la journée
+
+#### Distribution
+
+```{r, moment_exposure}
+data_moment <- copy(data)
+data_moment[, start_hour:=hour(start_date_time)]
+data_moment[, moment_journee := "Nuit"]
+data_moment[start_hour >= 6 & start_hour < 11, moment_journee := "Matin"]
+data_moment[start_hour >= 11 & start_hour < 16, moment_journee := "Journée"]
+data_moment[start_hour >= 16 & start_hour < 23, moment_journee := "Soir"]
+data_moment[, moment_journee:=factor(moment_journee, c("Matin", "Journée", "Soir", "Nuit"))]
+
+data_moment_quantiles <- data_moment[, .(quantiles=quantile(duration_sec, seq(0, 1, 0.25))), moment_journee]
+
+data_moment <- data_moment[, .(
+  nb = .N,
+  mean = mean(duration_sec)
+), moment_journee]
+
+plot_ly(
+  data = data_moment
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    x = ~moment_journee,
+    y = ~nb
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Status"
+      ),
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      fixedrange = TRUE,
+      exponentformat = "none"
+    )
+  )
+```
+
+#### Corrélation avec les autres variables
+
+*TO DO*
+
+#### Effet *one-way*
+
+```{r, moment_oneway}
+plot_ly(
+  data = data_moment
+) %>%
+  add_bars(
+    name = "Nombre de trajets",
+    hoverinfo = "y",
+    showlegend = FALSE,
+    x = ~moment_journee,
+    y = ~nb,
+    xaxis = "x",
+    yaxis = "y2"
+  ) %>%
+  add_trace(
+    data = data_moment_quantiles,
+    type = "box",
+    name = "Quantiles",
+    hoverinfo = "y",
+    boxpoints = FALSE,
+    x = ~moment_journee,
+    y = ~quantiles,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  add_trace(
+    data = data_moment,
+    type = "scatter",
+    mode = "markers",
+    name = "Moyenne",
+    hoverinfo = "y",
+    x = ~moment_journee,
+    y = ~mean,
+    xaxis = "x",
+    yaxis = "y"
+  ) %>%
+  layout(
+    xaxis = list(
+      title = list(
+        text = "Status"
+      ),
+      fixedrange = TRUE
+    ),
+    yaxis = list(
+      title = list(
+        text = "Durée moyenne (sec)"
+      ),
+      side = "left",
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = list(-1000, 3000)
+    ),
+    yaxis2 = list(
+      title = list(
+        text = "Nombre de trajets"
+      ),
+      overlaying = "y",
+      side = "right",
+      showgrid = FALSE,
+      fixedrange = TRUE,
+      exponentformat = "none",
+      range = ~list(0, 4*max(nb))
+    )
+  )
+```
+
+#### Effets *multi-ways*
+
+*TO DO*
+
+
+## Sommaire des transformations retenues
+
+- Moment de la journée
+  - Matin : 6h à 11h
+  - Journée : 11h à 16h
+  - Soir : 16h à 23h
+  - Nuit : 23h à 6h
+  
+- Semaine/Fin de semaine
+  - Semaine : Lundi, Mardi, Mercredi, Jeudi, Vendredi
+  - Fin de semaine : Samedi, Dimanche
+    
+- Regroupement des quartiers
+  - Groupe 1 : Plateau-Mont-Royal;
+  - Groupe 2 : Ville-Marie;
+  - Groupe 3 : Ahuntsic-Cartierville, Villeray-Saint-Michel-Parc-Extension, Rosemont-La Petite-Patrie, Mercier-Hochelaga-Maisonneuve;
+  - Groupe 4 : Outremont, Côte-des-Neiges-Notre-Dame-de-Grâce, Westmount, Le Sud-Ouest, Verdun, LaSalle;
+  - Groupe 5 : Autre.
+
+### Données externes à explorer
+
+- Météo
+- FSAs au lieu de quartiers
+- Réseau de métro
+- Jours fériés
+- Dates de festivals
+
+### Transformations à explorer (sur données déjà disponibles)
+
+- Meilleur regroupement des moments de la journée
+- Distance avec les autres quartiers
+- Distance avec le fleuve (~bordures de la carte des quartiers)
+
 
