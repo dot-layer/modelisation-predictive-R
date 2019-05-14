@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Modélisation prédictive en R</title>
+  <meta name="description" content="Modélisation prédictive en R">
+  <meta name="generator" content="bookdown 0.7 and GitBook 2.6.7">
+
+  <meta property="og:title" content="Modélisation prédictive en R" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  <meta name="github-repo" content="dot-layer/modelisation-predictive-R" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Modélisation prédictive en R" />
+  
+  
+  
+
+<meta name="author" content=".Layer">
+
+
+<meta name="date" content="2019-05-14">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="introduction.html">
+<link rel="next" href="exploration.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<script src="libs/htmlwidgets-1.3/htmlwidgets.js"></script>
+<script src="libs/plotly-binding-4.9.0/plotly.js"></script>
+<script src="libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-1.46.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-1.46.1/plotly-latest.min.js"></script>
+<link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-1.3.1/leaflet.js"></script>
+<link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+<script src="libs/Proj4Leaflet-1.0.1/proj4-compressed.js"></script>
+<script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-binding-2.0.2/leaflet.js"></script>
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Modélisation prédictive en R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Préface</a></li>
+<li class="chapter" data-level="2" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>2</b> Introduction</a><ul>
+<li class="chapter" data-level="2.1" data-path="introduction.html"><a href="introduction.html#intro-considerations"><i class="fa fa-check"></i><b>2.1</b> Considérations</a></li>
+<li class="chapter" data-level="2.2" data-path="introduction.html"><a href="introduction.html#jeu-de-donnees"><i class="fa fa-check"></i><b>2.2</b> Jeu de données</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="collecte.html"><a href="collecte.html"><i class="fa fa-check"></i><b>3</b> Collecte de données</a><ul>
+<li class="chapter" data-level="3.1" data-path="collecte.html"><a href="collecte.html#approche"><i class="fa fa-check"></i><b>3.1</b> Description de l’approche</a><ul>
+<li class="chapter" data-level="3.1.1" data-path="collecte.html"><a href="collecte.html#obtenir-les-donnees-etiquetees"><i class="fa fa-check"></i><b>3.1.1</b> Obtenir les données etiquetées</a></li>
+<li class="chapter" data-level="3.1.2" data-path="collecte.html"><a href="collecte.html#obtenir-jointure"><i class="fa fa-check"></i><b>3.1.2</b> Obtenir les données de <em>jointure</em></a></li>
+<li class="chapter" data-level="3.1.3" data-path="collecte.html"><a href="collecte.html#effectuer-jointure"><i class="fa fa-check"></i><b>3.1.3</b> Effectuer la <em>jointure</em></a></li>
+<li class="chapter" data-level="3.1.4" data-path="collecte.html"><a href="collecte.html#collecte-historique-vs.collecte-en-production"><i class="fa fa-check"></i><b>3.1.4</b> Collecte historique vs. collecte en production</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="collecte.html"><a href="collecte.html#liste"><i class="fa fa-check"></i><b>3.2</b> Liste des données potentielles</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="collecte.html"><a href="collecte.html#donnees-etiquetees"><i class="fa fa-check"></i><b>3.2.1</b> Données étiquetées</a></li>
+<li class="chapter" data-level="3.2.2" data-path="collecte.html"><a href="collecte.html#donnees-de-jointure"><i class="fa fa-check"></i><b>3.2.2</b> Données de <em>jointure</em></a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="collecte.html"><a href="collecte.html#considerations"><i class="fa fa-check"></i><b>3.3</b> Considérations</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="collecte.html"><a href="collecte.html#accessibilite"><i class="fa fa-check"></i><b>3.3.1</b> Accessibilité</a></li>
+<li class="chapter" data-level="3.3.2" data-path="collecte.html"><a href="collecte.html#qualite"><i class="fa fa-check"></i><b>3.3.2</b> Qualité</a></li>
+<li class="chapter" data-level="3.3.3" data-path="collecte.html"><a href="collecte.html#volume"><i class="fa fa-check"></i><b>3.3.3</b> Volume</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="collecte.html"><a href="collecte.html#references"><i class="fa fa-check"></i><b>3.4</b> Références</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="exploration.html"><a href="exploration.html"><i class="fa fa-check"></i><b>4</b> Exploration de données</a><ul>
+<li class="chapter" data-level="4.1" data-path="exploration.html"><a href="exploration.html#distribution-des-variables-dentree"><i class="fa fa-check"></i><b>4.1</b> Distribution des variables d’entrée</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="exploration.html"><a href="exploration.html#status-membrenon-membre-booleencategorique"><i class="fa fa-check"></i><b>4.1.1</b> Status membre/non-membre (booléen/catégorique)</a></li>
+<li class="chapter" data-level="4.1.2" data-path="exploration.html"><a href="exploration.html#quartier-de-la-station-de-depart-categorique"><i class="fa fa-check"></i><b>4.1.2</b> Quartier de la station de départ (catégorique)</a></li>
+<li class="chapter" data-level="4.1.3" data-path="exploration.html"><a href="exploration.html#date-du-trajet-temporelle"><i class="fa fa-check"></i><b>4.1.3</b> Date du trajet (temporelle)</a></li>
+<li class="chapter" data-level="4.1.4" data-path="exploration.html"><a href="exploration.html#heure-du-trajet-temporelle"><i class="fa fa-check"></i><b>4.1.4</b> Heure du trajet (temporelle)</a></li>
+<li class="chapter" data-level="4.1.5" data-path="exploration.html"><a href="exploration.html#variables-spatiales-stations-quartiers"><i class="fa fa-check"></i><b>4.1.5</b> Variables spatiales (stations + quartiers)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="exploration.html"><a href="exploration.html#correlation-entre-les-variables-dentree"><i class="fa fa-check"></i><b>4.2</b> Corrélation entre les variables d’entrée</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="exploration.html"><a href="exploration.html#status-categorique-vs-quartier-de-la-station-de-depart-categorique"><i class="fa fa-check"></i><b>4.2.1</b> Status (catégorique) vs Quartier de la station de départ (catégorique)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="exploration.html"><a href="exploration.html#effets-one-way"><i class="fa fa-check"></i><b>4.3</b> Effets <em>one-way</em></a><ul>
+<li class="chapter" data-level="4.3.1" data-path="exploration.html"><a href="exploration.html#status-membrenon-membre-booleencategoriqe"><i class="fa fa-check"></i><b>4.3.1</b> Status membre/non-membre (booléen/catégoriqe)</a></li>
+<li class="chapter" data-level="4.3.2" data-path="exploration.html"><a href="exploration.html#quartier-de-la-station-de-depart-categorique-1"><i class="fa fa-check"></i><b>4.3.2</b> Quartier de la station de départ (catégorique)</a></li>
+<li class="chapter" data-level="4.3.3" data-path="exploration.html"><a href="exploration.html#date-du-trajet-temporelle-1"><i class="fa fa-check"></i><b>4.3.3</b> Date du trajet (temporelle)</a></li>
+<li class="chapter" data-level="4.3.4" data-path="exploration.html"><a href="exploration.html#heure-du-trajet-temporelle-1"><i class="fa fa-check"></i><b>4.3.4</b> Heure du trajet (temporelle)</a></li>
+<li class="chapter" data-level="4.3.5" data-path="exploration.html"><a href="exploration.html#variables-spatiales-stations-quartiers-1"><i class="fa fa-check"></i><b>4.3.5</b> Variables spatiales (stations + quartiers)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="exploration.html"><a href="exploration.html#effet-multi-ways"><i class="fa fa-check"></i><b>4.4</b> Effet <em>multi-ways</em></a><ul>
+<li class="chapter" data-level="4.4.1" data-path="exploration.html"><a href="exploration.html#status-categorique-vs-quartier-de-la-station-de-depart-categorique-1"><i class="fa fa-check"></i><b>4.4.1</b> Status (catégorique) vs Quartier de la station de départ (catégorique)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="exploration.html"><a href="exploration.html#proposition-de-transformations"><i class="fa fa-check"></i><b>4.5</b> Proposition de transformations</a><ul>
+<li class="chapter" data-level="4.5.1" data-path="exploration.html"><a href="exploration.html#moment-de-la-journee"><i class="fa fa-check"></i><b>4.5.1</b> Moment de la journée</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="exploration.html"><a href="exploration.html#sommaire-des-transformations-retenues"><i class="fa fa-check"></i><b>4.6</b> Sommaire des transformations retenues</a><ul>
+<li class="chapter" data-level="4.6.1" data-path="exploration.html"><a href="exploration.html#donnees-externes-a-explorer"><i class="fa fa-check"></i><b>4.6.1</b> Données externes à explorer</a></li>
+<li class="chapter" data-level="4.6.2" data-path="exploration.html"><a href="exploration.html#transformations-a-explorer-sur-donnees-deja-disponibles"><i class="fa fa-check"></i><b>4.6.2</b> Transformations à explorer (sur données déjà disponibles)</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="preprop.html"><a href="preprop.html"><i class="fa fa-check"></i><b>5</b> Prétraitements des données</a><ul>
+<li class="chapter" data-level="5.1" data-path="preprop.html"><a href="preprop.html#nettoyage-de-donnees"><i class="fa fa-check"></i><b>5.1</b> Nettoyage de données</a><ul>
+<li class="chapter" data-level="5.1.1" data-path="preprop.html"><a href="preprop.html#imputation-de-donnees-manquantes"><i class="fa fa-check"></i><b>5.1.1</b> Imputation de données manquantes</a></li>
+<li class="chapter" data-level="5.1.2" data-path="preprop.html"><a href="preprop.html#traitement-des-donnees-aberrantes"><i class="fa fa-check"></i><b>5.1.2</b> Traitement des données aberrantes</a></li>
+<li class="chapter" data-level="5.1.3" data-path="preprop.html"><a href="preprop.html#encodage"><i class="fa fa-check"></i><b>5.1.3</b> Encodage des données catégoriques</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="preprop.html"><a href="preprop.html#reduction-de-donnees"><i class="fa fa-check"></i><b>5.2</b> Réduction de données</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="preprop.html"><a href="preprop.html#analyse-en-composantes-principales"><i class="fa fa-check"></i><b>5.2.1</b> Analyse en composantes principales</a></li>
+<li class="chapter" data-level="5.2.2" data-path="preprop.html"><a href="preprop.html#autres-methodes-de-reduction"><i class="fa fa-check"></i><b>5.2.2</b> Autres méthodes de réduction</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="preprop.html"><a href="preprop.html#transformations"><i class="fa fa-check"></i><b>5.3</b> Transformation de données</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="preprop.html"><a href="preprop.html#normalisation"><i class="fa fa-check"></i><b>5.3.1</b> Normalisation</a></li>
+<li class="chapter" data-level="5.3.2" data-path="preprop.html"><a href="preprop.html#discretisation"><i class="fa fa-check"></i><b>5.3.2</b> Discrétisation</a></li>
+<li class="chapter" data-level="5.3.3" data-path="preprop.html"><a href="preprop.html#scores"><i class="fa fa-check"></i><b>5.3.3</b> Création de nouveaux attributs</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="preprop.html"><a href="preprop.html#pretraitements-de-donnees-en-r"><i class="fa fa-check"></i><b>5.4</b> Prétraitements de données en R</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="preprop.html"><a href="preprop.html#separation-du-jeu-de-donnees"><i class="fa fa-check"></i><b>5.4.1</b> Séparation du jeu de données</a></li>
+<li class="chapter" data-level="5.4.2" data-path="preprop.html"><a href="preprop.html#processus-de-pretraitements"><i class="fa fa-check"></i><b>5.4.2</b> Processus de prétraitements</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="preprop.html"><a href="preprop.html#conclusion"><i class="fa fa-check"></i><b>5.5</b> Conclusion</a></li>
+<li class="chapter" data-level="5.6" data-path="preprop.html"><a href="preprop.html#references-1"><i class="fa fa-check"></i><b>5.6</b> Références</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="metho.html"><a href="metho.html"><i class="fa fa-check"></i><b>6</b> Construction de modèles</a><ul>
+<li class="chapter" data-level="6.1" data-path="metho.html"><a href="metho.html#split"><i class="fa fa-check"></i><b>6.1</b> Gestion des données</a><ul>
+<li class="chapter" data-level="6.1.1" data-path="metho.html"><a href="metho.html#divisions-entrainementvalidationtest"><i class="fa fa-check"></i><b>6.1.1</b> Divisions entraînement/validation/test</a></li>
+<li class="chapter" data-level="6.1.2" data-path="metho.html"><a href="metho.html#utilite-des-differents-jeux"><i class="fa fa-check"></i><b>6.1.2</b> Utilité des différents jeux</a></li>
+<li class="chapter" data-level="6.1.3" data-path="metho.html"><a href="metho.html#exemple-bixi"><i class="fa fa-check"></i><b>6.1.3</b> Exemple bixi</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="metho.html"><a href="metho.html#description"><i class="fa fa-check"></i><b>6.2</b> Description classique</a></li>
+<li class="chapter" data-level="6.3" data-path="metho.html"><a href="metho.html#famille"><i class="fa fa-check"></i><b>6.3</b> Familles de modèles</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="metho.html"><a href="metho.html#regression"><i class="fa fa-check"></i><b>6.3.1</b> Régression</a></li>
+<li class="chapter" data-level="6.3.2" data-path="metho.html"><a href="metho.html#classification"><i class="fa fa-check"></i><b>6.3.2</b> Classification</a></li>
+<li class="chapter" data-level="6.3.3" data-path="metho.html"><a href="metho.html#complexite-et-disponibilite-des-donnees"><i class="fa fa-check"></i><b>6.3.3</b> Complexité et disponibilité des données</a></li>
+<li class="chapter" data-level="6.3.4" data-path="metho.html"><a href="metho.html#variables-a-inclure"><i class="fa fa-check"></i><b>6.3.4</b> Variables à inclure</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="metho.html"><a href="metho.html#estimation"><i class="fa fa-check"></i><b>6.4</b> Estimation d’un modèle</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="metho.html"><a href="metho.html#regularisation"><i class="fa fa-check"></i><b>6.4.1</b> Un mot sur la régularisation</a></li>
+<li class="chapter" data-level="6.4.2" data-path="metho.html"><a href="metho.html#les-hyper-parametres-et-le-compromis-biais-variance"><i class="fa fa-check"></i><b>6.4.2</b> Les hyper-paramètres et le compromis biais-variance</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="metho.html"><a href="metho.html#selection"><i class="fa fa-check"></i><b>6.5</b> Sélection du modèle final (validation) et évaluation</a><ul>
+<li class="chapter" data-level="6.5.1" data-path="metho.html"><a href="metho.html#validation-directe"><i class="fa fa-check"></i><b>6.5.1</b> Validation directe</a></li>
+<li class="chapter" data-level="6.5.2" data-path="metho.html"><a href="metho.html#criteres-classiques"><i class="fa fa-check"></i><b>6.5.2</b> Critères classiques</a></li>
+<li class="chapter" data-level="6.5.3" data-path="metho.html"><a href="metho.html#validation"><i class="fa fa-check"></i><b>6.5.3</b> Validation croisée</a></li>
+<li class="chapter" data-level="6.5.4" data-path="metho.html"><a href="metho.html#evaluation-finale"><i class="fa fa-check"></i><b>6.5.4</b> Évaluation finale</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="metho.html"><a href="metho.html#exemple-2-classification-avec-xgboost-en-construction"><i class="fa fa-check"></i><b>6.6</b> Exemple 2 : classification avec xgboost (en construction!!)</a><ul>
+<li class="chapter" data-level="6.6.1" data-path="metho.html"><a href="metho.html#split-trainval"><i class="fa fa-check"></i><b>6.6.1</b> Split train/val</a></li>
+<li class="chapter" data-level="6.6.2" data-path="metho.html"><a href="metho.html#le-modele-en-bref"><i class="fa fa-check"></i><b>6.6.2</b> Le modèle en bref</a></li>
+<li class="chapter" data-level="6.6.3" data-path="metho.html"><a href="metho.html#estimation"><i class="fa fa-check"></i><b>6.6.3</b> Estimation</a></li>
+<li class="chapter" data-level="6.6.4" data-path="metho.html"><a href="metho.html#validation"><i class="fa fa-check"></i><b>6.6.4</b> Validation</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html"><i class="fa fa-check"></i><b>7</b> Déploiement de modèles</a><ul>
+<li class="chapter" data-level="7.1" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#opencpu"><i class="fa fa-check"></i><b>7.1</b> OpenCPU</a><ul>
+<li class="chapter" data-level="7.1.1" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#debuter-avec-opencpu"><i class="fa fa-check"></i><b>7.1.1</b> Débuter avec OpenCPU</a></li>
+<li class="chapter" data-level="7.1.2" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#batir-un-squelette-de-librairie"><i class="fa fa-check"></i><b>7.1.2</b> Bâtir un squelette de librairie</a></li>
+<li class="chapter" data-level="7.1.3" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#integrer-un-modele-predictif-dans-une-librairie"><i class="fa fa-check"></i><b>7.1.3</b> Intégrer un modèle prédictif dans une librairie</a></li>
+</ul></li>
+<li class="chapter" data-level="7.2" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#plumber"><i class="fa fa-check"></i><b>7.2</b> Plumber</a><ul>
+<li class="chapter" data-level="7.2.1" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#debuter-avec-plumber"><i class="fa fa-check"></i><b>7.2.1</b> Débuter avec Plumber</a></li>
+<li class="chapter" data-level="7.2.2" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#inference-de-modele-predictif"><i class="fa fa-check"></i><b>7.2.2</b> Inférence de modèle prédictif</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#details-sur-les-requetes-http"><i class="fa fa-check"></i><b>7.3</b> Détails sur les requêtes HTTP</a></li>
+<li class="chapter" data-level="7.4" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#deploiement-avec-docker"><i class="fa fa-check"></i><b>7.4</b> Déploiement avec Docker</a></li>
+<li class="chapter" data-level="7.5" data-path="deploiement-de-modeles.html"><a href="deploiement-de-modeles.html#integration-continue-et-webhook"><i class="fa fa-check"></i><b>7.5</b> Intégration continue et webhook</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/dot-layer/modelisation-predictive-r" target="blank">Publié avec bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Modélisation prédictive en R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="collecte" class="section level1">
+<h1><span class="header-section-number">Chapitre 3</span> Collecte de données</h1>
+<pre><code>## Linking to GEOS 3.6.1, GDAL 2.2.3, PROJ 4.9.3</code></pre>
+<p>L’étape initiale de tout projet de modélisation prédictive est la collecte des données. Sans données, le modèle apprendra… rien!</p>
+<p>La présente section aura donc pour but de couvrir la collecte de données. Nous décrirons d’abord l’approche générale pour la collecte. Ensuite, nous dresserons une liste potentielle de sources de données pour la tâche à accomplir. Nous terminerons finalement en dressant une liste de considérations, tout en soumettant la liste de sources à ces considérations.</p>
+<div id="approche" class="section level2">
+<h2><span class="header-section-number">3.1</span> Description de l’approche</h2>
+<p>L’étape de collecte peut être subdivisée à son tour en 3 sous-étapes : obtenir les données etiquetées, obtenir les données de <a href="https://fr.wikipedia.org/wiki/Jointure_(informatique)"><em>jointure</em></a> et effectuer la jointure. Nous verrons également que la collecte se produit souvent différemment lors de la modélisation et lors de la prédiction en production.</p>
+<div id="obtenir-les-donnees-etiquetees" class="section level3">
+<h3><span class="header-section-number">3.1.1</span> Obtenir les données etiquetées</h3>
+<p>Dans tout projet de modélisation prédictive, il faut obtenir des données etiquetées, de façon à ce que le modèle puisse apprendre à prédire une étiquette. Ces données etiquetées sont des exemples réels tirés du passé et pour lesquels nous connaissons le résultat, et donc duquel le modèle pourra apprendre. Nous appellerons ces exemples des observations.</p>
+<p>Pour chaque observation, les données etiquetées contiennent au minimum l’étiquette, aussi appelée variable réponse. Autrement dit, c’est la valeur que nous voulons prédire. Dans notre cas, une observation sera un trajet. Pour chaque observation, nous aurons 2 étiquettes : la durée du trajet et le statut de membre du client. Sans information supplémentaire pour chacune des observations, nous serions en présence d’un simple échantillon aléatoire grâce auquel nous pourrions simplement prédire un estimateur comme la moyenne ou le mode pour tous les trajets. C’est pourquoi nous nécessiterons également au moins une information supplémentaire nous permettant de segmenter nos prédictions d’une observation à l’autre. Nous appellerons ces informations supplémentaires les prédicteurs. Par exemple, le jour et l’heure de départ pourraient nous donner de l’information prédictive sur la durée du trajet et sur le statut de membre du client. Voici de quoi pourrait avoir l’air notre jeu de données etiquetées :</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">temps_depart</th>
+<th align="right">duree_trajet</th>
+<th align="right">membre</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">2017-05-07 17:00:02</td>
+<td align="right">1505</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">2017-05-29 18:50:11</td>
+<td align="right">120</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">2017-10-12 22:56:46</td>
+<td align="right">707</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p>Ici, une ligne représente une observation ou un trajet, <code>temps_depart</code> est le prédicteur, et <code>duree_trajet</code> et <code>membre</code> sont les étiquettes.</p>
+</div>
+<div id="obtenir-jointure" class="section level3">
+<h3><span class="header-section-number">3.1.2</span> Obtenir les données de <em>jointure</em></h3>
+<p>Après avoir trouvé nos données etiquetées contenant les étiquettes et les prédicteurs, nous sommes rarement satisfaits de la quantité de prédicteurs que nous pouvons y trouver. En effet, il arrive souvent dans les premiers instants d’un projet de prononcer une phrase du genre : “Imaginez si nous avions accès à telle ou telle donnée (qui malheureusement est absente des données etiquetées)”. Nous pouvons alors augmenter le jeu de données à l’aide de ce que nous appellerons les données de <em>jointure</em>. Nous les appellerons ainsi car nous devrons effectuer une opération de jointure entre notre jeu de données etiquetées et notre source de données additionnelle. Par exemple, si nous reprenons les données etiquetées précédentes, une source de données de jointure pourrait nous renseigner sur les heures de lever et de coucher du soleil pour chaque journée. En supposant que la noirceur décourage les cyclistes, cela pourrait aider à prédire la durée du trajet :</p>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+date
+</th>
+<th style="text-align:left;">
+heure lever
+</th>
+<th style="text-align:left;">
+heure coucher
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2017-05-07
+</td>
+<td style="text-align:left;">
+06:35:00
+</td>
+<td style="text-align:left;">
+20:10:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017-05-29
+</td>
+<td style="text-align:left;">
+06:00:00
+</td>
+<td style="text-align:left;">
+20:45:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017-10-12
+</td>
+<td style="text-align:left;">
+07:30:00
+</td>
+<td style="text-align:left;">
+17:55:00
+</td>
+</tr>
+</tbody>
+</table>
+<p>Ici, la variable <code>date</code> nous permettrait d’effectuer une jointure entre ces données et les données etiquetées.</p>
+</div>
+<div id="effectuer-jointure" class="section level3">
+<h3><span class="header-section-number">3.1.3</span> Effectuer la <em>jointure</em></h3>
+<p>Maintenant que nous avons les données de <em>jointure</em> et les données etiquetées, nous pouvons effectuer une jointure à partir des informations présentes dans les 2 jeux de données, soit la variable <code>date</code> :</p>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+temps_depart
+</th>
+<th style="text-align:right;">
+duree_trajet
+</th>
+<th style="text-align:right;">
+membre
+</th>
+<th style="text-align:left;">
+date
+</th>
+<th style="text-align:left;">
+heure lever
+</th>
+<th style="text-align:left;">
+heure coucher
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2017-05-07 17:00:02
+</td>
+<td style="text-align:right;">
+1505
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+2017-05-07
+</td>
+<td style="text-align:left;">
+06:35:00
+</td>
+<td style="text-align:left;">
+20:10:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017-05-29 18:50:11
+</td>
+<td style="text-align:right;">
+120
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+2017-05-29
+</td>
+<td style="text-align:left;">
+06:00:00
+</td>
+<td style="text-align:left;">
+20:45:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017-10-12 22:56:46
+</td>
+<td style="text-align:right;">
+707
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+2017-10-12
+</td>
+<td style="text-align:left;">
+07:30:00
+</td>
+<td style="text-align:left;">
+17:55:00
+</td>
+</tr>
+</tbody>
+</table>
+<p>Le jeu de données serait alors prêt à passer à l’étape de prétraitement <a href="preprop.html#preprop">5</a>, où nous pourrions par exemple créer une variable indicatrice <code>noirceur</code> qui indiquerait s’il fait noir ou non au début du trajet.</p>
+</div>
+<div id="collecte-historique-vs.collecte-en-production" class="section level3">
+<h3><span class="header-section-number">3.1.4</span> Collecte historique vs. collecte en production</h3>
+<p>Dans les projets de modélisation prédictive, il existe généralement un fossé entre la modélisation, qui nécessite une collecte de données historiques, et la prédiction en production, qui nécessite une collecte de données en temps réel. Selon la configuration des systèmes en place et la nature de la problématique, le fossé peut être microscopique, et passer inaperçu, ou astronomique, et poser de sérieux ennuis pouvant même compromettre la faisabilité du projet. En effet, les natures différentes de ces 2 contextes peuvent parfois être irréconciliables : l’entraînement de modèles sur des données historiques exige un entreposage adéquat des données, mais les données historiques ont rarement été collectées dans l’optique de servire à entraîner des modèles. Ainsi, nous pouvons généralement reconnaître 3 situations :</p>
+<ul>
+<li>une source de données disponible à l’entraînement mais indisponible en production en temps réel est inutile. Par exemple, disposer d’instruments météorologiques qui nécessitent une récolte manuelle mensuelle des données serait bénéfique à l’entraînement, mais inutilisable en production.</li>
+<li>une source de données disponible en production en temps réel mais indisponible à l’entraînement peut être utile à condition de faire certaines hypothèses au jugement avant, pendant ou après l’entraînement. Par exemple, si nous pouvons effectuer une lecture en temps réel de nos instruments météorologiques mais que ces données ne sont pas déversées dans une base de données, nous devrons poser une hypothèse : introduire l’opinion d’experts ou le résultat d’analyses simplifiées dans le modèle de façon manuelle. Attention toutefois : le modèle devient sensible à notre hypothèse, et nous introduisons potentiellement du biais ou de l’incertitude indésirables dans notre modèle.</li>
+<li>entre les 2 situations précédentes se trouve le cas où les données d’entraînement sont différentes de celles de production. C’est notamment le cas quand une source de données fournit les données historiques, et une autre fournit les données en temps réel. L’hypothèse par défaut serait que les sources produisent la même distribution de données. Une autre hypothèse pourrait être par exemple que la source de production sous-estime systématiquement de 2 unités, et nous apporterions des corrections manuelles à la source de production. Peu importe la complexité de l’hypothèse, encore une fois le modèle devient sensible à cette hypothèse et nous introduisons potentiellement du biais et de l’incertitude.</li>
+</ul>
+<p>Alors que la première situation est difficile à corriger tant que les données en temps réel sont indisponibles, les 2 suivantes permettent de continuer d’avancer, puis de commencer à entreposer les données de la source de production afin de fournir au modèle les données de production historiques lors de son prochain réentrainement.</p>
+<p>Également, les données de <em>jointure</em> peuvent représenter des concepts connus d’avance (ex. les heures de lever et coucher du soleil pour une journée donnée), ou d’autres devant être recalculés ou récupérés d’une source externe à chaque prédiction (ex. la température ambiante au moment de la prédiction). Alors que le premier type peut déjà être calculé et entreposé d’avance, puis récupéré rapidement lors de la prédiction, le deuxième doit nécessairement être calculé ou récupéré en temps réel à chaque prédiction, ce qui peut augmenter le temps de réponse.</p>
+<p>Pour des raisons de différence entre les sources et de rapidité des calculs, il faudra donc distinguer la collecte des données selon si elle est faite dans l’optique de modélisation, de prédiction, ou des 2.</p>
+</div>
+</div>
+<div id="liste" class="section level2">
+<h2><span class="header-section-number">3.2</span> Liste des données potentielles</h2>
+<p>Dans le but d’identifier les données étiquetées et de <em>jointure</em>, dressons d’abord une liste des données disponibles et potentiellement utiles.</p>
+<p>Les plus expérimentés auront déjà en tête la majorité des considérations couvertes plus tard dans ce chapitre au moment de dresser leur liste. Dans notre cas, permettons-nous de lister naïvement un grand nombre de sources. Chaque considération à venir nous permettra ensuite d’invalider certaines sources et de distiller notre sélection.</p>
+<div id="donnees-etiquetees" class="section level3">
+<h3><span class="header-section-number">3.2.1</span> Données étiquetées</h3>
+<p>Tout d’abord, une simple recherche des mots-clés <em>données historiques BIXI</em> dans votre moteur de recherche favori devrait vous mener à la page du site web de BIXI réservée à <a href="https://bixi.com/fr/donnees-ouvertes">l’historique des déplacements</a>.</p>
+<p>Un coup d’oeil aux données disponibles permet de constater qu’il y a 2 types de fichiers : des données historiques et de l’information sur les stations.</p>
+<p>Concentrons-nous pour commencer avec les données historiques. Pour l’année 2017, nous avons accès, pour chacun des mois d’ouverture du service (avril à novembre), à des données tabulaires sous cette structure :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span>(<span class="kw">file.exists</span>(<span class="st">&quot;data/data_bixi.csv&quot;</span>)){
+  data_2017_<span class="dv">04</span> &lt;-<span class="st"> </span>data.table<span class="op">::</span><span class="kw">fread</span>(<span class="st">&quot;data/data_bixi.csv&quot;</span>, <span class="dt">nrows =</span> <span class="dv">5</span>)
+} <span class="cf">else</span> {
+  data_2017_<span class="dv">04</span> &lt;-<span class="st"> </span>data.table<span class="op">::</span><span class="kw">fread</span>(<span class="st">&quot;https://s3.ca-central-1.amazonaws.com/jeremiedb/share/dot-layer/R-Quebec/BixiMontrealRentals2017/OD_2017-04.csv&quot;</span>, <span class="dt">nrows =</span> <span class="dv">5</span>)}
+
+data_2017_<span class="dv">04</span> <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span>knitr<span class="op">::</span><span class="kw">kable</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">kable_styling</span>(<span class="dt">full_width =</span> <span class="ot">FALSE</span>, <span class="dt">position =</span> <span class="st">&quot;left&quot;</span>)</code></pre></div>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+start_date
+</th>
+<th style="text-align:right;">
+start_station_code
+</th>
+<th style="text-align:left;">
+end_date
+</th>
+<th style="text-align:right;">
+end_station_code
+</th>
+<th style="text-align:right;">
+duration_sec
+</th>
+<th style="text-align:right;">
+is_member
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2017-04-15 00:00
+</td>
+<td style="text-align:right;">
+7060
+</td>
+<td style="text-align:left;">
+2017-04-15 00:31
+</td>
+<td style="text-align:right;">
+7060
+</td>
+<td style="text-align:right;">
+1841
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017-04-15 00:01
+</td>
+<td style="text-align:right;">
+6173
+</td>
+<td style="text-align:left;">
+2017-04-15 00:10
+</td>
+<td style="text-align:right;">
+6173
+</td>
+<td style="text-align:right;">
+553
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017-04-15 00:01
+</td>
+<td style="text-align:right;">
+6203
+</td>
+<td style="text-align:left;">
+2017-04-15 00:04
+</td>
+<td style="text-align:right;">
+6204
+</td>
+<td style="text-align:right;">
+195
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017-04-15 00:01
+</td>
+<td style="text-align:right;">
+6104
+</td>
+<td style="text-align:left;">
+2017-04-15 00:06
+</td>
+<td style="text-align:right;">
+6114
+</td>
+<td style="text-align:right;">
+285
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017-04-15 00:01
+</td>
+<td style="text-align:right;">
+6174
+</td>
+<td style="text-align:left;">
+2017-04-15 00:11
+</td>
+<td style="text-align:right;">
+6174
+</td>
+<td style="text-align:right;">
+569
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+</tbody>
+</table>
+<p>Voilà qui devrait nous fournir les éléments les plus précieux : nos 2 étiquettes. En effet, pour chacun des trajets, nous pourrons déterminer la durée avec la colonne <em>duration_sec</em> et le statut de membre du client à l’aide de la colonne <em>is_member</em>. Ces données renferment aussi d’autres éléments intéressants pouvant servir de prédicteurs. Nous pourrons notamment utiliser le jour de la semaine, l’heure et la station de départ pour tenter de prédire les variables réponses.</p>
+<p>Dans ce jeu de données, <code>duration_sec</code> et <code>is_member</code> sont les étiquettes. Les prédicteurs sont la station de départ, l’heure de la journée, le jour de la semaine, et le mois, qui peuvent tous fournir davantage de précision à nos prédictions.</p>
+</div>
+<div id="donnees-de-jointure" class="section level3">
+<h3><span class="header-section-number">3.2.2</span> Données de <em>jointure</em></h3>
+<p>La station de départ est représentée par un code unique représentant une entité unique et identifiable (souvent appelé ID). Cela fait non seulement d’elle un bon prédicteur, mais également une bonne clé pour amener des données de <em>jointures</em>. Par exemple, dans notre cas, le code de station est une porte d’entrée vers l’information spécifique aux stations ou à leur emplacement géographique. Nous pouvons dès lors utiliser n’importe quelle information reliée à la station ou son emplacement et susceptible de raffiner les prédictions. Or, il s’avère que le deuxième type de fichier fourni par BIXI contient la position GPS de chaque station :</p>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:right;">
+code
+</th>
+<th style="text-align:left;">
+name
+</th>
+<th style="text-align:right;">
+latitude
+</th>
+<th style="text-align:right;">
+longitude
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+7015
+</td>
+<td style="text-align:left;">
+LaSalle / 4e avenue
+</td>
+<td style="text-align:right;">
+45.43074
+</td>
+<td style="text-align:right;">
+-73.59191
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6714
+</td>
+<td style="text-align:left;">
+LaSalle / SÃ©nÃ©cal
+</td>
+<td style="text-align:right;">
+45.43443
+</td>
+<td style="text-align:right;">
+-73.58669
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6712
+</td>
+<td style="text-align:left;">
+LaSalle / Crawford
+</td>
+<td style="text-align:right;">
+45.43791
+</td>
+<td style="text-align:right;">
+-73.58274
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6715
+</td>
+<td style="text-align:left;">
+Natatorium (LaSalle / Rolland)
+</td>
+<td style="text-align:right;">
+45.44441
+</td>
+<td style="text-align:right;">
+-73.57557
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7048
+</td>
+<td style="text-align:left;">
+MÃ©tro Angrignon
+</td>
+<td style="text-align:right;">
+45.44653
+</td>
+<td style="text-align:right;">
+-73.60354
+</td>
+</tr>
+</tbody>
+</table>
+<p>Le jour de la semaine pourrait aussi servir à faire des jointures, par exemple avec une liste des jours fériés ou avec une table des heures de lever et de coucher du soleil. La liste des jointures possibles ne s’arrête pas là; allons passer en revue toutes les données de jointure potentiellement à notre disposition.</p>
+<p>Une recherche plus approfondie des mots-clés précédents (<em>données historiques BIXI</em>) devrait vous mener à la page du Portail données ouvertes de la Ville de Montréal réservée elle aussi à <a href="http://donnees.ville.montreal.qc.ca/dataset/bixi-historique-des-deplacements">l’historique des déplacements</a>. A priori, c’est simplement un lien vers les données précédentes. Un clic sur le bouton <em>Vélo</em> de la section Mots-clés nous ouvre toutefois une <a href="http://donnees.ville.montreal.qc.ca/dataset?q=velo">boîte de Pandore</a> : L’<a href="http://donnees.ville.montreal.qc.ca/dataset/bixi-etat-des-stations">état en temps réel des stations BIXI</a>, la <a href="http://donnees.ville.montreal.qc.ca/dataset/arceaux-velos">géolocalisation des arceaux à vélos</a>, la <a href="http://donnees.ville.montreal.qc.ca/dataset/pistes-cyclables">cartographie du réseau cyclable</a> et le <a href="http://donnees.ville.montreal.qc.ca/dataset/velos-comptage">nombre de passages quotidiens sur les pistes cyclables</a> sur le territoire de la Ville de Montréal.</p>
+<p>À cette liste, nous pourrions ajouter une tonne d’autres sources de données permettant de mieux contextualiser les observations et améliorer nos prédictions. Parmi celles-ci, notons les suivantes :</p>
+<ul>
+<li>Autres données BIXI
+<ul>
+<li><a href="https://bixi.com/fr/donnees-ouvertes">disponibilité des vélos aux différentes stations</a></li>
+<li>historique de trajets par individu</li>
+</ul></li>
+<li>Données météorologiques
+<ul>
+<li><a href="https://montreal.weatherstats.ca/download.html">température historique</a></li>
+<li><a href="https://openweathermap.org/current">température en temps réel</a></li>
+<li>précipitations</li>
+<li>vent</li>
+</ul></li>
+<li>Données géographiques
+<ul>
+<li><a href="http://donnees.ville.montreal.qc.ca/dataset/polygones-arrondissements/resource/bc6e94c7-9393-490d-899f-4296dd1e3dcf">découpage des quartiers</a></li>
+<li><a href="https://www.jawg.io/docs/apidocs/elevation/">altitude des stations</a></li>
+<li>pentes</li>
+<li>cours d’eau</li>
+<li>pistes cyclables</li>
+</ul></li>
+<li>Données démographiques
+<ul>
+<li>densité</li>
+<li>distribution du revenu</li>
+<li>distribution de l’âge</li>
+</ul></li>
+<li>Données individuelles
+<ul>
+<li>adresse</li>
+<li>statut résident/visiteur</li>
+<li>lieu de travail</li>
+</ul></li>
+</ul>
+<p>Tel que mentionné en introduction, notre ouvrage est linéaire, donc le processus de sélection de données se fera d’un seul trait. Bien entendu, dans un projet réel, il est presque certain que certains aspects nous échappent au début, et que nous devions réajuster le tir dans les phases subséquentes.</p>
+<p>Comme nous pouvons le constater, la liste de données potentielles est sans limites. Pour les besoins de l’atelier, les sources de données qui seront réellement considérées à partir de maintenant seront les suivantes :</p>
+<ul>
+<li>la géolocalisation des arceaux</li>
+<li>la cartographie du réseau cyclable</li>
+<li>le nombre de passages quotidiens sur les pistes cyclables</li>
+<li>la disponibilité des vélos aux différentes stations</li>
+<li>la température historique</li>
+<li>la température en temps réel</li>
+<li>le découpage des quartiers</li>
+<li>l’altitude des stations</li>
+</ul>
+</div>
+</div>
+<div id="considerations" class="section level2">
+<h2><span class="header-section-number">3.3</span> Considérations</h2>
+<p>La collecte de données est le point de départ de la chaîne. Les données étant quelque peu la matière première du produit que nous nous apprêtons à bâtir, plusieurs considérations influenceront leur collecte.</p>
+<p>Les premières considérations qui viennent à l’esprit dans le cas des matières premières sont évidemment le prix, la qualité et la quantité. Toutefois, d’autres facteurs influencent le choix de matière première comme la provenance, le processus de récolte ou de transformation, la constance de l’approvisionnement, l’entreposage et la sécurité. Les mêmes considérations peuvent s’appliquer dans notre contexte et viendront influencer la collecte des données.</p>
+<p>La présente section aura pour objectif d’aborder ces considérations, tout en les appliquant sur les sources mentionnées et retenues précédemment.</p>
+<div id="accessibilite" class="section level3">
+<h3><span class="header-section-number">3.3.1</span> Accessibilité</h3>
+<p>Pour une matière première, la première considération principale serait le coût. Dans le cas des données, nous allons plutôt parler d’accessibilité, dont le coût est une des composantes.</p>
+<div id="cout" class="section level4">
+<h4><span class="header-section-number">3.3.1.1</span> Coût</h4>
+<p>Si plusieurs tribunes s’entendent pour dire que le nouvel or noir est les données, cet engouement vient nécessairement avec un coût, dicté par l’offre et la demande. Certaines sources sont gratuites, alors que d’autres sont payantes. Plusieurs approches sont donc possibles pour maximiser les bénéfices d’un projet tout en limitant ses coûts.</p>
+<div id="sources-gratuites" class="section level5">
+<h5><span class="header-section-number">3.3.1.1.1</span> Sources gratuites</h5>
+<p>Outre l’approche par moteur de recherche effectuée ci-haut, un balayage des différentes sources gratuites peut révéler des trésors cachés. Parmi ces sources gratuites, notons les suivantes :</p>
+<ul>
+<li><a href="https://www.kaggle.com/datasets">Kaggle</a></li>
+<li><a href="https://toolbox.google.com/datasetsearch">Google Dataset Search</a></li>
+<li><a href="http://donnees.ville.montreal.qc.ca/">Données ouvertes de la Ville de montréal</a></li>
+<li><a href="https://ouvert.canada.ca/fr/donnees-ouvertes">Données ouvertes du Gouvernement du Canada</a></li>
+<li><a href="https://www150.statcan.gc.ca/n1/fr/type/donnees?MM=1">Statistiques Canada</a></li>
+<li><a href="https://archive.ics.uci.edu/ml/datasets.php">UC Irvine</a></li>
+<li><a href="https://www.reddit.com/r/datasets">et même Reddit!</a></li>
+</ul>
+</div>
+<div id="sources-payantes" class="section level5">
+<h5><span class="header-section-number">3.3.1.1.2</span> Sources payantes</h5>
+<p>Les sources payantes sont aussi vastes. Parfois elles sont accessibles en ligne, mais bien souvent des tarifs sont offerts à la pièce. Les fournisseurs principaux de ce type de données sont les courtiers, les aggrégateurs, les entreprise technologiques et les entreprises qui ont beaucoup de données.</p>
+</div>
+</div>
+<div id="lecture-et-ecriture" class="section level4">
+<h4><span class="header-section-number">3.3.1.2</span> Lecture et écriture</h4>
+<p>Les sources de données peuvent se présenter sous plusieurs formes : un fichier, une base de données ou un service. Dans tous les cas, R gère facilement la lecture et l’écriture des données.</p>
+<div id="lecture-et-ecriture-de-fichiers" class="section level5">
+<h5><span class="header-section-number">3.3.1.2.1</span> Lecture et écriture de fichiers</h5>
+<p>Les sources de données se présentent parfois sous la forme de fichier. Aussi peu dynamique cela soit-il, il est fréquent d’avoir recours à des fichiers aux premiers stades de développement d’une idée. En effet, un fichier est souvent plus simple à obtenir, et plus rapide à configurer pour des besoins ponctuels qu’une connexion à une base de données ou à une API.</p>
+<p>Plusieurs packages R facilitent et accélèrent cette étape du processus. Parmi ceux-ci, notons <a href="http://r-datatable.com">data.table</a> et ses fonctions <code>fread et fwrite</code>, <a href="https://github.com/tidyverse/readr">readr</a>, <a href="https://github.com/tidyverse/readxl">readxl</a> et <a href="https://github.com/colearendt/xlsx">xlsx</a>.</p>
+</div>
+<div id="connexion-a-une-base-de-donnees" class="section level5">
+<h5><span class="header-section-number">3.3.1.2.2</span> Connexion à une base de données</h5>
+<p>L’importation de fichiers peut fonctionner à petite échelle. Pour éliminer des étapes manuelles, il convient de configurer l’environnement de modélisation pour qu’il puisse se connecter à des bases de données.</p>
+<p>Parmi les types de bases de données, on peut les placer sur un continuum allant de structuré à non-structuré. Certaines définitions considèrent que les données semi-structurées sont une classe à part… nous nous contenterons de dire qu’il existe un continuum de degrés d’organisation des données, avec à un extrême les données structurées, et à l’autre les données non-structurées.</p>
+<p>Sans entrer dans les détails, notons que les packages permettant à R de se connecter à des bases de données sont multiples : <a href="https://github.com/r-dbi/odbc">odbc</a>, <a href="https://github.com/r-dbi/DBI">DBI</a>, <a href="https://github.com/tidyverse/dbplyr">dbplyr</a>, <a href="https://github.com/rstudio/sparklyr">sparklyr</a>, <a href="https://cran.r-project.org/web/packages/ROracle/index.html">ROracle</a>, <a href="https://cran.r-project.org/web/packages/RMySQL/index.html">RMySQL</a>, <a href="https://github.com/tomoakin/RPostgreSQL">RPostgresSQL</a>, <a href="https://github.com/r-dbi/RSQLite">RSQLite</a>, <a href="https://github.com/ggrothendieck/sqldf">sqldf</a>, <a href="https://github.com/leeper/rio">rio</a>, <a href="https://cran.r-project.org/web/packages/foreign/foreign.pdf">foreign</a> et <a href="https://github.com/tidyverse/haven">haven</a> sont du nombre. Notons également que l’éditeur RStudio <a href="https://db.rstudio.com/">facilite l’interaction</a> avec plusieurs de ces packages.</p>
+<div id="donnees-structurees" class="section level6">
+<h6><span class="header-section-number">3.3.1.2.2.1</span> Données structurées</h6>
+<p>Les données structurées sont caractérisées par un modèle de données qui garanti une uniformité entre toutes les données, de façon à ce que la lecture et l’écriture de ces données soient facilitées et accélérées.</p>
+<p>L’implantation la plus connue de données structurées est probablement les bases de données relationnelles constituées de tables disposées en colonnes et en rangées. L’utilisation de jointures est omniprésente et à la base de ce type de bases de données. Le langage par excellence pour ce type de bases de données est le SQL (Structured Query Language).</p>
+</div>
+<div id="donnees-non-structurees" class="section level6">
+<h6><span class="header-section-number">3.3.1.2.2.2</span> Données non-structurées</h6>
+<p>Les données non-structurées sont celles qui ne sont pas organisées à l’aide d’un modèle de données. Une base de données non-structurée peut donc contenir à la fois du texte, des images, du son ou une combinaison (ex. vidéo). R est également équipé pour traiter ce genre de données. Par exemple, pour le traitement d’images, les packages <a href="https://github.com/dahtah/imager">imager</a>, <a href="https://github.com/ropensci/magick#readme">magick</a> et <a href="https://cran.r-project.org/web/packages/png/index.html">png</a> sont disponibles.</p>
+</div>
+</div>
+<div id="service" class="section level5">
+<h5><span class="header-section-number">3.3.1.2.3</span> Service</h5>
+<p>Outre la collecte par fichiers ou par connexion à des bases de données, il est possible de procéder en faisant appel à un service. Un service est accessible via une adresse précise, faisant référence à un port sur un serveur. On y envoie des instructions, et on reçoit une réponse, souvent en XML ou en JSON.</p>
+<p>En fait, le produit fini du présent ouvrage sera un service déployé sur le web. Voyez par vous-même :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">r &lt;-<span class="st"> </span>httr<span class="op">::</span><span class="kw">GET</span>(<span class="st">&quot;35.203.45.227:8080/bixikwargs?start_date=2017-04-15%2000:48&amp;start_station_code=6079&amp;is_member=1&quot;</span>)
+httr<span class="op">::</span><span class="kw">content</span>(r)</code></pre></div>
+<pre><code>## $duree
+## $duree[[1]]
+## $duree[[1]][[1]]
+## [1] 620.488
+## 
+## 
+## 
+## $meme_station
+## $meme_station[[1]]
+## [1] FALSE</code></pre>
+<p>Des APIs du genre sont souvent utilisées pour rendre des données disponibles aux développeurs. C’est de cette façon que des développeurs peuvent créer des applications web ou en connecter entre elles. Avec votre accord si on utilise vos données bien sûr!</p>
+<p>Vous êtes-vous déjà demandés comment les développeurs pouvaient bâtir une application aussi facilement par-dessus une autre? Par exemple, comment BIXI peut afficher les disponibilités de ses vélos sur une carte aussi facilement que <a href="https://secure.bixi.com/map/">ça</a>? En suivant <a href="https://bixi.com/fr/donnees-ouvertes">ce lien</a>, on apprend que BIXI rend ses données en temps réel sur l’état des stations publiques. La documentation est <a href="https://github.com/NABSA/gbfs">ici</a>, le statut des stations est <a href="https://api-core.bixi.com/gbfs/en/station_status.json">ici</a> et les autres <em>endpoints</em> disponibles sont <a href="https://api-core.bixi.com/gbfs/gbfs.json">ici</a>. Il suffit alors de connecter ce flux à un autre service ouvert : <a href="https://www.openstreetmap.org">OpenStreetMap</a>.</p>
+<p>D’autres services de vélo-partage à travers le monde rendent leurs données publiques. Puisque chaque service est doté d’un modèle de données, des aggrégateurs comme <a href="https://api.citybik.es/v2/">celui-ci</a> sont possibles.</p>
+<p>Pour la suite de l’atelier, nous discarterons ces source de données car, bien que nous ayions accès aux données en temps réel, nous ne disposons pas de l’historique pour entraîner notre modèle.</p>
+<p>Bien que la collecte par service soit commode, ce n’est pas la panacée. Les sources sont rarement gratuites, et quand elles le sont elles limitent souvent l’utilisation avec des <em>timeouts</em> ou des limites de requêtes par unité de temps.</p>
+<p>Notons pour terminer que les packages suivants facilitent la communication avec des serveurs : <a href="https://github.com/jeroen/curl">curl</a>, <a href="https://github.com/r-lib/httr">httr</a>, <a href="https://cran.r-project.org/web/packages/jsonlite/index.html">jsonlite</a>, <a href="https://github.com/r-lib/xml2">xml2</a>, <a href="https://cran.r-project.org/web/packages/XML/index.html">XML</a>, <a href="https://github.com/wch/downloader">downloader</a></p>
+</div>
+</div>
+<div id="web-scraping" class="section level4">
+<h4><span class="header-section-number">3.3.1.3</span> Web Scraping</h4>
+<p>Le principal obstacle du web scraping est l’aspect légal. Néanmoins, les packages suivants facilitent la collecte d’information par web scraping : <a href="http://rvest.tidyverse.org/">rvest</a>, <a href="https://github.com/jennybc/googlesheets">googlesheets</a>.</p>
+</div>
+<div id="acces-historique-temps-reel" class="section level4">
+<h4><span class="header-section-number">3.3.1.4</span> Accès aux données historiques et en temps réel</h4>
+<p>Nous avons discarté le service de disponibilité des vélos par absence d’historique. Voyons maintenant comment pourrait s’orchestrer l’utilisation de sources différentes en entraînement et en production.</p>
+<p>Le site <a href="https://montreal.weatherstats.ca/download.html">weatherstats.ca</a> permet de télécharger un historique des températures à Montréal.</p>
+<p>Le site <a href="https://openweathermap.org/api">OpenWeatherMap.org</a>, lui, permet d’obtenir la température en temps réel à l’aide d’une requête à un service :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">r &lt;-<span class="st"> </span>httr<span class="op">::</span><span class="kw">GET</span>(<span class="st">&quot;http://api.openweathermap.org/data/2.5/weather?q=montreal&amp;APPID=06284235673deed0ce24aeaaa1e8f296&quot;</span>)
+
+httr<span class="op">::</span><span class="kw">content</span>(r)</code></pre></div>
+<pre><code>## $coord
+## $coord$lon
+## [1] -73.61
+## 
+## $coord$lat
+## [1] 45.5
+## 
+## 
+## $weather
+## $weather[[1]]
+## $weather[[1]]$id
+## [1] 500
+## 
+## $weather[[1]]$main
+## [1] &quot;Rain&quot;
+## 
+## $weather[[1]]$description
+## [1] &quot;light rain&quot;
+## 
+## $weather[[1]]$icon
+## [1] &quot;10d&quot;
+## 
+## 
+## 
+## $base
+## [1] &quot;stations&quot;
+## 
+## $main
+## $main$temp
+## [1] 278.68
+## 
+## $main$pressure
+## [1] 1012
+## 
+## $main$humidity
+## [1] 87
+## 
+## $main$temp_min
+## [1] 278.15
+## 
+## $main$temp_max
+## [1] 279.26
+## 
+## 
+## $visibility
+## [1] 24140
+## 
+## $wind
+## $wind$speed
+## [1] 4.1
+## 
+## $wind$deg
+## [1] 70
+## 
+## 
+## $rain
+## $rain$`1h`
+## [1] 0.25
+## 
+## 
+## $clouds
+## $clouds$all
+## [1] 90
+## 
+## 
+## $dt
+## [1] 1557834722
+## 
+## $sys
+## $sys$type
+## [1] 1
+## 
+## $sys$id
+## [1] 943
+## 
+## $sys$message
+## [1] 0.0096
+## 
+## $sys$country
+## [1] &quot;CA&quot;
+## 
+## $sys$sunrise
+## [1] 1557825921
+## 
+## $sys$sunset
+## [1] 1557879381
+## 
+## 
+## $id
+## [1] 6077243
+## 
+## $name
+## [1] &quot;Montreal&quot;
+## 
+## $cod
+## [1] 200</code></pre>
+<p>Les lectures proviennent-elles des mêmes stations météo? Les distributions ont-elles des biais systématiques, ou des variabilités imprévisibles entre elles? La tâche de réconcilier ces sources de données et de les intégrer au modèle sera laissée en exercice au lecteur.</p>
+</div>
+<div id="stabilite" class="section level4">
+<h4><span class="header-section-number">3.3.1.5</span> Stabilité</h4>
+<p>Pour que la stabilité des sources de données soit problématique, deux éléments doivent être réunis : - le format des données change - notre fréquence de collecte est trop élevée pour nous donner le temps de réagir</p>
+<p>Alors que nous n’avons que peu de contrôle sur le premier élément, nous pouvons mitiger le deuxième. Nous pouvons travailler avec une <em>copie</em> des données, de sorte que nous ne serons pas affectés par un changement à la source. Évidemment, en contrepartie on sacrifie la réactivité… l’approche à prendre dépendra donc de la valeur ajoutée d’avoir les données les plus à jour dans le modèle, de notre anticipation de la stabilité ainsi que de l’impact d’une panne du service.</p>
+<p>Dans notre cas, les limites administratives des quartiers de la Ville de Montréal changent très peu souvent. Nous pouvons donc nous permettre de travailler avec une copie des données figée dans le temps, autant pour l’entraînement que pour la prédiction. Étant donné ces propriétés désirables, nous retenons cette source de données pour la suite.</p>
+<p>Voyons maintenant comment nous pouvons déterminer le quartier pour chaque observation, à partir des coordonnées des stations et des limites administratives des arrondissements.</p>
+<p>Premièrement, nous chargeons les polygones , aussi connus sous le nom de shapefiles :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">extension_list &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;.shx&quot;</span>, <span class="st">&quot;.shp&quot;</span>, <span class="st">&quot;.prj&quot;</span>, <span class="st">&quot;.dbf&quot;</span>)
+AWS_path &lt;-<span class="st"> &quot;https://s3.ca-central-1.amazonaws.com/jeremiedb/share/dot-layer/R-Quebec/LIMADMIN/LIMADMIN&quot;</span>
+
+<span class="cf">if</span> (<span class="op">!</span><span class="st"> </span><span class="kw">all</span>(purrr<span class="op">::</span><span class="kw">map_lgl</span>(extension_list, <span class="op">~</span><span class="st"> </span><span class="kw">file.exists</span>(<span class="kw">paste0</span>(<span class="st">&quot;data/LIMADMIN&quot;</span>, .x))))){
+  purrr<span class="op">::</span><span class="kw">walk</span>(extension_list,
+              <span class="op">~</span><span class="st"> </span><span class="kw">download.file</span>(<span class="dt">url =</span> <span class="kw">paste0</span>(AWS_path, .x),
+                              <span class="dt">destfile =</span> <span class="kw">paste0</span>(<span class="st">&quot;data/LIMADMIN&quot;</span>, .x),
+                              <span class="dt">method =</span> <span class="st">&quot;auto&quot;</span>,
+                              <span class="dt">mode =</span> <span class="st">&quot;wb&quot;</span>))
+  
+}
+
+shape_file &lt;-<span class="st"> </span>sf<span class="op">::</span><span class="kw">read_sf</span>(<span class="dt">dsn=</span><span class="st">&quot;data/LIMADMIN.shp&quot;</span>)</code></pre></div>
+<p>Prenons maintenant la première station, et utilisons le package <a href="https://github.com/r-spatial/sf">sf</a> pour déterminer à quel arrondissement elle appartient :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">point_station_sf &lt;-<span class="st"> </span>sf<span class="op">::</span><span class="kw">st_sfc</span>(sf<span class="op">::</span><span class="kw">st_point</span>(<span class="kw">c</span>(data_stations[[<span class="dv">1</span>, <span class="st">&quot;longitude&quot;</span>]], data_stations[[<span class="dv">1</span>, <span class="st">&quot;latitude&quot;</span>]])), <span class="dt">crs =</span> <span class="dv">4326</span>)
+
+pnts_trans &lt;-<span class="st"> </span>sf<span class="op">::</span><span class="kw">st_transform</span>(point_station_sf, <span class="dv">2163</span>)
+shape_file_trans &lt;-<span class="st"> </span>sf<span class="op">::</span><span class="kw">st_transform</span>(shape_file, <span class="dv">2163</span>)
+vecteur_intersection &lt;-<span class="st"> </span>sf<span class="op">::</span><span class="kw">st_intersects</span>(shape_file_trans, pnts_trans, <span class="dt">sparse =</span> <span class="ot">FALSE</span>)
+
+shape_file_trans[<span class="kw">which</span>(vecteur_intersection), ]<span class="op">$</span>NOM</code></pre></div>
+<pre><code>## [1] &quot;LaSalle&quot;</code></pre>
+<p>Nous pourrons ainsi rattacher le prédicteur de l’arrondissement à chacune des observations.</p>
+</div>
+<div id="securite-et-confidentialite" class="section level4">
+<h4><span class="header-section-number">3.3.1.6</span> sécurité et confidentialité</h4>
+<p>Simple note : comme dans tout projet informatique, nous devons nous assurer des niveaux de sécurité et de confidentialité appropriés pour l’usage.</p>
+</div>
+</div>
+<div id="qualite" class="section level3">
+<h3><span class="header-section-number">3.3.2</span> Qualité</h3>
+<p>Plusieurs aspects peuvent influencer notre perception de qualité d’une source de données, tels que sa complexité, son pouvoir prédictif, la capacité de faire des jointures et le biais. Encore une fois, notons que les étapes futures peuvent invalider une source de données. Par exemple, le pouvoir prédictif est difficile à évaluer sans un premier modèle naïf au moins.</p>
+<div id="complexite" class="section level4">
+<h4><span class="header-section-number">3.3.2.1</span> complexité</h4>
+<p>Nous pouvons décrire la complexité à utiliser une source de données de 2 façons : - Par la qualité de l’organisation et de la documentation de la source - Par la simplicité à construire une clé de jointure ou des prédicteurs</p>
+<div id="organisation-et-documentation-des-donnees" class="section level5">
+<h5><span class="header-section-number">3.3.2.1.1</span> organisation et documentation des données</h5>
+<p>Ces 3 sources de données contiennent la même information. Avec laquelle préfériez-vous travailler <em>a priori</em>?</p>
+<table class="table table-striped" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+dt
+</th>
+<th style="text-align:right;">
+temps
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2019-05-14 07:55:28
+</td>
+<td style="text-align:right;">
+0.0208333
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+Date
+</th>
+<th style="text-align:right;">
+Durée (minutes)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2019-05-14 07:55:28
+</td>
+<td style="text-align:right;">
+30
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+Date début
+</th>
+<th style="text-align:left;">
+Date fin
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2019-05-14 07:55:28
+</td>
+<td style="text-align:left;">
+2019-05-14 08:25:28
+</td>
+</tr>
+</tbody>
+</table>
+<p>Évidemment, nous préférerons, dans l’ordre, 3, 2, 1. Bien que cet exemple soit simpliste et fictif, il illustre tout de même que des éléments tels que le nom, la structure ou la documentation des données influenceront notre capacité à maximiser notre utilisation de ces données.</p>
+</div>
+<div id="construire-une-cle-de-jointure-ou-des-predicteurs" class="section level5">
+<h5><span class="header-section-number">3.3.2.1.2</span> construire une clé de jointure ou des prédicteurs</h5>
+<p>Prenons l’exemple des sources contenant la cartographie du réseau cyclable, le nombre de passages quotidiens et la position des arceaux. Dans les 3 cas cela nécessiterait dans un premier temps de sommariser les données géographiques complexes, pour ensuite devoir les rattacher aux données étiquetées par les seules clés de jointure disponibles : les points GPS reliés aux stations. Nous devrions donc grandement compresser de l’information riche à cause de la clé de jointure limitée.</p>
+</div>
+</div>
+<div id="pouvoir-predictif" class="section level4">
+<h4><span class="header-section-number">3.3.2.2</span> pouvoir prédictif</h4>
+<p>Comme l’énonce le fameux dicton : Garbage In, Garbage Out. Autrement dit, si les données que nous fournissons à notre modèle sont de piètre qualité ou peu corrélées avec les étiquettes à prédire, l’apprentissage machine n’aura jamais l’effet d’une baguette magique.</p>
+<p>Également, notons que nous devons considérer le pouvoir prédictif en termes relatif, et non en termes absolu. En effet, si nous avons déjà des bons <em>proxys</em> pour des prédicteurs, il peut s’avérer futile de vouloir amener ces prédicteurs à tout prix dans nos données d’entraînement, au bénéfice de quelques poussières de précision additionnelle. Par exemple, dans le cas des données géographiques mentionnée dans la sous-section précédente, nous considérons que les limites administratives captureront déjà une bonne partie des effets géographiques concentrés autour des stations. Puisque la clé de jointure aurait été la station de toute façon, nous jugeons donc qu’en plus d’être compliqué à joindre à notre jeu de données, le pouvoir prédictif serait limité.</p>
+</div>
+<div id="complexite-benefice" class="section level4">
+<h4><span class="header-section-number">3.3.2.3</span> complexité-bénéfice</h4>
+<p>Comme dans n’importe quel projet, nous devrons faire des analyses complexité-bénéfice afin de déterminer à quel point le bénéfice espéré justifie le coût associé à la complexité additionnelle. Revenons aux données géographiques mentionnées aux 2 sous-sections précédentes. Non seulement la complexité nous apparaît élevée, les bénéfices marginaux nous apparaissent également limités. Nous discartons donc ces 3 sources de données.</p>
+</div>
+<div id="jointure" class="section level4">
+<h4><span class="header-section-number">3.3.2.4</span> jointure</h4>
+<p>Dans la section approche @, nous avons grandement simplifié le processus de jointure de sources de données. Or, dans la <em>vraie</em> vie, les opérations de jointure peuvent parfois s’avérer périlleuses. En effet, les informations de part et d’autres peuvent être manquantes ou insuffisantes, de sorte que la jointure produira un prédicteur avec une faible qualité ou un faible niveau de confiance. La quantité de jointures à effectuer peut aussi être supérieure à 1, ce qui augmente l’incertitude par rapport à la qualité des données jointes.</p>
+<div id="faible-qualite" class="section level5">
+<h5><span class="header-section-number">3.3.2.4.1</span> Faible qualité</h5>
+<p>À la section <a href="collecte.html#effectuer-jointure">3.1.3</a>, si au lieu d’avoir sous la main l’heure moyenne de lever et de coucher du soleil dans un mois, plutôt que la donnée exacte pour chacune des journées, nos prédicteurs auraient un pouvoir prédictif plus faible étant donné que l’heure moyenne dans un mois est seulement un <em>proxy</em> pour le vrai prédicteur, qui est l’heure exacte :</p>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+mois
+</th>
+<th style="text-align:left;">
+heure lever moy
+</th>
+<th style="text-align:left;">
+heure coucher moy
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2017-05
+</td>
+<td style="text-align:left;">
+06:17:00
+</td>
+<td style="text-align:left;">
+20:27:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017-10
+</td>
+<td style="text-align:left;">
+07:25:00
+</td>
+<td style="text-align:left;">
+17:50:00
+</td>
+</tr>
+</tbody>
+</table>
+<p>La jointure aurait donné ceci :</p>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+start_date
+</th>
+<th style="text-align:right;">
+start_station_code
+</th>
+<th style="text-align:left;">
+end_date
+</th>
+<th style="text-align:right;">
+end_station_code
+</th>
+<th style="text-align:right;">
+duration_sec
+</th>
+<th style="text-align:right;">
+is_member
+</th>
+<th style="text-align:left;">
+mois
+</th>
+<th style="text-align:left;">
+heure lever moy
+</th>
+<th style="text-align:left;">
+heure coucher moy
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2017-04-15 00:00
+</td>
+<td style="text-align:right;">
+7060
+</td>
+<td style="text-align:left;">
+2017-04-15 00:31
+</td>
+<td style="text-align:right;">
+7060
+</td>
+<td style="text-align:right;">
+1841
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+2017-04
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017-04-15 00:01
+</td>
+<td style="text-align:right;">
+6173
+</td>
+<td style="text-align:left;">
+2017-04-15 00:10
+</td>
+<td style="text-align:right;">
+6173
+</td>
+<td style="text-align:right;">
+553
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+2017-04
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017-04-15 00:01
+</td>
+<td style="text-align:right;">
+6203
+</td>
+<td style="text-align:left;">
+2017-04-15 00:04
+</td>
+<td style="text-align:right;">
+6204
+</td>
+<td style="text-align:right;">
+195
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+2017-04
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017-04-15 00:01
+</td>
+<td style="text-align:right;">
+6104
+</td>
+<td style="text-align:left;">
+2017-04-15 00:06
+</td>
+<td style="text-align:right;">
+6114
+</td>
+<td style="text-align:right;">
+285
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+2017-04
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017-04-15 00:01
+</td>
+<td style="text-align:right;">
+6174
+</td>
+<td style="text-align:left;">
+2017-04-15 00:11
+</td>
+<td style="text-align:right;">
+6174
+</td>
+<td style="text-align:right;">
+569
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+2017-04
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
+<p>Nous constatons que les 2 premières observations ont le même prédicteur, alors que dans les faits les heures de lever et de coucher diffèrent à l’intérieur de chaque mois.</p>
+<p>Nous utiliserions donc une source de données en jointure, sachant que son pouvoir prédictif n’est pas aussi élevé qu’il pourrait l’être.</p>
+</div>
+<div id="faible-niveau-de-confiance" class="section level5">
+<h5><span class="header-section-number">3.3.2.4.2</span> Faible niveau de confiance</h5>
+<p>Un faible niveau de confiance dans la jointure est présent lorsque la clé de jointure comporte de l’incertitude. Contrairement au cas précédent où nous compressions volontairement l’information de la clé de jointure pour joindre des données aggrégées, ce cas-ci se produit lorsque la clé produit des jointures irrégulières ou imprévisibles. Par exemple, si nous avions accès au nom du client dans les données étiquetées, et que nous avions accès à des données de jointure triées par nom, il y aurait certainement des clients pour lesquels la jointure des 2 sources retournerait la mauvaise personne ou plusieurs personnes.</p>
+</div>
+<div id="plusieurs-jointures" class="section level5">
+<h5><span class="header-section-number">3.3.2.4.3</span> Plusieurs jointures</h5>
+<p>Supposons un instant que nous disposons d’une source de données avec l’altitude pour toute position GPS (nous reviendrons à la connection à des APIs [API]). Supposons également que nous croyons qu’une station de départ plus élevée produit en général des trajets plus longs. Nous pourrions alors joindre successivement plusieurs sources de données jusqu’à temps que le prédicteur (altitude) soit vis-à-vis l’étiquette. En effet, en joignant les données etiquetées, la position GPS de chaque station et l’altitude par position GPS :</p>
+<table class="kable_wrapper table" style="font-size: 10px; margin-left: auto; margin-right: auto;">
+<tbody>
+<tr>
+<td>
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">
+start_station_code
+</th>
+<th style="text-align:right;">
+duration_sec
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+7060
+</td>
+<td style="text-align:right;">
+1841
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6173
+</td>
+<td style="text-align:right;">
+553
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6203
+</td>
+<td style="text-align:right;">
+195
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6104
+</td>
+<td style="text-align:right;">
+285
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6174
+</td>
+<td style="text-align:right;">
+569
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td>
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">
+code
+</th>
+<th style="text-align:left;">
+name
+</th>
+<th style="text-align:left;">
+latitude
+</th>
+<th style="text-align:right;">
+longitude
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+7060
+</td>
+<td style="text-align:left;">
+de l’Ã‰glise / de Verdun
+</td>
+<td style="text-align:left;">
+45.463
+</td>
+<td style="text-align:right;">
+-73.57157
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6203
+</td>
+<td style="text-align:left;">
+Hutchison / Sherbrooke
+</td>
+<td style="text-align:left;">
+45.507
+</td>
+<td style="text-align:right;">
+-73.57208
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6104
+</td>
+<td style="text-align:left;">
+Wolfe / RenÃ©-LÃ©vesque
+</td>
+<td style="text-align:left;">
+45.516
+</td>
+<td style="text-align:right;">
+-73.55419
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6174
+</td>
+<td style="text-align:left;">
+Roy / St-Denis
+</td>
+<td style="text-align:left;">
+45.519
+</td>
+<td style="text-align:right;">
+-73.57270
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6173
+</td>
+<td style="text-align:left;">
+Berri / Cherrier
+</td>
+<td style="text-align:left;">
+45.519
+</td>
+<td style="text-align:right;">
+-73.56951
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td>
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">
+longitude
+</th>
+<th style="text-align:left;">
+latitude
+</th>
+<th style="text-align:right;">
+elevation
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+-73.57157
+</td>
+<td style="text-align:left;">
+45.463
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-73.57208
+</td>
+<td style="text-align:left;">
+45.507
+</td>
+<td style="text-align:right;">
+20
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-73.55419
+</td>
+<td style="text-align:left;">
+45.516
+</td>
+<td style="text-align:right;">
+15
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-73.57270
+</td>
+<td style="text-align:left;">
+45.519
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-73.56951
+</td>
+<td style="text-align:left;">
+45.519
+</td>
+<td style="text-align:right;">
+100
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Nous obtiendrions le résultat suivant, avec lequel nous pourrions continuer la modélisation prédictive avec un nouveau prédicteur : l’altitude :</p>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:right;">
+start_station_code
+</th>
+<th style="text-align:right;">
+elevation
+</th>
+<th style="text-align:right;">
+duration_sec
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+7060
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+1841
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6173
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:right;">
+553
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6203
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+195
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6104
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+285
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6174
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+569
+</td>
+</tr>
+</tbody>
+</table>
+<p>En soi, la multitude de jointure n’est pas un problème. Or, elle amplifie les problèmes précédents (perte de confiance ou de qualité) en les multipliant entre eux.</p>
+<p>Nous discartons maintenant l’élévation parce que le rapport complexité-bénéfice nous semble très élevé.</p>
+</div>
+</div>
+<div id="biais" class="section level4">
+<h4><span class="header-section-number">3.3.2.5</span> Biais</h4>
+<p>Plusieurs biais peuvent se glisser dans la collecte de données. Les plus vicieux sont sans doute les biais socio-démographiques, qui sont présents dès que des données personnelles (ou leurs <em>proxys</em>) sont en jeu, et sont aggravés lorsque les prédictions ont un impact réel sur la vie des gens. Nous devons donc rester vigilents à cette réalité durant la collecte.</p>
+</div>
+</div>
+<div id="volume" class="section level3">
+<h3><span class="header-section-number">3.3.3</span> Volume</h3>
+<p>Dans le cas des données, on parlera de volume plutôt que de quantité. Nous définissons le volume comme l’espace occupé par un objet sur disque ou en mémoire. Le volume d’une source de données sera donc le produit du nombre d’observations et de la richesse de chaque observation. Si notre source de données contient beaucoup d’observations ou des observations riches, nous aurons des contraintes de rapidité de calcul, d’espace disque ou de mémoire au moment de l’entraînement, et potentiellement même au moment de la prédiction selon l’algorithme choisi.</p>
+<p>Si nous avons le <em>malheur</em> d’être ensevelis sous des observations en trop grand nombre ou d’une trop grande richesse, plusieurs options s’offrent à nous, qu’elles soient informatiques ou mathématiques/statistiques.</p>
+<p>Du point de vue informatique, R est parfois réputé lent et capricieux en termes de mémoire vive. Or, <a href="http://adv-r.had.co.nz/Performance.html">il n’en est rien</a>. En effet, il existe plusieurs stratégies simples pour optimiser une expression R : <a href="http://adv-r.had.co.nz/Profiling.html">profiler le code</a>, <a href="http://adv-r.had.co.nz/memory.html">comprendre la gestion de la mémoire</a> ou des interfaces <a href="http://adv-r.had.co.nz/Rcpp.html">C++</a> et <a href="http://adv-r.had.co.nz/C-interface.html">C</a>.</p>
+<p>Du point de vue mathématique, il serait étonnant que la quantité d’observations <em>etiquetées</em> soit trop grande. Comme a déjà <a href="https://www.forbes.com/sites/scottcleland/2011/10/03/googles-infringenovation-secrets">admis</a> le Scientifique en Chef de Google : «Nous n’avons pas de meilleurs algorithmes que n’importe qui d’autre; nous avons seulement plus de données». Pour contourner les problèmes de mémoire ou d’espace disque, il existe des algorithmes qui taitent les données par <em>batches</em>, c’est-à-dire par tranches de <span class="math inline">\(n\)</span> observations à la fois, où <span class="math inline">\(n\)</span> devra être assez petit pour contourner les contraintes d’espace, mais assez grand pour que l’algorithme puisse généraliser son apprentissage. C’est le cas notamment des algorithmes d’apprentissage profond.</p>
+<p>Pour les besoins de l’atelier, nous utiliserons seulement les données de 2017 pour entraîner le modèle, mais vous pouvez vous amuser à modéliser avec autant de données que vous le désirez!</p>
+<div id="aggregation" class="section level4">
+<h4><span class="header-section-number">3.3.3.1</span> Aggrégation</h4>
+<p>À la section précédente, nous avons pris la peine de préciser que ce sont les données etiquetées qui ne peuvent pas être trop nombreuses. Par contre, pour toutes les données de jointure, il est possible que les clés de jointure ne soient pas tout à fait alignées avec leur correspondance dans les données etiquetées. Par exemple, si le taux d’échantillonnage des données de jointure n’est pas aussi précis que le permet la clé dans les données etiquetées, nous devrons nous contenter d’une valeur aggrégée, par exemple la moyenne sur une plus longue période. D’un point de vue mathématique, nous préférerons une source la plus granulaire possible, car nous aurions toujours la possibilité de faire l’aggrégation nous-même si nécessaire. Nous évitons ainsi la perte potentielle d’information prédictive pour notre modèle. Par contre, des contraintes de coûts ou d’entreposage pourraient nous forcer à entreposer des données aggrégées.</p>
+<p>Pour effectuer ces aggrégations, il existe plusieurs écoles de pensées en R. Les packages base, dplyr et data.table sont tous capables d’effectuer la majorité des opérations, mais avec des vitesses et des convivialités variables d’une tâche à l’autre. Plutôt que choisir un camp, nous nous contenterons de vous orienter vers cette <a href="https://stackoverflow.com/questions/21435339/data-table-vs-dplyr-can-one-do-something-well-the-other-cant-or-does-poorly">discussion</a>, qui dresse les avantages et les désavantages de ces méthodes</p>
+</div>
+</div>
+</div>
+<div id="references" class="section level2">
+<h2><span class="header-section-number">3.4</span> Références</h2>
+
+<pre><code>## 
+## Attaching package: &#39;lubridate&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:base&#39;:
+## 
+##     date</code></pre>
+<pre><code>## data.table 1.11.8  Latest news: r-datatable.com</code></pre>
+<pre><code>## 
+## Attaching package: &#39;data.table&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:lubridate&#39;:
+## 
+##     hour, isoweek, mday, minute, month, quarter, second, wday,
+##     week, yday, year</code></pre>
+<pre><code>## Loading required package: sp</code></pre>
+<pre><code>## rgdal: version: 1.4-3, (SVN revision 828)
+##  Geospatial Data Abstraction Library extensions to R successfully loaded
+##  Loaded GDAL runtime: GDAL 2.2.3, released 2017/11/20
+##  Path to GDAL shared files: C:/Users/Samuel/Dropbox/Documents/R/win-library/3.5/rgdal/gdal
+##  GDAL binary built with GEOS: TRUE 
+##  Loaded PROJ.4 runtime: Rel. 4.9.3, 15 August 2016, [PJ_VERSION: 493]
+##  Path to PROJ.4 shared files: C:/Users/Samuel/Dropbox/Documents/R/win-library/3.5/rgdal/proj
+##  Linking to sp version: 1.3-1</code></pre>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="introduction.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="exploration.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "";
+    if (src === "" || src === "true") src = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

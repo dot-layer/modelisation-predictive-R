@@ -20,3 +20,17 @@ knitr::write_bib(c(
 ), 'packages.bib')
 ```
 
+En tant que scientifiques de données provenant des domaines des mathématiques, de la statistique ou de l'actuariat, nous avons acquis des bases relativement solides en modélisation prédictive. Ces notions faisaient parties de plusieurs de nos cours à l'université, ce qui fait en sorte que nous sommes bien outillés pour entraîner et évaluer des modèles.
+Par contre, en œuvrant sur le marché du travail, nous avons remarqué que certains concepts importants concernant l'application de ces concepts à des problèmes réels nous étaient plutôt inconnue.
+En effet, les modèles prédictifs produits dans un contexte professionnel requièrent généralement d'être facile à intégrer dans un système quelconque déjà en place.
+Nous avons donc décidé de joindre nos connaissances théoriques acquises à l'université aux considérations rencontrées sur le marché du travail pour proposer un processus de modélisation robuste qui permet de déployer des modèles, et ce, en utilisant le langage R.
+
+Ce livre regroupe plusieurs idées, discussions et concepts que nous avons partagés entres nous et que nous pensons utiles pour quiconque voulant déployer des modèles prédictifs via un interface robuste et facile d' utilisation.
+Ce document n'est qu'une première itération, et ne constitue évidemment pas la vérité absolue !
+Loin de nous la prétention de couvrir l'essentiel du sujet.
+Nous accueillerons vos critiques et commentaires avec joie si jamais vous êtes en désaccord avec certaines des idées ou des choix véhiculés dans ce livre.
+
+Nous avons rédigé ce livre en tant que membre de la communauté scientifique [.Layer](https://www.dotlayer.org/), qui a comme mission de promouvoir la collaboration et le partage de connaissances dans le domaine de la science des données.
+Nous espérons qu'il permettra à ses lecteurs et lectrices de peaufiner leurs connaissances et, surtout, de nourrir leur passion pour la science des données.
+
+

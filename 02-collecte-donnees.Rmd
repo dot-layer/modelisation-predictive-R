@@ -1,91 +1,146 @@
 
-# Collecte de données
+# Collecte de données {#collecte}
 
-``` {r, echo = FALSE}
+``` {r, echo = FALSE, warning=FALSE}
 library(sf)
 library(magrittr)
+library(sf)
 ```
 
-La collecte de données est le point de départ de la chaîne. Les données étant quelque peu la matière première du produit que nous nous apprêtons à bâtir, plusieurs considérations influenceront leur collecte.
+L'étape initiale de tout projet de modélisation prédictive est la collecte des données. Sans données, le modèle apprendra... rien!
 
-Les premières considérations qui viennent à l'esprit dans le cas des matières premières sont évidemment la quantité, la qualité et le prix. Toutefois, d'autres facteurs influencent le choix de matière première comme la provenance, le processus de récolte ou de transformation, la constance de l'approvisionnement, l'entreposage et la sécurité.
+La présente section aura donc pour but de couvrir la collecte de données. Nous décrirons d'abord l'approche générale pour la collecte. Ensuite, nous dresserons une liste potentielle de sources de données pour la tâche à accomplir. Nous terminerons finalement en dressant une liste de considérations, tout en soumettant la liste de sources à ces considérations.
 
-Les mêmes considérations peuvent s'appliquer dans notre contexte. La section suivante aura donc pour objectif d'aborder ces considérations, tout en exposant à celles-ci une liste de données potentielles pour l'atelier.
+## Description de l'approche {#approche}
 
-## Liste des données potentielles pour notre atelier
+L'étape de collecte peut être subdivisée à son tour en 3 sous-étapes : obtenir les données etiquetées, obtenir les données de [*jointure*](https://fr.wikipedia.org/wiki/Jointure_(informatique)) et effectuer la jointure. Nous verrons également que la collecte se produit souvent différemment lors de la modélisation et lors de la prédiction en production.
 
-La première étape d'un déploiement de modèle prédictif est de dresser la liste des sources de données potentielles.
+### Obtenir les données etiquetées 
 
-Les plus expérimentés auront déjà en tête la majorité des considérations couvertes dans ce chapitre au moment de dresser leur liste. Dans notre cas, permettons-nous de lister naïvement un grand nombre de sources. Chaque considération à venir nous permettra de distiller notre sélection.
+Dans tout projet de modélisation prédictive, il faut obtenir des données etiquetées, de façon à ce que le modèle puisse apprendre à prédire une étiquette. Ces données etiquetées sont des exemples réels tirés du passé et pour lesquels nous connaissons le résultat, et donc duquel le modèle pourra apprendre. Nous appellerons ces exemples des observations.
+
+Pour chaque observation, les données etiquetées contiennent au minimum l'étiquette, aussi appelée variable réponse. Autrement dit, c'est la valeur que nous voulons prédire. Dans notre cas, une observation sera un trajet. Pour chaque observation, nous aurons 2 étiquettes : la durée du trajet et le statut de membre du client. Sans information supplémentaire pour chacune des observations, nous serions en présence d'un simple échantillon aléatoire grâce auquel nous pourrions simplement prédire un estimateur comme la moyenne ou le mode pour tous les trajets. C'est pourquoi nous nécessiterons également au moins une information supplémentaire nous permettant de segmenter nos prédictions d'une observation à l'autre. Nous appellerons ces informations supplémentaires les prédicteurs. Par exemple, le jour et l'heure de départ pourraient nous donner de l'information prédictive sur la durée du trajet et sur le statut de membre du client. Voici de quoi pourrait avoir l'air notre jeu de données etiquetées :
+
+```{r, echo = FALSE, warning=FALSE}
+etiquetees <- tibble::data_frame(temps_depart = c("2017-05-07 17:00:02", "2017-05-29 18:50:11", "2017-10-12 22:56:46"),
+                                  `duree_trajet` = c(25*60 + 5, 2*60, 11 * 60 + 47),
+                                 `membre` = c(1, 0, 0))
+
+etiquetees %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling(full_width = FALSE, position = "left")
+```
+
+Ici, une ligne représente une observation ou un trajet, ```temps_depart``` est le prédicteur, et ```duree_trajet``` et ```membre``` sont les étiquettes.
+
+### Obtenir les données de *jointure* {#obtenir-jointure}
+
+Après avoir trouvé nos données etiquetées contenant les étiquettes et les prédicteurs, nous sommes rarement satisfaits de la quantité de prédicteurs que nous pouvons y trouver. En effet, il arrive souvent dans les premiers instants d'un projet de prononcer une phrase du genre : "Imaginez si nous avions accès à telle ou telle donnée (qui malheureusement est absente des données etiquetées)". Nous pouvons alors augmenter le jeu de données à l'aide de ce que nous appellerons les données de *jointure*. Nous les appellerons ainsi car nous devrons effectuer une opération de jointure entre notre jeu de données etiquetées et notre source de données additionnelle. Par exemple, si nous reprenons les données etiquetées précédentes, une source de données de jointure pourrait nous renseigner sur les heures de lever et de coucher du soleil pour chaque journée. En supposant que la noirceur décourage les cyclistes, cela pourrait aider à prédire la durée du trajet :
+
+```{r, echo = FALSE}
+jointure <- tibble::data_frame(date = c("2017-05-07", "2017-05-29", "2017-10-12"),
+                               `heure lever` = c("06:35:00", "06:00:00", "07:30:00"),
+                               `heure coucher` = c("20:10:00", "20:45:00", "17:55:00"))
+jointure %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling(full_width = FALSE, position = "left")
+```
+
+Ici, la variable ```date``` nous permettrait d'effectuer une jointure entre ces données et les données etiquetées.
+
+### Effectuer la *jointure* {#effectuer-jointure}
+
+Maintenant que nous avons les données de *jointure* et les données etiquetées, nous pouvons effectuer une jointure à partir des informations présentes dans les 2 jeux de données, soit la variable ```date``` :
+
+```{r, echo = FALSE}
+
+etiquetees %>% 
+  dplyr::mutate(date = stringr::str_extract(temps_depart, "\\d{4}-\\d{2}-\\d{2}")) %>% 
+  dplyr::left_join(jointure, by = "date") %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling(full_width = FALSE, position = "left")
+
+```
+
+Le jeu de données serait alors prêt à passer à l'étape de prétraitement \@ref(preprop), où nous pourrions par exemple créer une variable indicatrice ```noirceur``` qui indiquerait s'il fait noir ou non au début du trajet.
+
+### Collecte historique vs. collecte en production
+
+Dans les projets de modélisation prédictive, il existe généralement un fossé entre la modélisation, qui nécessite une collecte de données historiques, et la prédiction en production, qui nécessite une collecte de données en temps réel. Selon la configuration des systèmes en place et la nature de la problématique, le fossé peut être microscopique, et passer inaperçu, ou astronomique, et poser de sérieux ennuis pouvant même compromettre la faisabilité du projet. En effet, les natures différentes de ces 2 contextes peuvent parfois être irréconciliables : l'entraînement de modèles sur des données historiques exige un entreposage adéquat des données, mais les données historiques ont rarement été collectées dans l'optique de servire à entraîner des modèles. Ainsi, nous pouvons généralement reconnaître 3 situations : 
+
+- une source de données disponible à l'entraînement mais indisponible en production en temps réel est inutile. Par exemple, disposer d'instruments météorologiques qui nécessitent une récolte manuelle mensuelle des données serait bénéfique à l'entraînement, mais inutilisable en production.
+- une source de données disponible en production en temps réel mais indisponible à l'entraînement peut être utile à condition de faire certaines hypothèses au jugement avant, pendant ou après l'entraînement. Par exemple, si nous pouvons effectuer une lecture en temps réel de nos instruments météorologiques mais que ces données ne sont pas déversées dans une base de données, nous devrons poser une hypothèse : introduire l'opinion d'experts ou le résultat d'analyses simplifiées dans le modèle de façon manuelle. Attention toutefois : le modèle devient sensible à notre hypothèse, et nous introduisons potentiellement du biais ou de l'incertitude indésirables dans notre modèle.
+- entre les 2 situations précédentes se trouve le cas où les données d'entraînement sont différentes de celles de production. C'est notamment le cas quand une source de données fournit les données historiques, et une autre fournit les données en temps réel. L'hypothèse par défaut serait que les sources produisent la même distribution de données. Une autre hypothèse pourrait être par exemple que la source de production sous-estime systématiquement de 2 unités, et nous apporterions des corrections manuelles à la source de production. Peu importe la complexité de l'hypothèse, encore une fois le modèle devient sensible à cette hypothèse et nous introduisons potentiellement du biais et de l'incertitude.
+
+Alors que la première situation est difficile à corriger tant que les données en temps réel sont indisponibles, les 2 suivantes permettent de continuer d'avancer, puis de commencer à entreposer les données de la source de production afin de fournir au modèle les données de production historiques lors de son prochain réentrainement.
+
+Également, les données de *jointure* peuvent représenter des concepts connus d'avance (ex. les heures de lever et coucher du soleil pour une journée donnée), ou d'autres devant être recalculés ou récupérés d'une source externe à chaque prédiction (ex. la température ambiante au moment de la prédiction). Alors que le premier type peut déjà être calculé et entreposé d'avance, puis récupéré rapidement lors de la prédiction, le deuxième doit nécessairement être calculé ou récupéré en temps réel à chaque prédiction, ce qui peut augmenter le temps de réponse.
+
+Pour des raisons de différence entre les sources et de rapidité des calculs, il faudra donc distinguer la collecte des données selon si elle est faite dans l'optique de modélisation, de prédiction, ou des 2.
+
+## Liste des données potentielles {#liste}
+
+Dans le but d'identifier les données étiquetées et de *jointure*, dressons d'abord une liste des données disponibles et potentiellement utiles.
+
+Les plus expérimentés auront déjà en tête la majorité des considérations couvertes plus tard dans ce chapitre au moment de dresser leur liste. Dans notre cas, permettons-nous de lister naïvement un grand nombre de sources. Chaque considération à venir nous permettra ensuite d'invalider certaines sources et de distiller notre sélection.
+
+### Données étiquetées
 
 Tout d'abord, une simple recherche des mots-clés *données historiques BIXI* dans votre moteur de recherche favori devrait vous mener à la page du site web de BIXI réservée à [l'historique des déplacements](https://bixi.com/fr/donnees-ouvertes).
 
-Un coup d'oeil aux données disponibles permet de constater que, pour l'année 2017, nous avons accès, pour chacun des mois d'ouverture du service (avril à novembre), à des données tabulaires sous cette structure :
+Un coup d'oeil aux données disponibles permet de constater qu'il y a 2 types de fichiers : des données historiques et de l'information sur les stations.
 
-``` {r, echo = FALSE}
-data_2017_04 <- data.table::fread("data/data_bixi.csv", nrows = 5)
+Concentrons-nous pour commencer avec les données historiques. Pour l'année 2017, nous avons accès, pour chacun des mois d'ouverture du service (avril à novembre), à des données tabulaires sous cette structure :
+
+```{r}
+if(file.exists("data/data_bixi.csv")){
+  data_2017_04 <- data.table::fread("data/data_bixi.csv", nrows = 5)
+} else {
+  data_2017_04 <- data.table::fread("https://s3.ca-central-1.amazonaws.com/jeremiedb/share/dot-layer/R-Quebec/BixiMontrealRentals2017/OD_2017-04.csv", nrows = 5)}
 
 data_2017_04 %>% 
-  knitr::kable()
-```
-
-Voilà qui devrait nous fournir les éléments les plus précieux : nos 2 variables réponses, ou *étiquettes*. En effet, pour chacun des trajets, nous pourrons déterminer la durée avec la colonne *duration_sec* et si le cycliste était membre à l'aide de la colonne *is_member*. Ces données renferment aussi d'autres éléments intéressants. Nous pourrons notamment utiliser le jour de la semaine, l'heure et la station de départ pour tenter de prédire les variables réponses.
-
-En général, dans un contexte de modélisation prédictive, nous avons sous la main une source de données *étiquettée* comme la nôtre,
-
-```{r, echo = FALSE}
-data_2017_04 %>% 
-  dplyr::select(start_station_code, duration_sec) %>% 
-  knitr::kable()
-```
-
-où ```start_station_code``` est un code unique représentant une entité unique/récurrente/identifiable (souvent appelé ID), et où ```duration_sec``` est l'étiquette, soit la valeur que nous voulons prédire. Souvent, quelques variables accompagnent ces champs et peuvent nous aider à prédire les étiquettes. Dans nos données historiques de BIXI, c'est le cas notamment de l'heure de la journée, du jour de la semaine, et du mois, qui peuvent tous fournir davantage de précision à nos prédictions.
-
-Or, notre travail de collecte ne s'arrête pas là. Il est souvent possible de joindre des données supplémentaires, entre autres via les IDs. Par exemple, dans notre cas, le code de station est une porte d'entrée vers l'information spécifique aux stations ou à leur emplacement géographique. Nous pouvons dès lors utiliser n'importe quelle information reliée à la station ou son emplacement et susceptible de raffiner les prédictions. Par exemple, si nous connaissions l'altitude de chaque station et croyions qu'une station de départ plus élevée produit en général des trajets plus longs, nous pourrions procéder ainsi :
-
-```{r, echo = FALSE}
-A <- data_2017_04 %>% 
-  dplyr::select(start_station_code, duration_sec)
-
-A %>% 
   knitr::kable() %>% 
-  kableExtra::kable_styling(full_width = FALSE)
+  kableExtra::kable_styling(full_width = FALSE, position = "left")
 ```
 
-PLUS
+Voilà qui devrait nous fournir les éléments les plus précieux : nos 2 étiquettes. En effet, pour chacun des trajets, nous pourrons déterminer la durée avec la colonne *duration_sec* et le statut de membre du client à l'aide de la colonne *is_member*. Ces données renferment aussi d'autres éléments intéressants pouvant servir de prédicteurs. Nous pourrons notamment utiliser le jour de la semaine, l'heure et la station de départ pour tenter de prédire les variables réponses.
+
+Dans ce jeu de données, ```duration_sec``` et ```is_member``` sont les étiquettes. Les prédicteurs sont la station de départ, l'heure de la journée, le jour de la semaine, et le mois, qui peuvent tous fournir davantage de précision à nos prédictions.
+
+
+### Données de *jointure*
+La station de départ est représentée par un code unique représentant une entité unique et identifiable (souvent appelé ID). Cela fait non seulement d'elle un bon prédicteur, mais également une bonne clé pour amener des données de *jointures*. Par exemple, dans notre cas, le code de station est une porte d'entrée vers l'information spécifique aux stations ou à leur emplacement géographique. Nous pouvons dès lors utiliser n'importe quelle information reliée à la station ou son emplacement et susceptible de raffiner les prédictions. Or, il s'avère que le deuxième type de fichier fourni par BIXI contient la position GPS de chaque station :
 
 ```{r, echo = FALSE}
-B <- tibble::data_frame(station_ID = c(6104, 6173, 6174, 6203, 7060), elevation = c(10, 20, 15, 5, 100))
+if(file.exists("data/data_stations.csv")){
+  data_stations <- data.table::fread("data/data_stations.csv")
+} else {
+  data_stations <- data.table::fread("https://s3.ca-central-1.amazonaws.com/jeremiedb/share/dot-layer/R-Quebec/BixiMontrealRentals2017/Stations_2017.csv")}
 
-B %>% 
+data_stations %>% 
+  head(5) %>% 
   knitr::kable() %>% 
-  kableExtra::kable_styling(full_width = FALSE)
+  kableExtra::kable_styling(full_width = FALSE, position = "left")
 ```
 
-EQUALS
+Le jour de la semaine pourrait aussi servir à faire des jointures, par exemple avec une liste des jours fériés ou avec une table des heures de lever et de coucher du soleil. La liste des jointures possibles ne s'arrête pas là; allons passer en revue toutes les données de jointure potentiellement à notre disposition.
 
-```{r, echo = FALSE}
-dplyr::left_join(A, B, by = c("start_station_code" = "station_ID")) %>% 
-  dplyr::select(start_station_code, elevation, duration_sec) %>% 
-  knitr::kable() %>% 
-  kableExtra::kable_styling(full_width = FALSE, position = "float_right")
-```
-
-Nous entreprenons donc une revue des sources de données additionnelles disponibles pour nous aider à prédire les étiquettes. Une recherche plus approfondie des mots-clés précédents devrait vous mener à la page du Portail données ouvertes de la Ville de Montréal réservée elle aussi à [l'historique des déplacements](http://donnees.ville.montreal.qc.ca/dataset/bixi-historique-des-deplacements). A priori, c'est simplement un lien vers les données précédentes. Un clic sur le bouton *Vélo* de la section Mots-clés nous ouvre toutefois une [boîte de Pandore](http://donnees.ville.montreal.qc.ca/dataset?q=velo) : L'[État en temps réel des stations BIXI](http://donnees.ville.montreal.qc.ca/dataset/bixi-etat-des-stations), la [Géolocalisation des arceaux à vélos](http://donnees.ville.montreal.qc.ca/dataset/arceaux-velos), la [cartographie du réseau cyclable](http://donnees.ville.montreal.qc.ca/dataset/pistes-cyclables) et le [nombre de passages quotidiens sur les pistes cyclables](http://donnees.ville.montreal.qc.ca/dataset/velos-comptage) sur le territoire de la Ville de Montréal.
-
-
-> [STOP] premier exercice soft et pour s'assurer que tout le monde est bien set up : on load les données BIXI!
+Une recherche plus approfondie des mots-clés précédents (*données historiques BIXI*) devrait vous mener à la page du Portail données ouvertes de la Ville de Montréal réservée elle aussi à [l'historique des déplacements](http://donnees.ville.montreal.qc.ca/dataset/bixi-historique-des-deplacements). A priori, c'est simplement un lien vers les données précédentes. Un clic sur le bouton *Vélo* de la section Mots-clés nous ouvre toutefois une [boîte de Pandore](http://donnees.ville.montreal.qc.ca/dataset?q=velo) : L'[état en temps réel des stations BIXI](http://donnees.ville.montreal.qc.ca/dataset/bixi-etat-des-stations), la [géolocalisation des arceaux à vélos](http://donnees.ville.montreal.qc.ca/dataset/arceaux-velos), la [cartographie du réseau cyclable](http://donnees.ville.montreal.qc.ca/dataset/pistes-cyclables) et le [nombre de passages quotidiens sur les pistes cyclables](http://donnees.ville.montreal.qc.ca/dataset/velos-comptage) sur le territoire de la Ville de Montréal.
 
 À cette liste, nous pourrions ajouter une tonne d'autres sources de données permettant de mieux contextualiser les observations et améliorer nos prédictions. Parmi celles-ci, notons les suivantes :
 
+- Autres données BIXI
+    - [disponibilité des vélos aux différentes stations](https://bixi.com/fr/donnees-ouvertes)
+    - historique de trajets par individu
 - Données météorologiques
-    - [température](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html)
+    - [température historique](https://montreal.weatherstats.ca/download.html)
+    - [température en temps réel](https://openweathermap.org/current)
     - précipitations
     - vent
 - Données géographiques
     - [découpage des quartiers](http://donnees.ville.montreal.qc.ca/dataset/polygones-arrondissements/resource/bc6e94c7-9393-490d-899f-4296dd1e3dcf)
+    - [altitude des stations](https://www.jawg.io/docs/apidocs/elevation/)
     - pentes
-    - altitude
     - cours d'eau
     - pistes cyclables
 - Données démographiques
@@ -96,53 +151,167 @@ Nous entreprenons donc une revue des sources de données additionnelles disponib
     - adresse
     - statut résident/visiteur
     - lieu de travail
-- Historique de trajets par individu
-
 
 Tel que mentionné en introduction, notre ouvrage est linéaire, donc le processus de sélection de données se fera d'un seul trait. Bien entendu, dans un projet réel, il est presque certain que certains aspects nous échappent au début, et que nous devions réajuster le tir dans les phases subséquentes.
 
-> [STOP] demander aux participants leurs idées de dataset intéressant
+Comme nous pouvons le constater, la liste de données potentielles est sans limites. Pour les besoins de l'atelier, les sources de données qui seront réellement considérées à partir de maintenant seront les suivantes : 
+
+- la géolocalisation des arceaux
+- la cartographie du réseau cyclable
+- le nombre de passages quotidiens sur les pistes cyclables
+- la disponibilité des vélos aux différentes stations
+- la température historique
+- la température en temps réel
+- le découpage des quartiers
+- l'altitude des stations
 
 ## Considérations {#considerations}
 
-Comme nous pouvons le constater, la liste de données potentielles est sans limites. Les considérations qui suivent auront pour objectif de nous exposer les limites de certaines sources, pour ensuite identifier celle(s) qui sont le plus adaptées à notre problématique.
+La collecte de données est le point de départ de la chaîne. Les données étant quelque peu la matière première du produit que nous nous apprêtons à bâtir, plusieurs considérations influenceront leur collecte.
 
-### Volume
-On parlera de volume plutôt que de quantité. Nous définissons le volume comme l'espace occupé par un objet sur disque ou en mémoire. Le volume d'une source de données sera donc le produit du nombre d'observations et de la richesse de chaque observation. Si notre source de données contient beaucoup d'observations ou des observations riches, nous aurons donc des contraintes de rapidité de calcul, d'espace disque ou de mémoire au moment de l'entraînement, et potentiellement même au moment de la prédiction selon l'algorithme choisi.
+Les premières considérations qui viennent à l'esprit dans le cas des matières premières sont évidemment le prix, la qualité et la quantité. Toutefois, d'autres facteurs influencent le choix de matière première comme la provenance, le processus de récolte ou de transformation, la constance de l'approvisionnement, l'entreposage et la sécurité. Les mêmes considérations peuvent s'appliquer dans notre contexte et viendront influencer la collecte des données.
 
-#### Nombre d'observations
-Si nous avons le *malheur* d'être ensevelis sous un trop grand nombre d'observations, plusieurs options s'offrent à nous, qu'elles soient informatiques ou mathématiques/statistiques.
+La présente section aura pour objectif d'aborder ces considérations, tout en les appliquant sur les sources mentionnées et retenues précédemment.
 
-Du point de vue informatique, R est parfois réputé lent et capricieux en termes de mémoire vive. Or, [il n'en est rien](http://adv-r.had.co.nz/Performance.html). En effet, il existe plusieurs stratégies simples pour optimiser une expression R : [profiler le code](http://adv-r.had.co.nz/Profiling.html), [comprendre la gestion de la mémoire](http://adv-r.had.co.nz/memory.html) ou des interfaces [C++](http://adv-r.had.co.nz/Rcpp.html) et [C](http://adv-r.had.co.nz/C-interface.html).
 
-Du point de vue mathématique, il serait étonnant que la quantité d'observations *étiquettées* soit trop grande. Comme a déjà admis le Scientifique en Chef de Google : «Nous n'avons pas de meilleurs algorithmes que n'importe qui d'autre; nous avons seulement plus de données»[https://www.forbes.com/sites/scottcleland/2011/10/03/googles-infringenovation-secrets]. Pour contourner les problèmes de mémoire ou d'espace disque, il existe des algorithmes qui taitent les données par *batches*, c'est-à-dire par tranches de $n$ observations à la  fois, où $n$ devra être assez petit pour contourner les contraintes d'espace, mais assez grand pour que l'algorithme puisse généraliser son apprentissage. [source algos à batches].
+### Accessibilité
+Pour une matière première, la première considération principale serait le coût. Dans le cas des données, nous allons plutôt parler d'accessibilité, dont le coût est une des composantes.
 
-#### Format
-La richesse d'une observation est définie par son format.
+#### Coût
+Si plusieurs tribunes s'entendent pour dire que le nouvel or noir est les données, cet engouement vient nécessairement avec un coût, dicté par l'offre et la demande. Certaines sources sont gratuites, alors que d'autres sont payantes. Plusieurs approches sont donc possibles pour maximiser les bénéfices d'un projet tout en limitant ses coûts.
 
-Nous définissons le format comme la façon dont est représentée une donnée. C'est entre autres ce qui va déterminer la richesse de chaque donnée. On peut alors placer les données sur un continuum de structuré à non-structuré. Certaines définitions considèrent que les données semi-structurées sont une classe à part... nous nous contenterons de dire qu'il existe un continuum de degrés d'organisation des données.
+##### Sources gratuites {#sources-gratuites}
+Outre l'approche par moteur de recherche effectuée ci-haut, un balayage des différentes sources gratuites peut révéler des trésors cachés. Parmi ces sources gratuites, notons les suivantes : 
 
-##### Données structurées
-organisées en base de données relationnelles constituées de tables disposées en colonnes et rangées. On utilise un modèle de données  
-SQL=Structured Query Language  
-oracle
+- [Kaggle](https://www.kaggle.com/datasets)
+- [Google Dataset Search](https://toolbox.google.com/datasetsearch)
+- [Données ouvertes de la Ville de montréal](http://donnees.ville.montreal.qc.ca/)
+- [Données ouvertes du Gouvernement du Canada](https://ouvert.canada.ca/fr/donnees-ouvertes)
+- [Statistiques Canada](https://www150.statcan.gc.ca/n1/fr/type/donnees?MM=1)
+- [UC Irvine](https://archive.ics.uci.edu/ml/datasets.php)
+- [et même Reddit!](https://www.reddit.com/r/datasets)
 
-##### Données non-structurées
-les données non-structurées sont celles qui ne sont pas organisées à l'aide d'un modèle de données. Une base de données non-structurée peut donc contenir à la fois du texte, des images, du son ou une combinaison (ex. vidéo).  
-JSON  
-XML
+##### Sources payantes {#sources-payantes}
+Les sources payantes sont aussi vastes. Parfois elles sont accessibles en ligne, mais bien souvent des tarifs sont offerts à la pièce. Les fournisseurs principaux de ce type de données sont les courtiers, les aggrégateurs, les entreprise technologiques et les entreprises qui ont beaucoup de données.
 
-#### Aggrégation
-À la section précédente, nous avons pris la peine de préciser que ce sont les données étiquettées qui ne peuvent pas être trop nombreuses. Par contre, pour toutes les données additionnelles à joindre à nos données étiquettées, il est possible que le... Par exemple, si le taux d'échantillonnage est trop grand pour nos besoins ... Le choix d'aggrégation des données sera alors capital. Nous préférerons tout de même toujours une source la plus granulaire possible, car en aggrégant nous même, nous évitons la perte potentielle d'information prédictive pour notre modèle
+#### Lecture et écriture
+Les sources de données peuvent se présenter sous plusieurs formes : un fichier, une base de données ou un service. Dans tous les cas, R gère facilement la lecture et l'écriture des données.
 
-base / dplyr / data.table [autre section?](https://stackoverflow.com/questions/21435339/data-table-vs-dplyr-can-one-do-something-well-the-other-cant-or-does-poorly)
+##### Lecture et écriture de fichiers
+Les sources de données se présentent parfois sous la forme de fichier. Aussi peu dynamique cela soit-il, il est fréquent d'avoir recours à des fichiers aux premiers stades de développement d'une idée. En effet, un fichier est souvent plus simple à obtenir, et plus rapide à configurer pour des besoins ponctuels qu'une connexion à une base de données ou à une API.
 
-> [STOP] on va faire un merge des données ... Météo?
+Plusieurs packages R facilitent et accélèrent cette étape du processus. Parmi ceux-ci, notons [data.table](http://r-datatable.com) et ses fonctions ```fread et fwrite```, [readr](https://github.com/tidyverse/readr), [readxl](https://github.com/tidyverse/readxl) et [xlsx](https://github.com/colearendt/xlsx).
+
+##### Connexion à une base de données
+L'importation de fichiers peut fonctionner à petite échelle. Pour éliminer des étapes manuelles, il convient de configurer l'environnement de modélisation pour qu'il puisse se connecter à des bases de données.
+
+Parmi les types de bases de données, on peut les placer sur un continuum allant de structuré à non-structuré. Certaines définitions considèrent que les données semi-structurées sont une classe à part... nous nous contenterons de dire qu'il existe un continuum de degrés d'organisation des données, avec à un extrême les données structurées, et à l'autre les données non-structurées.
+
+Sans entrer dans les détails, notons que les packages permettant à R de se connecter à des bases de données sont multiples : [odbc](https://github.com/r-dbi/odbc), [DBI](https://github.com/r-dbi/DBI), [dbplyr](https://github.com/tidyverse/dbplyr), [sparklyr](https://github.com/rstudio/sparklyr), [ROracle](https://cran.r-project.org/web/packages/ROracle/index.html), [RMySQL](https://cran.r-project.org/web/packages/RMySQL/index.html), [RPostgresSQL](https://github.com/tomoakin/RPostgreSQL), [RSQLite](https://github.com/r-dbi/RSQLite), [sqldf](https://github.com/ggrothendieck/sqldf), [rio](https://github.com/leeper/rio), [foreign](https://cran.r-project.org/web/packages/foreign/foreign.pdf) et [haven](https://github.com/tidyverse/haven) sont du nombre. Notons également que l'éditeur RStudio [facilite l'interaction](https://db.rstudio.com/) avec plusieurs de ces packages.
+
+###### Données structurées
+Les données structurées sont caractérisées par un modèle de données qui garanti une uniformité entre toutes les données, de façon à ce que la lecture et l'écriture de ces données soient facilitées et accélérées.
+
+L'implantation la plus connue de données structurées est probablement les bases de données relationnelles constituées de tables disposées en colonnes et en rangées. L'utilisation de jointures est omniprésente et à la base de ce type de bases de données. Le langage par excellence pour ce type de bases de données est le SQL (Structured Query Language).
+
+###### Données non-structurées
+Les données non-structurées sont celles qui ne sont pas organisées à l'aide d'un modèle de données. Une base de données non-structurée peut donc contenir à la fois du texte, des images, du son ou une combinaison (ex. vidéo). R est également équipé pour traiter ce genre de données. Par exemple, pour le traitement d'images, les packages [imager](https://github.com/dahtah/imager), [magick](https://github.com/ropensci/magick#readme) et [png](https://cran.r-project.org/web/packages/png/index.html) sont disponibles.
+
+##### Service
+Outre la collecte par fichiers ou par connexion à des bases de données, il est possible de procéder en faisant appel à un service. Un service est accessible via une adresse précise, faisant référence à un port sur un serveur. On y envoie des instructions, et on reçoit une réponse, souvent en XML ou en JSON.
+
+En fait, le produit fini du présent ouvrage sera un service déployé sur le web. Voyez par vous-même :
+
+```{r}
+r <- httr::GET("35.203.45.227:8080/bixikwargs?start_date=2017-04-15%2000:48&start_station_code=6079&is_member=1")
+httr::content(r)
+```
+
+Des APIs du genre sont souvent utilisées pour rendre des données disponibles aux développeurs. C'est de cette façon que des développeurs peuvent créer des applications web ou en connecter entre elles. Avec votre accord si on utilise vos données bien sûr!
+
+Vous êtes-vous déjà demandés comment les développeurs pouvaient bâtir une application aussi facilement par-dessus une autre? Par exemple, comment BIXI peut afficher les disponibilités de ses vélos sur une carte aussi facilement que [ça](https://secure.bixi.com/map/)? En suivant [ce lien](https://bixi.com/fr/donnees-ouvertes), on apprend que BIXI rend ses données en temps réel sur l'état des stations publiques. La documentation est [ici](https://github.com/NABSA/gbfs), le statut des stations est [ici](https://api-core.bixi.com/gbfs/en/station_status.json) et les autres *endpoints* disponibles sont [ici](https://api-core.bixi.com/gbfs/gbfs.json). Il suffit alors de connecter ce flux à un autre service ouvert : [OpenStreetMap](https://www.openstreetmap.org).
+
+D'autres services de vélo-partage à travers le monde rendent leurs données publiques. Puisque chaque service est doté d'un modèle de données, des aggrégateurs comme [celui-ci](https://api.citybik.es/v2/) sont possibles.
+
+Pour la suite de l'atelier, nous discarterons ces source de données car, bien que nous ayions accès aux données en temps réel, nous ne disposons pas de l'historique pour entraîner notre modèle.
+
+Bien que la collecte par service soit commode, ce n'est pas la panacée. Les sources sont rarement gratuites, et quand elles le sont elles limitent souvent l'utilisation avec des *timeouts* ou des limites de requêtes par unité de temps.
+
+Notons pour terminer que les packages suivants facilitent la communication avec des serveurs : [curl](https://github.com/jeroen/curl), [httr](https://github.com/r-lib/httr), [jsonlite](https://cran.r-project.org/web/packages/jsonlite/index.html), [xml2](https://github.com/r-lib/xml2), [XML](https://cran.r-project.org/web/packages/XML/index.html), [downloader](https://github.com/wch/downloader)
+
+#### Web Scraping
+Le principal obstacle du web scraping est l'aspect légal. Néanmoins, les packages suivants facilitent la collecte d'information par web scraping : [rvest](http://rvest.tidyverse.org/), [googlesheets](https://github.com/jennybc/googlesheets).
+
+#### Accès aux données historiques et en temps réel {#acces-historique-temps-reel}
+Nous avons discarté le service de disponibilité des vélos par absence d'historique. Voyons maintenant comment pourrait s'orchestrer l'utilisation de sources différentes en entraînement et en production.
+
+Le site [weatherstats.ca](https://montreal.weatherstats.ca/download.html) permet de télécharger un historique des températures à Montréal.
+
+Le site [OpenWeatherMap.org](https://openweathermap.org/api), lui, permet d'obtenir la température en temps réel à l'aide d'une requête à un service :
+```{r}
+r <- httr::GET("http://api.openweathermap.org/data/2.5/weather?q=montreal&APPID=06284235673deed0ce24aeaaa1e8f296")
+
+httr::content(r)
+```
+
+Les lectures proviennent-elles des mêmes stations météo? Les distributions ont-elles des biais systématiques, ou des variabilités imprévisibles entre elles? La tâche de réconcilier ces sources de données et de les intégrer au modèle sera laissée en exercice au lecteur.
+
+#### Stabilité
+Pour que la stabilité des sources de données soit problématique, deux éléments doivent être réunis :
+- le format des données change
+- notre fréquence de collecte est trop élevée pour nous donner le temps de réagir
+
+Alors que nous n'avons que peu de contrôle sur le premier élément, nous pouvons mitiger le deuxième. Nous pouvons travailler avec une *copie* des données, de sorte que nous ne serons pas affectés par un changement à la source. Évidemment, en contrepartie on sacrifie la réactivité... l'approche à prendre dépendra donc de la valeur ajoutée d'avoir les données les plus à jour dans le modèle, de notre anticipation de la stabilité ainsi que de l'impact d'une panne du service.
+
+Dans notre cas, les limites administratives des quartiers de la Ville de Montréal changent très peu souvent. Nous pouvons donc nous permettre de travailler avec une copie des données figée dans le temps, autant pour l'entraînement que pour la prédiction. Étant donné ces propriétés désirables, nous retenons cette source de données pour la suite.
+
+Voyons maintenant comment nous pouvons déterminer le quartier pour chaque observation, à partir des coordonnées des stations et des limites administratives des arrondissements.
+
+Premièrement, nous chargeons les polygones , aussi connus sous le nom de shapefiles :
+```{r}
+extension_list <- c(".shx", ".shp", ".prj", ".dbf")
+AWS_path <- "https://s3.ca-central-1.amazonaws.com/jeremiedb/share/dot-layer/R-Quebec/LIMADMIN/LIMADMIN"
+
+if (! all(purrr::map_lgl(extension_list, ~ file.exists(paste0("data/LIMADMIN", .x))))){
+  purrr::walk(extension_list,
+              ~ download.file(url = paste0(AWS_path, .x),
+                              destfile = paste0("data/LIMADMIN", .x),
+                              method = "auto",
+                              mode = "wb"))
+  
+}
+
+shape_file <- sf::read_sf(dsn="data/LIMADMIN.shp")
+```
+
+Prenons maintenant la première station, et utilisons le package [sf](https://github.com/r-spatial/sf) pour déterminer à quel arrondissement elle appartient :
+
+```{r}
+point_station_sf <- sf::st_sfc(sf::st_point(c(data_stations[[1, "longitude"]], data_stations[[1, "latitude"]])), crs = 4326)
+
+pnts_trans <- sf::st_transform(point_station_sf, 2163)
+shape_file_trans <- sf::st_transform(shape_file, 2163)
+vecteur_intersection <- sf::st_intersects(shape_file_trans, pnts_trans, sparse = FALSE)
+
+shape_file_trans[which(vecteur_intersection), ]$NOM
+```
+
+Nous pourrons ainsi rattacher le prédicteur de l'arrondissement à chacune des observations.
+
+#### sécurité et confidentialité
+Simple note : comme dans tout projet informatique, nous devons nous assurer des niveaux de sécurité et de confidentialité appropriés pour l'usage.
+
 
 ### Qualité
-Plusieurs aspects peuvent influencer notre perception de qualité d'une source de donnée, tels que son organisation, sa documentation, son pouvoir prédictif, sa fréquence, la capacité de faire des jointures et le biais. Encore une fois, notons que les étapes futures peuvent invalider une source de données. Par exemple, le pouvoir prédictif est difficile à évaluer sans un premier modèle naïf au moins.
+Plusieurs aspects peuvent influencer notre perception de qualité d'une source de données, tels que sa complexité, son pouvoir prédictif, la capacité de faire des jointures et le biais. Encore une fois, notons que les étapes futures peuvent invalider une source de données. Par exemple, le pouvoir prédictif est difficile à évaluer sans un premier modèle naïf au moins.
 
-#### organisation et documentation des données
+#### complexité
+
+Nous pouvons décrire la complexité à utiliser une source de données de 2 façons : 
+- Par la qualité de l'organisation et de la documentation de la source
+- Par la simplicité à construire une clé de jointure ou des prédicteurs
+
+##### organisation et documentation des données
 Ces 3 sources de données contiennent la même information. Avec laquelle préfériez-vous travailler *a priori*?
 
 ```{r, echo = FALSE}
@@ -159,105 +328,107 @@ knitr::kable(tibble::data_frame(`Date début` = maintenant, `Date fin` = mainten
 
 Évidemment, nous préférerons, dans l'ordre, 3, 2, 1. Bien que cet exemple soit simpliste et fictif, il illustre tout de même que des éléments tels que le nom, la structure ou la documentation des données influenceront notre capacité à maximiser notre utilisation de ces données.
 
-#### complexité
-Rapport coût-bénéfice
-Bénéfice : A-t-on déjà des bons proxys?
-Coût : complexité additionnelle
+##### construire une clé de jointure ou des prédicteurs
+Prenons l'exemple des sources contenant la cartographie du réseau cyclable, le nombre de passages quotidiens et la position des arceaux. Dans les 3 cas cela nécessiterait dans un premier temps de sommariser les données géographiques complexes, pour ensuite devoir les rattacher aux données étiquetées par les seules clés de jointure disponibles : les points GPS reliés aux stations. Nous devrions donc grandement compresser de l'information riche à cause de la clé de jointure limitée.
 
 #### pouvoir prédictif
-Garbage In Garbage Out
+Comme l'énonce le fameux dicton : Garbage In, Garbage Out. Autrement dit, si les données que nous fournissons à notre modèle sont de piètre qualité ou peu corrélées avec les étiquettes à prédire, l'apprentissage machine n'aura jamais l'effet d'une baguette magique.
 
-#### fréquence
-À quelle fréquence la source de données est-elle mise à jour? À quelle fréquence l'information sous-jacente à la source de données change-t-elle? De quelle précision aurons-nous besoin? Est-ce que note prédiction dépend de données instantanées ou intemporelles?
+Également, notons que nous devons considérer le pouvoir prédictif en termes relatif, et non en termes absolu. En effet, si nous avons déjà des bons *proxys* pour des prédicteurs, il peut s'avérer futile de vouloir amener ces prédicteurs à tout prix dans nos données d'entraînement, au bénéfice de quelques poussières de précision additionnelle. Par exemple, dans le cas des données géographiques mentionnée dans la sous-section précédente, nous considérons que les limites administratives captureront déjà une bonne partie des effets géographiques concentrés autour des stations. Puisque la clé de jointure aurait été la station de toute façon, nous jugeons donc qu'en plus d'être compliqué à joindre à notre jeu de données, le pouvoir prédictif serait limité.
 
-```{r, warning = FALSE, echo = FALSE}
-x <- tibble::data_frame(`Mise à jour fréquente` = c("Données météorologiques", "????"),
-                        `Mise à jour rare` = c("????", "Données géographiques"))
-rownames(x) <- c("Changements fréquents", "Changements rares")
+#### complexité-bénéfice
+Comme dans n'importe quel projet, nous devrons faire des analyses complexité-bénéfice afin de déterminer à quel point le bénéfice espéré justifie le coût associé à la complexité additionnelle. Revenons aux données géographiques mentionnées aux 2 sous-sections précédentes. Non seulement la complexité nous apparaît élevée, les bénéfices marginaux nous apparaissent également limités. Nous discartons donc ces 3 sources de données.
 
-knitr::kable(x) %>%
-  kable_settings
+#### jointure
+Dans la section approche @\ref{approche}, nous avons grandement simplifié le processus de jointure de sources de données. Or, dans la *vraie* vie, les opérations de jointure peuvent parfois s'avérer périlleuses. En effet, les informations de part et d'autres peuvent être manquantes ou insuffisantes, de sorte que la jointure produira un prédicteur avec une faible qualité ou un faible niveau de confiance. La quantité de jointures à effectuer peut aussi être supérieure à 1, ce qui augmente l'incertitude par rapport à la qualité des données jointes.
+
+##### Faible qualité
+À la section \@ref(effectuer-jointure), si au lieu d'avoir sous la main l'heure moyenne de lever et de coucher du soleil dans un mois, plutôt que la donnée exacte pour chacune des journées, nos prédicteurs auraient un pouvoir prédictif plus faible étant donné que l'heure moyenne dans un mois est seulement un *proxy* pour le vrai prédicteur, qui est l'heure exacte :
+
+```{r, echo = FALSE}
+jointure <- tibble::data_frame(mois = c("2017-05", "2017-10"),
+                               `heure lever moy` = c("06:17:00", "07:25:00"),
+                               `heure coucher moy` = c("20:27:00", "17:50:00"))
+jointure %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling(full_width = FALSE, position = "left")
 ```
 
-météo demande d'avoir un live feed, alors que données géographiques peuvent être figées dans le temps
+La jointure aurait donné ceci : 
 
-#### Merge
-facilité/pertinence de la clé, etc. Exemple : historique des déplacements du client ... pas dispo. Données ouvertes Montréal : ok peut-être...
+```{r, echo = FALSE}
+data_2017_04 %>% 
+  dplyr::mutate(mois = stringr::str_extract(start_date, "\\d{4}-\\d{2}")) %>% 
+  dplyr::left_join(jointure, by = "mois") %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling(full_width = FALSE, position = "left")
+```
 
-http://donnees.ville.montreal.qc.ca/dataset/pistes-cyclables
-http://donnees.ville.montreal.qc.ca/dataset/geobase
+Nous constatons que les 2 premières observations ont le même prédicteur, alors que dans les faits les heures de lever et de coucher diffèrent à l'intérieur de chaque mois.
 
+Nous utiliserions donc une source de données en jointure, sachant que son pouvoir prédictif n'est pas aussi élevé qu'il pourrait l'être.
+
+##### Faible niveau de confiance
+Un faible niveau de confiance dans la jointure est présent lorsque la clé de jointure comporte de l'incertitude. Contrairement au cas précédent où nous compressions volontairement l'information de la clé de jointure pour joindre des données aggrégées, ce cas-ci se produit lorsque la clé produit des jointures irrégulières ou imprévisibles. Par exemple, si nous avions accès au nom du client dans les données étiquetées, et que nous avions accès à des données de jointure triées par nom, il y aurait certainement des clients pour lesquels la jointure des 2 sources retournerait la mauvaise personne ou plusieurs personnes.
+
+##### Plusieurs jointures
+Supposons un instant que nous disposons d'une source de données avec l'altitude pour toute position GPS (nous reviendrons à la connection à des APIs [API]). Supposons également que nous croyons qu'une station de départ plus élevée produit en général des trajets plus longs. Nous pourrions alors joindre successivement plusieurs sources de données jusqu'à temps que le prédicteur (altitude) soit vis-à-vis l'étiquette. En effet, en joignant les données etiquetées, la position GPS de chaque station et l'altitude par position GPS :
+
+
+```{r, echo = FALSE}
+A <- data_2017_04 %>% 
+  dplyr::select(start_station_code, duration_sec)
+```
+
+```{r, echo = FALSE}
+B <- data_stations %>% 
+  dplyr::mutate(latitude = stringr::str_extract(latitude, "^.{6}")) %>% 
+  dplyr::inner_join(A %>% dplyr::select(start_station_code), by = c("code" = "start_station_code"))
+```
+
+```{r, echo = FALSE}
+C <- tibble::data_frame(longitude = B %>% dplyr::pull(longitude),
+                        latitude = B %>% dplyr::pull(latitude),
+                        elevation = c(10, 20, 15, 5, 100))
+```
+
+```{r, echo = FALSE}
+knitr::kable(list(A = A, B = B, C = C)) %>% 
+  kableExtra::kable_styling(font_size = 10)
+```
+
+Nous obtiendrions le résultat suivant, avec lequel nous pourrions continuer la modélisation prédictive avec un nouveau prédicteur : l'altitude :
+
+```{r, echo = FALSE}
+A %>% 
+  dplyr::left_join(B, by = c("start_station_code" = "code")) %>% 
+  dplyr::left_join(C, by = c("longitude" = "longitude", "latitude" = "latitude")) %>% 
+  dplyr::select(start_station_code, elevation, duration_sec) %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling(full_width = FALSE, position = "left")
+```
+
+En soi, la multitude de jointure n'est pas un problème. Or, elle amplifie les problèmes précédents (perte de confiance ou de qualité) en les multipliant entre eux.
+
+Nous discartons maintenant l'élévation parce que le rapport complexité-bénéfice nous semble très élevé.
 
 #### Biais
-socio-démographique, etc.
-dès que des données personnelles sont en jeu
-dès que des proxys de données personnelles sont en jeu
-aggravé lorsque les prédictions ont un impact réel sur la vie des gens
+Plusieurs biais peuvent se glisser dans la collecte de données. Les plus vicieux sont sans doute les biais socio-démographiques, qui sont présents dès que des données personnelles (ou leurs *proxys*) sont en jeu, et sont aggravés lorsque les prédictions ont un impact réel sur la vie des gens. Nous devons donc rester vigilents à cette réalité durant la collecte.
 
-### Accessibilité
-Dans notre parallèle avec la table, le coût était la troisième considération principale. Dans le cas des données, nous allons plutôt parler d'accessibilité, dont le coût est une des composantes.
+### Volume
+Dans le cas des données, on parlera de volume plutôt que de quantité. Nous définissons le volume comme l'espace occupé par un objet sur disque ou en mémoire. Le volume d'une source de données sera donc le produit du nombre d'observations et de la richesse de chaque observation. Si notre source de données contient beaucoup d'observations ou des observations riches, nous aurons des contraintes de rapidité de calcul, d'espace disque ou de mémoire au moment de l'entraînement, et potentiellement même au moment de la prédiction selon l'algorithme choisi.
 
-#### coût (gratuit?)
-Si (la)[] (plupart)[] des (tribunes)[] s'entendent pour dire que le nouvel or noir est les données, nous aurons donc à considérer le coût pour accéder aux données. Or, plusieurs (#sources) sont gratuites.
+Si nous avons le *malheur* d'être ensevelis sous des observations en trop grand nombre ou d'une trop grande richesse, plusieurs options s'offrent à nous, qu'elles soient informatiques ou mathématiques/statistiques.
 
-##### Sources gratuites {#sources-gratuites}
-- https://www.kaggle.com/datasets
-- https://toolbox.google.com/datasetsearch
-- https://www.reddit.com/r/datasets
-- https://archive.ics.uci.edu/ml/index.php?fbclid=IwAR09F5grBOTCr1SS4v8gONEYeqk0DqqWpPdt1blmYF9ucZkhsQeM5T0E7ew
-- http://donnees.ville.montreal.qc.ca/
-- stats can
-- ville Montréal
-- gc.ca
+Du point de vue informatique, R est parfois réputé lent et capricieux en termes de mémoire vive. Or, [il n'en est rien](http://adv-r.had.co.nz/Performance.html). En effet, il existe plusieurs stratégies simples pour optimiser une expression R : [profiler le code](http://adv-r.had.co.nz/Profiling.html), [comprendre la gestion de la mémoire](http://adv-r.had.co.nz/memory.html) ou des interfaces [C++](http://adv-r.had.co.nz/Rcpp.html) et [C](http://adv-r.had.co.nz/C-interface.html).
 
+Du point de vue mathématique, il serait étonnant que la quantité d'observations *etiquetées* soit trop grande. Comme a déjà [admis](https://www.forbes.com/sites/scottcleland/2011/10/03/googles-infringenovation-secrets) le Scientifique en Chef de Google : «Nous n'avons pas de meilleurs algorithmes que n'importe qui d'autre; nous avons seulement plus de données». Pour contourner les problèmes de mémoire ou d'espace disque, il existe des algorithmes qui taitent les données par *batches*, c'est-à-dire par tranches de $n$ observations à la  fois, où $n$ devra être assez petit pour contourner les contraintes d'espace, mais assez grand pour que l'algorithme puisse généraliser son apprentissage. C'est le cas notamment des algorithmes d'apprentissage profond.
 
-##### Sources payantes {#sources-payantes}
-- brokers
-- ...
+Pour les besoins de l'atelier, nous utiliserons seulement les données de 2017 pour entraîner le modèle, mais vous pouvez vous amuser à modéliser avec autant de données que vous le désirez!
 
-#### Lecture de fichiers
-data.table (fread)
-readr
-readxl
-xlsx
+#### Aggrégation
+À la section précédente, nous avons pris la peine de préciser que ce sont les données etiquetées qui ne peuvent pas être trop nombreuses. Par contre, pour toutes les données de jointure, il est possible que les clés de jointure ne soient pas tout à fait alignées avec leur correspondance dans les données etiquetées. Par exemple, si le taux d'échantillonnage des données de jointure n'est pas aussi précis que le permet la clé dans les données etiquetées, nous devrons nous contenter d'une valeur aggrégée, par exemple la moyenne sur une plus longue période. D'un point de vue mathématique, nous préférerons une source la plus granulaire possible, car nous aurions toujours la possibilité de faire l'aggrégation nous-même si nécessaire. Nous évitons ainsi la perte potentielle d'information prédictive pour notre modèle. Par contre, des contraintes de coûts ou d'entreposage pourraient nous forcer à entreposer des données aggrégées.
 
-#### Connexion à une base de données
-sqldf
-dbplyr
-rio
-DBI
-odbc
-RMySQL, RPostgresSQL, RSQLite
-foreign
-haven
-https://db.rstudio.com/
-
-#### Web Scraping (légalité/api/service/timeouts)
-XML
-xml2
-curl
-httr
-rvest
-downloader
-jsonlite
-googlesheets
-
-#### Accès aux données historiques et en temps réel
-Exemple température
-
-#### Stabilité
-Pour que la stabilité des sources de données soit problématique, deux éléments doivent être réunis :
-- le format des données change
-- notre fréquence d'extraction est trop élevée pour nous donner le temps de réagir
-
-Alors que nous n'avons peu de contrôle sur le premier élément, nous pouvons mitiger le deuxième. Nous pouvons travailler avec une *copie* des données, de sorte que nous ne serons pas affectés par un changement à la source. Évidemment, en contrepartie on sacrifie la réactivité... l'approche à prendre dépendra donc de la valeur d'avoir les données les plus à jour dans le modèle, de notre anticipation de la stabilité ainsi que de l'impact d'une panne du service.
-
-Dans notre cas, les shapefiles...
-
-- Évolution anticipée du format des données (pas de contrôle sur la source de données? → copier les données freezées. Le modèle a encore de la valeur)
-- Pourquoi on va utiliser les shapefiles comme exemple de merge (statique, etc.)
-
-#### sécurité et confidentialité
-Comme dans tout projet informatique, nous devons nous assurer du niveau de sécurité approprié pour l'usage
+Pour effectuer ces aggrégations, il existe plusieurs écoles de pensées en R. Les packages base, dplyr et data.table sont tous capables d'effectuer la majorité des opérations, mais avec des vitesses et des convivialités variables d'une tâche à l'autre. Plutôt que choisir un camp, nous nous contenterons de vous orienter vers cette [discussion](https://stackoverflow.com/questions/21435339/data-table-vs-dplyr-can-one-do-something-well-the-other-cant-or-does-poorly), qui dresse les avantages et les désavantages de ces méthodes
 
 ## Références

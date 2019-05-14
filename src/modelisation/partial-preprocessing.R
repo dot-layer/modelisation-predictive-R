@@ -4,6 +4,10 @@ library(caret)
 library(fst)
 library(stringi)
 library(lubridate)
+
+library(class)
+library(mvtnorm)
+
 library(xgboost)
 library(glmnet)
 
@@ -16,7 +20,7 @@ source("src/collecte/load-merging-data.R")
 source("src/collecte/merge-data.R")
 historical_data <- load_historical_data("data/")
 merging_data <- load_merging_data("data/")
-data_bixi <- merge_data(historical_data, merging_data$data_stations, merging_data$points_stations)
+data_bixi <- merge_data(historical_data, merging_data$data_stations)
 
 
 source("src/preprocessing/preprocessing_main.R")
