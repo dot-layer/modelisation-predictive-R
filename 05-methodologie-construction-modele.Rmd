@@ -484,12 +484,15 @@ Pour l'exemple, faisons un 5-fold.
 ```{r, echo = F}
 glms_cv <- readRDS("src/modelisation/glms_cv.rds")
 ```
-```
+
+```{r}
 glms_cv <- cv.glmnet(x = as.matrix(X_reg_train),
                      y = y_reg_train,
                      type.measure = "mae", # utilisons l'erreur absolue moyenne
                      alpha = 1,
                      nfolds = 5)
+```
+
 ```{r, echo = T, out.width = "60%",fig.align='center'}
 plot(glms_cv)
 ```
