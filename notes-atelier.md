@@ -19,6 +19,12 @@
 
 - Ne pas dropper coordonnées
 
+- Regénérer des nouvelles API keys
+
+- Donner les keys aux présentateurs
+
+- Faire référence à une key qui se trouve ~dans les variables d'environnement
+
 
 # Exploration
 
